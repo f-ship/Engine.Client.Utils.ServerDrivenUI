@@ -1,0 +1,269 @@
+{
+  "type": "SConfig",
+  "id": {
+    "type": "ID",
+    "id": "",
+    "scope": ""
+  },
+  "state": [
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [
+          {
+            "type": "Widget",
+            "id": {
+              "type": "ID",
+              "id": "",
+              "scope": ""
+            },
+            "state": {
+              "children": [
+                {
+                  "type": "Component",
+                  "id": {
+                    "type": "ID",
+                    "id": "",
+                    "scope": ""
+                  },
+                  "state": {
+                    "value": "",
+                    "type": "UnknownComponentState"
+                  },
+                  "fallback": {
+                    "type": "Hide"
+                  },
+                  "triggerActions": []
+                },
+                {
+                  "type": "Component",
+                  "id": {
+                    "type": "ID",
+                    "id": "",
+                    "scope": ""
+                  },
+                  "state": {
+                    "value": "",
+                    "type": "UnknownStateText"
+                  },
+                  "fallback": {
+                    "type": "Hide"
+                  },
+                  "triggerActions": []
+                },
+                {
+                  "type": "Component",
+                  "id": {
+                    "type": "ID",
+                    "id": "",
+                    "scope": ""
+                  },
+                  "state": {
+                    "value": "",
+                    "type": "TextState"
+                  },
+                  "fallback": {
+                    "type": "Hide"
+                  },
+                  "triggerActions": []
+                },
+                {
+                  "type": "Component",
+                  "id": {
+                    "type": "ID",
+                    "id": "TextFieldId",
+                    "scope": ""
+                  },
+                  "state": {
+                    "initialValue": "",
+                    "placeholder": "",
+                    "label": "",
+                    "value": "",
+                    "type": "FieldState"
+                  },
+                  "fallback": {
+                    "type": "Hide"
+                  },
+                  "triggerActions": [
+                    {
+                      "type": "OnFieldUpdate",
+                      "meta": {
+                        "type": "ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Meta.None"
+                      },
+                      "action": {
+                        "type": "UpdateFieldState"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "type": "CardState"
+            },
+            "fallback": {
+              "type": "Hide"
+            },
+            "triggerActions": []
+          }
+        ],
+        "type": "ColumnState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "FlexColumnState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [
+          {
+            "type": "Component",
+            "id": {
+              "type": "ID",
+              "id": "TextFieldId",
+              "scope": ""
+            },
+            "state": {
+              "initialValue": "",
+              "placeholder": "",
+              "label": "",
+              "value": "",
+              "type": "FieldState"
+            },
+            "fallback": {
+              "type": "Hide"
+            },
+            "triggerActions": []
+          }
+        ],
+        "type": "RowState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "FlexRowState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "CardState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "BottomSheetState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "GridState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "FlexGridState"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    },
+    {
+      "type": "Widget",
+      "id": {
+        "type": "ID",
+        "id": "",
+        "scope": ""
+      },
+      "state": {
+        "children": [],
+        "type": "UnknownStateGrid"
+      },
+      "fallback": {
+        "type": "Hide"
+      },
+      "triggerActions": []
+    }
+  ]
+}
