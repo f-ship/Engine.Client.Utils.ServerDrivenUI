@@ -45,7 +45,7 @@ fun SText(
     id: ID,
     ctx: RenderingContext,
 ) {
-    val style = when(state.value.state.style){
+    val style = when (state.value.state.style) {
         is TextState.Style.BodyLarge -> MaterialTheme.typography.bodyLarge
         is TextState.Style.BodyMedium -> MaterialTheme.typography.bodyMedium
         is TextState.Style.BodySmall -> MaterialTheme.typography.bodySmall
@@ -80,8 +80,10 @@ fun STextField(
     var isFocused by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        val error = state.value.state.isValid(state.value.state.value)
         val updatedState = state.value.state.copy(
-            localState = state.value.state.localState.copy(error = state.value.state.isValid(state.value.state.value))
+            localState = state.value.state.localState.copy(error = error),
+            valid = (error == null),
         )
         //TODO this is certainly cumbersome copy and pasting everywhere
         triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
@@ -104,7 +106,7 @@ fun STextField(
     }
 
     val keyboardOptions = remember(state.value.state.fieldType) {
-        when(state.value.state.fieldType){
+        when (state.value.state.fieldType) {
             is FieldState.FieldType.Number -> KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             is FieldState.FieldType.Text, is FieldState.FieldType.Password -> KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
         }
@@ -126,21 +128,20 @@ fun STextField(
             },
             visualTransformation = visualTransformation,
             onValueChange = {
-                val updatedState = state.value.copy(
-                    state = state.value.state.copyValue(
-                        v = it,
-                    ).copyLocalState(
-                        v = state.value.state.localState.copy(error = state.value.state.isValid(it))
-                    )
+                val error = state.value.state.isValid(it)
+                val updatedState = state.value.state.copy(
+                    value = it,
+                    localState = state.value.state.localState.copy(error = error),
+                    valid = (error == null),
                 )
-                state.value.state.value
-                state.value = updatedState
+
+                state.value = state.value.copy(state = updatedState)
 
                 triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
                         subject = Component(
-                            component = updatedState.state,
+                            component = updatedState,
                             id = id
                         ),
                         client = ctx.client,
@@ -176,12 +177,14 @@ fun STextField(
                 unfocusedContainerColor = Color.Transparent,
                 focusedPlaceholderColor = Color.Transparent,
                 focusedTextColor = MaterialTheme.colorScheme.primary,
-                unfocusedTextColor = Color.Black, // TODO need to make a proper serializable theme
+                unfocusedTextColor = Color.Black,
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
                 disabledIndicatorColor = MaterialTheme.colorScheme.outline,
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                errorTextColor = MaterialTheme.colorScheme.error,
+                errorContainerColor = Color.Transparent
             ),
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -206,7 +209,8 @@ fun SToggle(
     var toggleModified by remember { mutableStateOf(false) }
 
     Switch(
-        checked = if (toggleModified) state.value.state.value else state.value.state.initialState ?: state.value.state.value,
+        checked = if (toggleModified) state.value.state.value else state.value.state.initialState
+            ?: state.value.state.value,
         onCheckedChange = {
             toggleModified = true
             val updatedState = state.value.state.copy(value = it)
@@ -293,23 +297,28 @@ fun SImage(
     ctx: RenderingContext,
 ) {
     Text("Image")
-    when(val src = state.value.state.src){
+    when (val src = state.value.state.src) {
         is ImageState.Source.Resource -> Icon(
             painter = painterResource(
-                when(src.resource){
+                when (src.resource) {
                     "icon-back" -> Res.drawable.icon_back
                     else -> Res.drawable.compose_multiplatform
                 }
             ),
             contentDescription = state.value.state.accessibilityLabel,
         )
-        is ImageState.Source.Url -> AsyncImage(
-            model = src.url,
-            contentDescription = state.value.state.accessibilityLabel,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
 
+        is ImageState.Source.Url -> {
+            AsyncImage(
+                model = src.url,
+                contentDescription = state.value.state.accessibilityLabel,
+                modifier = Modifier.fillMaxWidth(),
+                onError = {
+                    println("Coil: Image failed to load: ${it.result.throwable}")
+                }
+            )
+        }
+    }
 }
 
 @Composable
@@ -339,7 +348,7 @@ fun SButton(
     id: ID,
     ctx: RenderingContext,
 ) {
-    when(state.value.state.buttonType){
+    when (state.value.state.buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
@@ -368,12 +377,14 @@ fun SButton(
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 1.dp,
             ),
+            enabled = state.value.state.valid ?: true,
         ) {
             Text(
                 text = state.value.state.value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             )
         }
+
         ButtonState.ButtonType.Secondary -> Button(
             onClick = {
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
@@ -399,20 +410,22 @@ fun SButton(
                 }
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             ),
             shape = RoundedCornerShape(8.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 1.dp,
             ),
+            enabled = state.value.state.valid ?: true,
         ) {
             Text(
                 text = state.value.state.value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
-                color = Color.Black,
             )
         }
+
         ButtonState.ButtonType.Tertiary -> Button(
             onClick = {
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
@@ -440,7 +453,8 @@ fun SButton(
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-            )
+            ),
+            enabled = state.value.state.valid ?: true,
         ) {
             Text(
                 text = state.value.state.value,

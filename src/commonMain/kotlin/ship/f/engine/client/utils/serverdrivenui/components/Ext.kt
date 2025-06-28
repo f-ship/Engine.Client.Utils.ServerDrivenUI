@@ -15,7 +15,7 @@ class PasswordVisualTransformation(private val mask: Char = '•') : VisualTrans
                     append(mask)
                 }
             },
-            // Keep original cursor position
+            // Keep the original cursor position
             offsetMapping = OffsetMapping.Identity
         )
     }

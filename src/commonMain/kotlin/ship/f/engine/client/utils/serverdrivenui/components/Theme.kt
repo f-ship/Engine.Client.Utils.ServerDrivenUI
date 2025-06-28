@@ -13,21 +13,18 @@ import org.jetbrains.compose.resources.Font
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.inter_variable
 
-val Orange = Color(0xFFE64A19)
-val LinkedInBlue = Color(0xFF0077B5)
-val DarkSurface = Color(0xFF121212)
-val DarkBackground = Color(0xFF1E1E1E)
-val DarkOutline = Color(0xFF444444)
-val LightText = Color(0xFFF1F1F1)
+/**
+ * Theme colors for SDUIDrivenUI for light theme are quite basic for now, they'll be expanded as needed.
+ */
 val LightColorScheme = lightColorScheme(
     primary = Color(0xFFE64A19),
-    onPrimary = Color.White,
-    onSecondaryContainer = Color.Black,
+    onPrimary = Color(0xFFFFFFFF),
+    onSecondaryContainer = Color(0xFF414651),
 
     background = Color(0xFFF9F9F9),
     onBackground = Color(0xFF1C1C1E),
 
-    surface = Color.White,
+    surface = Color(0xFFFFFF),
     onSurface = Color(0xFF1C1C1E),
 
     surfaceVariant = Color(0xFFF1F1F1),
@@ -36,9 +33,13 @@ val LightColorScheme = lightColorScheme(
     outline = Color(0xFFBDBDBD), // Border around inputs
 )
 
+/**
+ * Theme colors for SDUIDrivenUI dark theme are quite basic for now, they'll be expanded as needed.
+ */
 val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFE64A19),
-    onPrimary = Color.Black,
+    onPrimary = Color(0xFFFFFFFF),
+    onSecondaryContainer = Color(0xFFCECFD2),
 
     background = Color(0xFF1E1E1E),
     onBackground = Color(0xFFF1F1F1),
@@ -52,6 +53,12 @@ val DarkColorScheme = darkColorScheme(
     outline = Color(0xFF444444), // Border color
 )
 
+/**
+ * Font is currently hardcoded to use Inter Variable font family.
+ * In the future I will probably include more fonts and make it possible to override this from SDUIDrivenUI.
+ * In such a scenario there will need to be a build script phase downloads the required fonts so they aren't all loaded.
+ * That is quite the luxury.
+ */
 val InterVariable: FontFamily
     @Composable get() = FontFamily(
     Font(resource = Res.font.inter_variable, weight = FontWeight.Normal),
@@ -62,6 +69,13 @@ val InterVariable: FontFamily
     Font(resource = Res.font.inter_variable, weight = FontWeight.ExtraBold),
 )
 
+/**
+ * Typography is currently hardcoded to only use the values from material3.
+ * This is preferable over making our own Typography class for now even though we are using the untitledUI library.
+ * Fortunately, Untitled does use the material3 design kit for typography, though it is quite a bit more advanced.
+ * A Temporary solution until we make an expanded UntitledTypography class is we can just roughly match designs for now.
+ * Creating a full system only makes sense once we have the full set of designs to work with.
+ */
 val typography: Typography
     @Composable
     get() = Typography().let {
@@ -85,6 +99,10 @@ val typography: Typography
         )
     }
 
+/**
+ * Default Themes used for SDUIDriven applications
+ * That being said, it's quite simple to have each app override this theme with their own values if needed
+ */
 @Composable
 fun ServerDrivenUITheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
@@ -92,6 +110,7 @@ fun ServerDrivenUITheme(
 ) {
     val colors = if (useDarkTheme) DarkColorScheme else LightColorScheme
 
+    // We are not currently interested in shapes as they are not used as often as colors
     MaterialTheme(
         colorScheme = colors,
         content = content,

@@ -1,11 +1,15 @@
 package ship.f.engine.client.utils.serverdrivenui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import ship.f.engine.client.utils.serverdrivenui.RenderingContext.CommonClient
 import ship.f.engine.client.utils.serverdrivenui.components.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
@@ -22,7 +26,7 @@ data class RenderingContext(
 
     class CommonClient : Client {
         override val stateMap: MutableMap<ID, StateHolder<State>> = mutableMapOf()
-        override val elementMap: MutableMap<ID, ScreenConfig.Element> = mutableMapOf()
+        override val elementMap: MutableMap<ID, Element> = mutableMapOf()
         val shadowStateMap: MutableMap<ID, MutableState<StateHolder<State>>> = mutableMapOf()
         override fun postUpdateHook(
             id: ID,
@@ -34,7 +38,7 @@ data class RenderingContext(
         var requiresInit: Boolean = true
 
         fun init(config: ScreenConfig) {
-            if (requiresInit){
+            if (requiresInit) {
                 config.state.forEach {
                     setState(it)
                     setTriggers(it)
@@ -43,19 +47,19 @@ data class RenderingContext(
             }
         }
 
-        private fun setState(element: ScreenConfig.Element) {
+        private fun setState(element: Element) {
             val stateHolder = StateHolder(element.state)
             shadowStateMap[element.id] = mutableStateOf(stateHolder)
             stateMap[element.id] = stateHolder
             elementMap[element.id] = element
 
             when (element) {
-                is ScreenConfig.Component -> Unit
-                is ScreenConfig.Widget -> element.state.children.forEach { setState(it) }
+                is Component -> Unit
+                is Widget -> element.state.children.forEach { setState(it) }
             }
         }
 
-        private fun setTriggers(element: ScreenConfig.Element) {
+        private fun setTriggers(element: Element) {
             element.triggerActions.filterIsInstance<OnStateUpdateTrigger>().forEach {
                 it.action.targetIds.forEach { target ->
                     val stateHolder = shadowStateMap[target.id]!!.value
@@ -72,8 +76,8 @@ data class RenderingContext(
             }
 
             when (element) {
-                is ScreenConfig.Component -> Unit
-                is ScreenConfig.Widget -> element.state.children.forEach { setTriggers(it) }
+                is Component -> Unit
+                is Widget -> element.state.children.forEach { setTriggers(it) }
             }
         }
 
@@ -334,20 +338,6 @@ data class RenderingContext(
             )
         }
     }
-
-//    fun emitAction(action: Action) {
-//        when (action) {
-//            Action.Copy -> Unit
-//            Action.Navigate -> Unit
-//            Action.Refresh -> Unit
-//            Action.SendState -> Unit
-//            Action.UpdateState -> Unit
-//            Action.UpdateEnabled -> Unit
-//            Action.UpdateFieldState -> Unit
-//            Action.UpdateToggled -> Unit
-//            Action.UpdateVisibility -> Unit
-//        }
-//    }
 }
 
 @Composable
@@ -357,12 +347,40 @@ fun RenderScreen(
 ) {
     val renderingContext = remember { RenderingContext(screenConfig.value) }
     renderingContext.client = client
-    LazyColumn {
-        items(screenConfig.value.state){
-            renderingContext.RenderUI(
-                element = it,
-                ctx = renderingContext
-            )
+
+    //Text run experiment to see if Material theme can easily be overridden
+    MaterialTheme(
+        colorScheme = if (isSystemInDarkTheme()) {
+            screenConfig.value.darkColorScheme?.let {
+                MaterialTheme.colorScheme.fromColorSchemeState(it)
+            }
+        } else {
+            screenConfig.value.lightColorScheme?.let {
+                MaterialTheme.colorScheme.fromColorSchemeState(it)
+            }
+        }?: MaterialTheme.colorScheme,
+    ) {
+        LazyColumn {
+            items(screenConfig.value.state) {
+                renderingContext.RenderUI(
+                    element = it,
+                    ctx = renderingContext,
+                )
+            }
         }
     }
 }
+
+private fun ColorScheme.fromColorSchemeState(colorSchemeState: ColorSchemeState) = copy(
+    primary = Color(colorSchemeState.primary),
+    onPrimary = Color(colorSchemeState.onPrimary),
+    onSecondaryContainer = Color(colorSchemeState.onSecondaryContainer),
+    secondaryContainer = Color(colorSchemeState.secondaryContainer),
+    background = Color(colorSchemeState.background),
+    onBackground = Color(colorSchemeState.onBackground),
+    surface = Color(colorSchemeState.surface),
+    onSurface = Color(colorSchemeState.onSurface),
+    surfaceVariant = Color(colorSchemeState.surfaceVariant),
+    onSurfaceVariant = Color(colorSchemeState.onSurfaceVariant),
+    outline = Color(colorSchemeState.outline),
+)
