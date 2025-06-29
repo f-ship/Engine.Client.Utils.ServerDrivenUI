@@ -11,6 +11,7 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 /**
  * Need to upgrade how the backstack is handled. I wonder if I can make copying more efficient
  */
+@Suppress("UNCHECKED_CAST")
 class CommonClient : Client {
     override val stateMap: MutableMap<ScreenConfig.ID, Client.StateHolder<State>> = mutableMapOf()
     override val elementMap: MutableMap<ScreenConfig.ID, ScreenConfig.Element> = mutableMapOf()
@@ -27,19 +28,14 @@ class CommonClient : Client {
 
     val backstack: MutableList<ScreenConfig> = mutableListOf()
     // Make this have a default empty screen config instead of making this nullable
-    var currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) }
+    var currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) } ?: mutableStateOf(ScreenConfig())
     fun addConfig(config: ScreenConfig) {
         backstack.add(config)
-        if (currentScreen == null) {
-            currentScreen = mutableStateOf(config)
-        } else {
-            currentScreen?.value = config
-        }
+        currentScreen.value = config
     }
 
     fun pushScreen(config: ScreenConfig) {
-        val requiresInit = initMap[config.id] ?: true
-        if (requiresInit) {
+        if (initMap[config.id] ?: true) {
             config.state.forEach {
                 setState(it)
                 setTriggers(it)
