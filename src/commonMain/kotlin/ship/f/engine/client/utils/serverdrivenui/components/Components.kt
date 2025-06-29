@@ -28,7 +28,6 @@ import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.ID
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.*
 import ship.f.engine.shared.utils.serverdrivenui.action.Client.StateHolder
-import ship.f.engine.shared.utils.serverdrivenui.action.Subject.Component
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 @Composable
@@ -85,14 +84,12 @@ fun STextField(
             localState = state.value.state.localState.copy(error = error),
             valid = (error == null),
         )
+        state.value = state.value.copy(state = updatedState)
         //TODO this is certainly cumbersome copy and pasting everywhere
         triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
             triggerAction.action.execute(
                 //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                subject = Component(
-                    component = updatedState,
-                    id = id
-                ),
+                element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                 client = c,
             )
         }
@@ -138,14 +135,12 @@ fun STextField(
                 state.value = state.value.copy(state = updatedState)
 
                 triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = updatedState,
-                            id = id
-                        ),
-                        client = c,
-                    )
+                    //We need to re-enable this but not update current state anymore
+//                    triggerAction.action.execute(
+//                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
+//                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+//                        client = c,
+//                    )
                 }
             },
             isError = if (state.value.state.localState.hasLostFocus) {
@@ -214,14 +209,12 @@ fun SToggle(
         onCheckedChange = {
             toggleModified = true
             val updatedState = state.value.state.copy(value = it)
+            state.value = state.value.copy(state = updatedState)
             //TODO this is certainly cumbersome copy and pasting everywhere
             triggerActions.filterIsInstance<OnToggleUpdateTrigger>().forEach { triggerAction ->
                 triggerAction.action.execute(
                     //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                    subject = Component(
-                        component = updatedState,
-                        id = id
-                    ),
+                    element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                     client = c,
                 )
             }
@@ -354,10 +347,7 @@ fun SButton(
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = state.value.state,
-                            id = id
-                        ),
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                         client = c,
                     )
                 }
@@ -365,10 +355,7 @@ fun SButton(
                 triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = state.value.state,
-                            id = id
-                        ),
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                         client = c,
                     )
                 }
@@ -390,10 +377,7 @@ fun SButton(
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = state.value.state,
-                            id = id
-                        ),
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                         client = c,
                     )
                 }
@@ -401,10 +385,7 @@ fun SButton(
                 triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = state.value.state,
-                            id = id
-                        ),
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                         client = c,
                     )
                 }
@@ -431,10 +412,7 @@ fun SButton(
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = state.value.state,
-                            id = id
-                        ),
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                         client = c,
                     )
                 }
@@ -445,10 +423,7 @@ fun SButton(
                 triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        subject = Component(
-                            component = state.value.state,
-                            id = id
-                        ),
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
                         client = c,
                     )
                 }
