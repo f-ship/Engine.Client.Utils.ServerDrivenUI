@@ -31,7 +31,6 @@ fun RenderScreen(
             items(screenConfig.value.state) {
                 client.RenderUI(
                     element = it,
-                    c = client,
                 )
             }
         }

@@ -27,7 +27,7 @@ fun SCard(
     Text("Card")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -42,7 +42,7 @@ fun SBottomSheet(
     Text("BottomSheet")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -57,7 +57,7 @@ fun SRow(
     Text("Row")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -80,7 +80,7 @@ fun SColumn(
         },
     ) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -95,7 +95,7 @@ fun SFlexRow(
     Text("FlexRow")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -110,7 +110,7 @@ fun SFlexColumn(
     Text("FlexColumn")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -125,7 +125,7 @@ fun SGrid(
     Text("Grid")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }
@@ -140,7 +140,7 @@ fun SFlexGrid(
     Text("FlexGrid")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it, c)
+            c.RenderUI(it)
         }
     }
 }

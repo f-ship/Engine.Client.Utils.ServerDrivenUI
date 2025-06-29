@@ -98,56 +98,56 @@ class CommonClient : Client {
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is CardState -> SCard(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is ColumnState -> SColumn(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is FlexRowState -> SFlexRow(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is GridState -> SGrid(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is RowState -> SRow(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is FlexGridState -> SFlexGrid(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is FlexColumnState -> SFlexColumn(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is UnknownWidgetState -> SUnknownWidget(
@@ -173,126 +173,126 @@ class CommonClient : Client {
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is ButtonState -> SButton(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is CustomState -> SCustom(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is DialogState -> SDialog(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is DropDownState -> SDropDown(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is IconState -> SIcon(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is ImageState -> SImage(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is LoaderState -> SLoader(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is LoadingShimmerState -> SLoadingShimmer(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is MenuState -> SMenu(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is RadioListState -> SRadioList(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is SearchState -> SSearch(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is SnackBarState -> SSnackBar(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is FieldState -> STextField(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is TextState -> SText(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is TickListState -> STickList(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is ToggleState -> SToggle(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is VideoState -> SVideo(
                 state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = c,
+                c = this,
             )
 
             is SpaceState -> Space(
@@ -304,7 +304,7 @@ class CommonClient : Client {
                 triggerActions = triggerActions,
                 fallback = fallback,
                 id = id,
-                c = c,
+                c = this,
             )
         }
     }
@@ -312,16 +312,15 @@ class CommonClient : Client {
     @Composable
     fun RenderUI(
         element: ScreenConfig.Element,
-        c: CommonClient,
     ) {
-        val stateHolder = c.shadowStateMap[element.id]!!.value
+        val stateHolder = shadowStateMap[element.id]!!.value
         when (val state = stateHolder.state) {
             is WidgetState -> RenderWidget(
                 state = state,
                 triggerActions = element.triggerActions,
                 fallback = element.fallback,
                 id = element.id,
-                c = c,
+                c = this,
             )
 
             is ComponentState -> RenderComponent(
@@ -329,7 +328,7 @@ class CommonClient : Client {
                 triggerActions = element.triggerActions,
                 fallback = element.fallback,
                 id = element.id,
-                c = c,
+                c = this,
             )
         }
     }
