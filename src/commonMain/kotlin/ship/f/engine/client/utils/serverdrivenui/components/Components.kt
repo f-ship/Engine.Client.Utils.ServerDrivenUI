@@ -439,6 +439,9 @@ fun SButton(
                     )
                 }
 
+                //TODO for testing purposes
+                ctx.client.pushScreen(testConfig)
+
                 triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action

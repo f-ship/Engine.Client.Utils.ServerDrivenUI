@@ -21,12 +21,16 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 @Suppress("UNCHECKED_CAST")
 data class RenderingContext(
-    val initialConfig: ScreenConfig,
+    val config: ScreenConfig,
 ) {
 
+    /**
+     * Need to upgrade how the backstack is handled. I wonder if I can make copying more efficient
+     */
     class CommonClient : Client {
         override val stateMap: MutableMap<ID, StateHolder<State>> = mutableMapOf()
         override val elementMap: MutableMap<ID, Element> = mutableMapOf()
+        override var banner: Fallback? = null
         val shadowStateMap: MutableMap<ID, MutableState<StateHolder<State>>> = mutableMapOf()
         override fun postUpdateHook(
             id: ID,
@@ -35,16 +39,30 @@ data class RenderingContext(
             shadowStateMap[id]?.value = stateHolder
         }
 
-        var requiresInit: Boolean = true
+        var initMap: MutableMap<ID, Boolean> = mutableMapOf()
 
-        fun init(config: ScreenConfig) {
+        val backstack: MutableList<ScreenConfig> = mutableListOf()
+        // Make this have a default empty screen config instead of making this nullable
+        var currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) }
+        fun addConfig(config: ScreenConfig) {
+            backstack.add(config)
+            if (currentScreen == null) {
+                currentScreen = mutableStateOf(config)
+            } else {
+                currentScreen?.value = config
+            }
+        }
+
+        fun pushScreen(config: ScreenConfig) {
+            val requiresInit = initMap[config.id] ?: true
             if (requiresInit) {
                 config.state.forEach {
                     setState(it)
                     setTriggers(it)
                 }
-                requiresInit = false
+                initMap[config.id] = false
             }
+            addConfig(config)
         }
 
         private fun setState(element: Element) {
@@ -84,11 +102,8 @@ data class RenderingContext(
         fun <T : State> getHolder(id: ID) = shadowStateMap[id] as MutableState<StateHolder<T>>
     }
 
-    var config = initialConfig
-
     var banner: Fallback? = null
     lateinit var client: CommonClient
-
 
     @Composable
     fun RenderWidget(
