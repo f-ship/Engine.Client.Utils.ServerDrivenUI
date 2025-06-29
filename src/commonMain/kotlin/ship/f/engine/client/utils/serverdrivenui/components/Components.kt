@@ -19,7 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
-import ship.f.engine.client.utils.serverdrivenui.RenderingContext
+import ship.f.engine.client.utils.serverdrivenui.CommonClient
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
@@ -43,7 +43,7 @@ fun SText(
     state: MutableState<StateHolder<TextState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     val style = when (state.value.state.style) {
         is TextState.Style.BodyLarge -> MaterialTheme.typography.bodyLarge
@@ -74,7 +74,7 @@ fun STextField(
     state: MutableState<StateHolder<FieldState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
@@ -93,7 +93,7 @@ fun STextField(
                     component = updatedState,
                     id = id
                 ),
-                client = ctx.client,
+                client = c,
             )
         }
     }
@@ -144,7 +144,7 @@ fun STextField(
                             component = updatedState,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
             },
@@ -204,7 +204,7 @@ fun SToggle(
     state: MutableState<StateHolder<ToggleState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     var toggleModified by remember { mutableStateOf(false) }
 
@@ -222,7 +222,7 @@ fun SToggle(
                         component = updatedState,
                         id = id
                     ),
-                    client = ctx.client,
+                    client = c,
                 )
             }
         }
@@ -234,7 +234,7 @@ fun SDropDown(
     state: MutableState<StateHolder<DropDownState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("DropDown")
 }
@@ -244,7 +244,7 @@ fun SRadioList(
     state: MutableState<StateHolder<RadioListState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("RadioList")
 }
@@ -254,7 +254,7 @@ fun STickList(
     state: MutableState<StateHolder<TickListState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("TickList")
 }
@@ -264,7 +264,7 @@ fun SSearch(
     state: MutableState<StateHolder<SearchState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Search")
 }
@@ -274,7 +274,7 @@ fun SMenu(
     state: MutableState<StateHolder<MenuState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Menu")
 }
@@ -284,7 +284,7 @@ fun SBottomRow(
     state: MutableState<StateHolder<BottomRowState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("BottomRow")
 }
@@ -294,7 +294,7 @@ fun SImage(
     state: MutableState<StateHolder<ImageState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Image")
     when (val src = state.value.state.src) {
@@ -326,7 +326,7 @@ fun SVideo(
     state: MutableState<StateHolder<VideoState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Video")
 }
@@ -336,7 +336,7 @@ fun SCustom(
     state: MutableState<StateHolder<CustomState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Custom")
 }
@@ -346,7 +346,7 @@ fun SButton(
     state: MutableState<StateHolder<ButtonState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     when (state.value.state.buttonType) {
         ButtonState.ButtonType.Primary -> Button(
@@ -358,7 +358,7 @@ fun SButton(
                             component = state.value.state,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
 
@@ -369,7 +369,7 @@ fun SButton(
                             component = state.value.state,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
             },
@@ -394,7 +394,7 @@ fun SButton(
                             component = state.value.state,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
 
@@ -405,7 +405,7 @@ fun SButton(
                             component = state.value.state,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
             },
@@ -435,12 +435,12 @@ fun SButton(
                             component = state.value.state,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
 
                 //TODO for testing purposes
-                ctx.client.pushScreen(testConfig)
+                c.pushScreen(testConfig)
 
                 triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
@@ -449,7 +449,7 @@ fun SButton(
                             component = state.value.state,
                             id = id
                         ),
-                        client = ctx.client,
+                        client = c,
                     )
                 }
             },
@@ -473,7 +473,7 @@ fun SIcon(
     state: MutableState<StateHolder<IconState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Icon")
 }
@@ -483,7 +483,7 @@ fun SLoadingShimmer(
     state: MutableState<StateHolder<LoadingShimmerState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("LoadingShimmer")
 }
@@ -493,7 +493,7 @@ fun SDialog(
     state: MutableState<StateHolder<DialogState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Dialog")
 }
@@ -503,7 +503,7 @@ fun SSnackBar(
     state: MutableState<StateHolder<SnackBarState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("SnackBar")
 }
@@ -513,7 +513,7 @@ fun SLoader(
     state: MutableState<StateHolder<LoaderState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Loader")
 }
@@ -524,7 +524,7 @@ fun SUnknownComponent(
     triggerActions: List<TriggerAction>,
     fallback: ScreenConfig.Fallback,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Unknown Component")
 }

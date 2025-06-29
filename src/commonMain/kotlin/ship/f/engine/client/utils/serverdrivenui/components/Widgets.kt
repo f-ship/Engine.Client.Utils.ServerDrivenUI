@@ -9,36 +9,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ship.f.engine.client.utils.serverdrivenui.RenderingContext
+import ship.f.engine.client.utils.serverdrivenui.CommonClient
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.ID
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction
 import ship.f.engine.shared.utils.serverdrivenui.action.Client.StateHolder
-import ship.f.engine.shared.utils.serverdrivenui.state.Arrangement.Center
-import ship.f.engine.shared.utils.serverdrivenui.state.Arrangement.End
-import ship.f.engine.shared.utils.serverdrivenui.state.Arrangement.Flex
-import ship.f.engine.shared.utils.serverdrivenui.state.Arrangement.Start
-import ship.f.engine.shared.utils.serverdrivenui.state.BottomSheetState
-import ship.f.engine.shared.utils.serverdrivenui.state.CardState
-import ship.f.engine.shared.utils.serverdrivenui.state.ColumnState
-import ship.f.engine.shared.utils.serverdrivenui.state.FlexColumnState
-import ship.f.engine.shared.utils.serverdrivenui.state.FlexGridState
-import ship.f.engine.shared.utils.serverdrivenui.state.FlexRowState
-import ship.f.engine.shared.utils.serverdrivenui.state.GridState
-import ship.f.engine.shared.utils.serverdrivenui.state.RowState
-import ship.f.engine.shared.utils.serverdrivenui.state.UnknownWidgetState
+import ship.f.engine.shared.utils.serverdrivenui.state.*
+import ship.f.engine.shared.utils.serverdrivenui.state.Arrangement.*
 
 @Composable
 fun SCard(
     state: MutableState<StateHolder<CardState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Card")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -48,12 +37,12 @@ fun SBottomSheet(
     state: MutableState<StateHolder<BottomSheetState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("BottomSheet")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -63,12 +52,12 @@ fun SRow(
     state: MutableState<StateHolder<RowState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Row")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -78,7 +67,7 @@ fun SColumn(
     state: MutableState<StateHolder<ColumnState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Column(
         modifier = Modifier
@@ -91,7 +80,7 @@ fun SColumn(
         },
     ) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -101,12 +90,12 @@ fun SFlexRow(
     state: MutableState<StateHolder<FlexRowState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("FlexRow")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -116,12 +105,12 @@ fun SFlexColumn(
     state: MutableState<StateHolder<FlexColumnState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("FlexColumn")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -131,12 +120,12 @@ fun SGrid(
     state: MutableState<StateHolder<GridState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("Grid")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -146,12 +135,12 @@ fun SFlexGrid(
     state: MutableState<StateHolder<FlexGridState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     Text("FlexGrid")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            ctx.RenderUI(it, ctx)
+            c.RenderUI(it, c)
         }
     }
 }
@@ -162,7 +151,7 @@ fun SUnknownWidget(
     triggerActions: List<TriggerAction>,
     fallback: ScreenConfig.Fallback,
     id: ID,
-    ctx: RenderingContext,
+    c: CommonClient,
 ) {
     when (fallback) {
         is ScreenConfig.Fallback.Hide -> Unit
