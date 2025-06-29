@@ -13,13 +13,13 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
  */
 @Suppress("UNCHECKED_CAST")
 class CommonClient : Client {
-    override val stateMap: MutableMap<ScreenConfig.ID, Client.StateHolder<State>> = mutableMapOf()
+    override val stateMap: MutableMap<ScreenConfig.ID, Client.StateHolder<out State>> = mutableMapOf()
     override val elementMap: MutableMap<ScreenConfig.ID, ScreenConfig.Element> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
-    val shadowStateMap: MutableMap<ScreenConfig.ID, MutableState<Client.StateHolder<State>>> = mutableMapOf()
+    val shadowStateMap: MutableMap<ScreenConfig.ID, MutableState<Client.StateHolder<out State>>> = mutableMapOf()
     override fun postUpdateHook(
         id: ScreenConfig.ID,
-        stateHolder: Client.StateHolder<State>,
+        stateHolder: Client.StateHolder<out State>,
     ) {
         shadowStateMap[id]?.value = stateHolder
     }

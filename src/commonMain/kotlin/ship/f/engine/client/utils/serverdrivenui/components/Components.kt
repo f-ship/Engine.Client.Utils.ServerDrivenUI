@@ -132,15 +132,17 @@ fun STextField(
                     valid = (error == null),
                 )
 
+                // TODO temporarily solution to fix state update
                 state.value = state.value.copy(state = updatedState)
+                c.stateMap[id] = state.value
 
                 triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
                     //We need to re-enable this but not update current state anymore
-//                    triggerAction.action.execute(
-//                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-//                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
-//                        client = c,
-//                    )
+                    triggerAction.action.execute(
+                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
+                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        client = c,
+                    )
                 }
             },
             isError = if (state.value.state.localState.hasLostFocus) {
