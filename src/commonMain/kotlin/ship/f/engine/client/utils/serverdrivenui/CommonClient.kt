@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import ship.f.engine.client.utils.serverdrivenui.components.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.action.Client
+import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 /**
@@ -17,6 +18,8 @@ class CommonClient : Client {
     override val elementMap: MutableMap<ScreenConfig.ID, ScreenConfig.Element> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
     val shadowStateMap: MutableMap<ScreenConfig.ID, MutableState<Client.StateHolder<out State>>> = mutableMapOf()
+    val shadowElementMap: MutableState<MutableMap<ScreenConfig.ID, ScreenConfig.Element>> = mutableStateOf(elementMap)
+
     override fun postUpdateHook(
         id: ScreenConfig.ID,
         stateHolder: Client.StateHolder<out State>,
@@ -27,6 +30,7 @@ class CommonClient : Client {
     var initMap: MutableMap<ScreenConfig.ID, Boolean> = mutableMapOf()
 
     val backstack: MutableList<ScreenConfig> = mutableListOf()
+
     // Make this have a default empty screen config instead of making this nullable
     var currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) } ?: mutableStateOf(ScreenConfig())
     fun addConfig(config: ScreenConfig) {
@@ -62,11 +66,27 @@ class CommonClient : Client {
             it.action.targetIds.forEach { target ->
                 val stateHolder = shadowStateMap[target.id]!!.value
                 val updatedStateHolder = stateHolder.copy(
-                    listeners = stateHolder.listeners + Client.StateHolder.RemoteAction(
+                    listeners = stateHolder.listeners + RemoteAction(
                         action = it.action,
                         id = element.id
                     )
                 )
+                elementMap[target.id] = when (element) {
+                    is ScreenConfig.Component -> element.copy(
+                        listeners = element.listeners + RemoteAction(
+                            action = it.action,
+                            id = element.id
+                        )
+                    )
+
+                    is ScreenConfig.Widget -> element.copy(
+                        listeners = element.listeners + RemoteAction(
+                            action = it.action,
+                            id = element.id
+                        )
+                    )
+                }
+
                 shadowStateMap[target.id] = mutableStateOf(updatedStateHolder)
                 stateMap[target.id] = updatedStateHolder
                 println(shadowStateMap[target.id]?.value)
@@ -257,7 +277,7 @@ class CommonClient : Client {
             )
 
             is FieldState -> STextField(
-                state = c.getHolder(id),
+                element = ,
                 triggerActions = triggerActions,
                 id = id,
                 c = this,
