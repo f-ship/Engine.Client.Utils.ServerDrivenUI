@@ -25,14 +25,14 @@ val testConfig = ScreenConfig(
                                 Component(
                                     state = TextState(
                                         value = "",
-                                        type = "UnknownStateText",
+//                                        type = "UnknownStateText",
                                     ),
                                 ),
                                 Component(
                                     id = ID(id = "TextId", scope = ""),
                                     state = TextState(
                                         value = "",
-                                        type = "TextState",
+//                                        type = "TextState",
                                     ),
                                     triggerActions = listOf(
                                         OnStateUpdateTrigger(
@@ -102,7 +102,7 @@ val testConfig = ScreenConfig(
         ),
         Widget(
             state = FlexGridState(
-                type = "UnknownStateGrid"
+//                type = "UnknownStateGrid"
             ),
         )
     )

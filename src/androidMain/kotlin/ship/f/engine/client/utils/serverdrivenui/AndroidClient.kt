@@ -10,7 +10,7 @@ import ship.f.engine.shared.utils.serverdrivenui.state.State
  */
 class AndroidClient : Client {
     override val stateMap: MutableMap<ScreenConfig.ID, StateHolder<out State>> = mutableMapOf()
-    override val elementMap: MutableMap<ScreenConfig.ID, ScreenConfig.Element> = mutableMapOf()
+    override val elementMap: MutableMap<ScreenConfig.ID, ScreenConfig.Element<out State>> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
     override fun postUpdateHook(
         id: ScreenConfig.ID,

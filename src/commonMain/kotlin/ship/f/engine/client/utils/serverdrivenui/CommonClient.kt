@@ -16,10 +16,10 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 @Suppress("UNCHECKED_CAST")
 class CommonClient : Client {
     override val stateMap: MutableMap<ScreenConfig.ID, Client.StateHolder<out State>> = mutableMapOf()
-    override val elementMap: MutableMap<ScreenConfig.ID, Element> = mutableMapOf()
+    override val elementMap: MutableMap<ScreenConfig.ID, Element<out State>> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
     val shadowStateMap: MutableMap<ScreenConfig.ID, MutableState<Client.StateHolder<out State>>> = mutableMapOf()
-    val shadowElementMap: MutableState<MutableMap<ScreenConfig.ID, Element>> = mutableStateOf(elementMap)
+    val shadowElementMap: MutableState<MutableMap<ScreenConfig.ID, Element<out State>>> = mutableStateOf(elementMap)
 
     override fun postUpdateHook(
         id: ScreenConfig.ID,
@@ -42,7 +42,7 @@ class CommonClient : Client {
     fun pushScreen(config: ScreenConfig) {
         if (initMap[config.id] ?: true) {
             config.state.forEach {
-                setState(it)
+                setState(it as Element<State>)
                 setTriggers(it)
             }
             initMap[config.id] = false
@@ -50,19 +50,22 @@ class CommonClient : Client {
         addConfig(config)
     }
 
-    private fun setState(element: Element) {
+    private fun setState(element: Element<out State>) {
         val stateHolder = Client.StateHolder(element.state)
         shadowStateMap[element.id] = mutableStateOf(stateHolder)
         stateMap[element.id] = stateHolder
+        if (elementMap[element.id] != null && elementMap[element.id] != element) {
+            error("Duplicate ID: ${element.id}")
+        }
         elementMap[element.id] = element
 
         when (element) {
-            is ScreenConfig.Component -> Unit
-            is ScreenConfig.Widget -> element.state.children.forEach { setState(it) }
+            is ScreenConfig.Component<*> -> Unit
+            is ScreenConfig.Widget<*> -> element.state.children.forEach { setState(it) }
         }
     }
 
-    private fun setTriggers(element: Element) {
+    private fun setTriggers(element: Element<out State>) {
         element.triggerActions.filterIsInstance<ScreenConfig.TriggerAction.OnStateUpdateTrigger>().forEach {
             it.action.targetIds.forEach { target ->
                 val stateHolder = shadowStateMap[target.id]!!.value
@@ -75,14 +78,14 @@ class CommonClient : Client {
                 val targetElement = elementMap[target.id] ?: error("Target element not found for ID: ${target.id}")
 
                 elementMap[target.id] = when (targetElement) {
-                    is ScreenConfig.Component -> targetElement.copy(
+                    is ScreenConfig.Component<*> -> targetElement.copy(
                         listeners = targetElement.listeners + RemoteAction(
                             action = it.action,
                             id = element.id
                         )
                     )
 
-                    is ScreenConfig.Widget -> targetElement.copy(
+                    is ScreenConfig.Widget<*> -> targetElement.copy(
                         listeners = targetElement.listeners + RemoteAction(
                             action = it.action,
                             id = element.id
@@ -97,8 +100,8 @@ class CommonClient : Client {
         }
 
         when (element) {
-            is ScreenConfig.Component -> Unit
-            is ScreenConfig.Widget -> element.state.children.forEach { setTriggers(it) }
+            is ScreenConfig.Component<*> -> Unit
+            is ScreenConfig.Widget<*> -> element.state.children.forEach { setTriggers(it) }
         }
     }
 
@@ -330,7 +333,7 @@ class CommonClient : Client {
 
     @Composable
     fun RenderUI(
-        element: Element,
+        element: Element<out State>,
     ) {
         val stateHolder = shadowStateMap[element.id]!!.value
         when (val state = stateHolder.state) {
