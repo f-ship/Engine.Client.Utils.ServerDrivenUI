@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import ship.f.engine.client.utils.serverdrivenui.components.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Element
 import ship.f.engine.shared.utils.serverdrivenui.action.Client
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
 import ship.f.engine.shared.utils.serverdrivenui.state.*
@@ -15,10 +16,10 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 @Suppress("UNCHECKED_CAST")
 class CommonClient : Client {
     override val stateMap: MutableMap<ScreenConfig.ID, Client.StateHolder<out State>> = mutableMapOf()
-    override val elementMap: MutableMap<ScreenConfig.ID, ScreenConfig.Element> = mutableMapOf()
+    override val elementMap: MutableMap<ScreenConfig.ID, Element> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
     val shadowStateMap: MutableMap<ScreenConfig.ID, MutableState<Client.StateHolder<out State>>> = mutableMapOf()
-    val shadowElementMap: MutableState<MutableMap<ScreenConfig.ID, ScreenConfig.Element>> = mutableStateOf(elementMap)
+    val shadowElementMap: MutableState<MutableMap<ScreenConfig.ID, Element>> = mutableStateOf(elementMap)
 
     override fun postUpdateHook(
         id: ScreenConfig.ID,
@@ -49,7 +50,7 @@ class CommonClient : Client {
         addConfig(config)
     }
 
-    private fun setState(element: ScreenConfig.Element) {
+    private fun setState(element: Element) {
         val stateHolder = Client.StateHolder(element.state)
         shadowStateMap[element.id] = mutableStateOf(stateHolder)
         stateMap[element.id] = stateHolder
@@ -61,7 +62,7 @@ class CommonClient : Client {
         }
     }
 
-    private fun setTriggers(element: ScreenConfig.Element) {
+    private fun setTriggers(element: Element) {
         element.triggerActions.filterIsInstance<ScreenConfig.TriggerAction.OnStateUpdateTrigger>().forEach {
             it.action.targetIds.forEach { target ->
                 val stateHolder = shadowStateMap[target.id]!!.value
@@ -71,16 +72,18 @@ class CommonClient : Client {
                         id = element.id
                     )
                 )
-                elementMap[target.id] = when (element) {
-                    is ScreenConfig.Component -> element.copy(
-                        listeners = element.listeners + RemoteAction(
+                val targetElement = elementMap[target.id] ?: error("Target element not found for ID: ${target.id}")
+
+                elementMap[target.id] = when (targetElement) {
+                    is ScreenConfig.Component -> targetElement.copy(
+                        listeners = targetElement.listeners + RemoteAction(
                             action = it.action,
                             id = element.id
                         )
                     )
 
-                    is ScreenConfig.Widget -> element.copy(
-                        listeners = element.listeners + RemoteAction(
+                    is ScreenConfig.Widget -> targetElement.copy(
+                        listeners = targetElement.listeners + RemoteAction(
                             action = it.action,
                             id = element.id
                         )
@@ -277,7 +280,7 @@ class CommonClient : Client {
             )
 
             is FieldState -> STextField(
-                element = ,
+                state = c.getHolder(id),
                 triggerActions = triggerActions,
                 id = id,
                 c = this,
@@ -327,7 +330,7 @@ class CommonClient : Client {
 
     @Composable
     fun RenderUI(
-        element: ScreenConfig.Element,
+        element: Element,
     ) {
         val stateHolder = shadowStateMap[element.id]!!.value
         when (val state = stateHolder.state) {

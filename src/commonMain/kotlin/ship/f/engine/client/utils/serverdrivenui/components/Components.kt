@@ -70,16 +70,13 @@ fun SText(
 
 @Composable
 fun STextField(
-//    state: MutableState<StateHolder<FieldState>>,
-    element: MutableState<ScreenConfig.Element>,
+    state: MutableState<StateHolder<FieldState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
     c: CommonClient,
 ) {
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
-
-    val state = mutableStateOf(StateHolder(state = element.value.state as FieldState))
 
     LaunchedEffect(Unit) {
         val error = state.value.state.isValid(state.value.state.value)
