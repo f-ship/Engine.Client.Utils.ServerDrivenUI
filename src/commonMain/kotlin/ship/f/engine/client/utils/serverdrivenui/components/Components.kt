@@ -24,6 +24,7 @@ import ship.f.engine.client.utils.serverdrivenui.WithComponentState
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
+import ship.f.engine.client.utils.serverdrivenui.update
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Component
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.*
 import ship.f.engine.shared.utils.serverdrivenui.state.*
@@ -32,14 +33,14 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 fun Space(
     element: MutableState<Component<SpaceState>>,
 ) = element.WithComponentState {
-    Spacer(modifier = Modifier.height(element.value.state.value.dp))
+    Spacer(modifier = Modifier.height(value.dp))
 }
 
 @Composable
 fun SText(
     element: MutableState<Component<TextState>>,
 ) = element.WithComponentState {
-    val style = when (element.value.state.style) {
+    val style = when (style) {
         is TextState.Style.BodyLarge -> MaterialTheme.typography.bodyLarge
         is TextState.Style.BodyMedium -> MaterialTheme.typography.bodyMedium
         is TextState.Style.BodySmall -> MaterialTheme.typography.bodySmall
@@ -58,7 +59,7 @@ fun SText(
     }
 
     Text(
-        text = element.value.state.value,
+        text = value,
         style = style,
     )
 }
@@ -72,21 +73,12 @@ fun STextField(
 
     LaunchedEffect(Unit) {
         val error = isValid(value)
-        val updatedElement = element.value.update {
+        val updatedElement = element.update {
             copy(
                 localState = localState.copy(error = error),
                 valid = (error == null),
             )
         }
-
-//        element.triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
-//            triggerAction.action.execute(
-//                //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-//                element = updatedElement,
-//                client = c,
-//            )
-//        }
-
         updatedElement.trigger<OnFieldUpdateTrigger>()
     }
 
@@ -121,21 +113,13 @@ fun STextField(
             visualTransformation = visualTransformation,
             onValueChange = {
                 val error = isValid(value)
-                val updatedElement = element.value.update {
+                val updatedElement = element.update {
                     copy(
                         localState = localState.copy(error = error),
                         valid = (error == null),
                         value = it
                     )
                 }
-//                element.triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
-//                    //We need to re-enable this but not update current state anymore
-//                    triggerAction.action.execute(
-//                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-//                        element = updatedElement,
-//                        client = c,
-//                    )
-//                }
 
                 updatedElement.trigger<OnFieldUpdateTrigger>()
             },
@@ -152,17 +136,11 @@ fun STextField(
                         println("SDUI LOG ${label} Lost Focused")
 
                         // Only needs to run if hasLostFocus is false, a minor optimization to make in the future
-                        val updatedElement = element.value.copy(
-                            state = copy(localState = localState.copy(hasLostFocus = true))
-                        )
-//                        element.triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
-//                            //We need to re-enable this but not update current state anymore
-//                            triggerAction.action.execute(
-//                                //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-//                                element = updatedElement,
-//                                client = c,
-//                            )
-//                        }
+                        val updatedElement = element.update {
+                            copy(
+                                localState = localState.copy(hasLostFocus = true),
+                            )
+                        }
                         updatedElement.trigger<OnFieldUpdateTrigger>()
                     }
                     isFocused = focusState.isFocused
@@ -202,23 +180,18 @@ fun STextField(
 fun SToggle(
     element: MutableState<Component<ToggleState>>,
 ) = element.WithComponentState {
-    val c = C
     var toggleModified by remember { mutableStateOf(false) }
     Switch(
-        checked = if (toggleModified) element.value.state.value else element.value.state.initialState
-            ?: element.value.state.value,
+        checked = if (toggleModified) value else initialState ?: value,
         onCheckedChange = {
             toggleModified = true
-            val updatedState = element.value.state.copy(value = it)
-            element.value = element.value.copy(state = updatedState)
-            //TODO this is certainly cumbersome copy and pasting everywhere
-            element.value.triggerActions.filterIsInstance<OnToggleUpdateTrigger>().forEach { triggerAction ->
-                triggerAction.action.execute(
-                    //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                    element = element.value,
-                    client = c,
+            val updatedElement = element.update {
+                copy(
+                    value = it
                 )
             }
+
+            updatedElement.trigger<OnToggleUpdateTrigger>()
         }
     )
 }
@@ -270,7 +243,7 @@ fun SImage(
     element: MutableState<Component<ImageState>>,
 ) = element.WithComponentState {
     Text("Image")
-    when (val src = element.value.state.src) {
+    when (val src = src) {
         is ImageState.Source.Resource -> Icon(
             painter = painterResource(
                 when (src.resource) {
@@ -278,13 +251,13 @@ fun SImage(
                     else -> Res.drawable.compose_multiplatform
                 }
             ),
-            contentDescription = element.value.state.accessibilityLabel,
+            contentDescription = accessibilityLabel,
         )
 
         is ImageState.Source.Url -> {
             AsyncImage(
                 model = src.url,
-                contentDescription = element.value.state.accessibilityLabel,
+                contentDescription = accessibilityLabel,
                 modifier = Modifier.fillMaxWidth(),
                 onError = {
                     println("Coil: Image failed to load: ${it.result.throwable}")
@@ -313,54 +286,28 @@ fun SButton(
     element: MutableState<Component<ButtonState>>,
 ) = element.WithComponentState {
     val c = C
-    when (element.value.state.buttonType) {
+    when (buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
-                element.value.triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = element.value,
-                        client = c,
-                    )
-                }
-
-                element.value.triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = element.value,
-                        client = c,
-                    )
-                }
+                element.value.trigger<OnClickTrigger>()
+                element.value.trigger<OnHoldTrigger>()
             },
             shape = RoundedCornerShape(8.dp),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 1.dp,
             ),
-            enabled = element.value.state.valid ?: true,
+            enabled = valid ?: true,
         ) {
             Text(
-                text = element.value.state.value,
+                text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             )
         }
 
         ButtonState.ButtonType.Secondary -> Button(
             onClick = {
-                element.value.triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = element.value,
-                        client = c,
-                    )
-                }
-
-                element.value.triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = element.value,
-                        client = c,
-                    )
-                }
+                element.value.trigger<OnClickTrigger>()
+                element.value.trigger<OnHoldTrigger>()
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -371,43 +318,30 @@ fun SButton(
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 1.dp,
             ),
-            enabled = element.value.state.valid ?: true,
+            enabled = valid ?: true,
         ) {
             Text(
-                text = element.value.state.value,
+                text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             )
         }
 
         ButtonState.ButtonType.Tertiary -> Button(
             onClick = {
-                element.value.triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = element.value,
-                        client = c,
-                    )
-                }
+                element.value.trigger<OnClickTrigger>()
+                element.value.trigger<OnHoldTrigger>()
 
                 //TODO for testing purposes
                 c.pushScreen(testConfig)
-
-                element.value.triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = element.value,
-                        client = c,
-                    )
-                }
             },
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
             ),
-            enabled = element.value.state.valid ?: true,
+            enabled = valid ?: true,
         ) {
             Text(
-                text = element.value.state.value,
+                text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
                 color = MaterialTheme.colorScheme.primary,
             )
