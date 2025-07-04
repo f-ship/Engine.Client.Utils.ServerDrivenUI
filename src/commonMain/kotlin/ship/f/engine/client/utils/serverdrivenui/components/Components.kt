@@ -24,8 +24,7 @@ import ship.f.engine.client.utils.serverdrivenui.WithComponent
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Component
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.*
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
@@ -203,8 +202,6 @@ fun STextField(
 @Composable
 fun SToggle(
     element: MutableState<Component<ToggleState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     var toggleModified by remember { mutableStateOf(false) }
     val c = C
@@ -216,10 +213,10 @@ fun SToggle(
             val updatedState = element.value.state.copy(value = it)
             element.value = element.value.copy(state = updatedState)
             //TODO this is certainly cumbersome copy and pasting everywhere
-            triggerActions.filterIsInstance<OnToggleUpdateTrigger>().forEach { triggerAction ->
+            element.value.triggerActions.filterIsInstance<OnToggleUpdateTrigger>().forEach { triggerAction ->
                 triggerAction.action.execute(
                     //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                    element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                    element = element.value,
                     client = c,
                 )
             }
@@ -230,8 +227,6 @@ fun SToggle(
 @Composable
 fun SDropDown(
     element: MutableState<Component<DropDownState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("DropDown")
 }
@@ -239,8 +234,6 @@ fun SDropDown(
 @Composable
 fun SRadioList(
     element: MutableState<Component<RadioListState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("RadioList")
 }
@@ -248,8 +241,6 @@ fun SRadioList(
 @Composable
 fun STickList(
     element: MutableState<Component<TickListState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("TickList")
 }
@@ -257,8 +248,6 @@ fun STickList(
 @Composable
 fun SSearch(
     element: MutableState<Component<SearchState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Search")
 }
@@ -266,8 +255,6 @@ fun SSearch(
 @Composable
 fun SMenu(
     element: MutableState<Component<MenuState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Menu")
 }
@@ -275,8 +262,6 @@ fun SMenu(
 @Composable
 fun SBottomRow(
     element: MutableState<Component<BottomRowState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("BottomRow")
 }
@@ -284,8 +269,6 @@ fun SBottomRow(
 @Composable
 fun SImage(
     element: MutableState<Component<ImageState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Image")
     when (val src = element.value.state.src) {
@@ -315,8 +298,6 @@ fun SImage(
 @Composable
 fun SVideo(
     element: MutableState<Component<VideoState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Video")
 }
@@ -324,8 +305,6 @@ fun SVideo(
 @Composable
 fun SCustom(
     element: MutableState<Component<CustomState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Custom")
 }
@@ -333,25 +312,23 @@ fun SCustom(
 @Composable
 fun SButton(
     element: MutableState<Component<ButtonState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     val c = C
     when (element.value.state.buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
-                triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
+                element.value.triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        element = element.value,
                         client = c,
                     )
                 }
 
-                triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
+                element.value.triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        element = element.value,
                         client = c,
                     )
                 }
@@ -370,18 +347,18 @@ fun SButton(
 
         ButtonState.ButtonType.Secondary -> Button(
             onClick = {
-                triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
+                element.value.triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        element = element.value,
                         client = c,
                     )
                 }
 
-                triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
+                element.value.triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        element = element.value,
                         client = c,
                     )
                 }
@@ -405,10 +382,10 @@ fun SButton(
 
         ButtonState.ButtonType.Tertiary -> Button(
             onClick = {
-                triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
+                element.value.triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        element = element.value,
                         client = c,
                     )
                 }
@@ -416,10 +393,10 @@ fun SButton(
                 //TODO for testing purposes
                 c.pushScreen(testConfig)
 
-                triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
+                element.value.triggerActions.filterIsInstance<OnHoldTrigger>().forEach { triggerAction ->
                     triggerAction.action.execute(
                         //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
+                        element = element.value,
                         client = c,
                     )
                 }
@@ -442,8 +419,6 @@ fun SButton(
 @Composable
 fun SIcon(
     element: MutableState<Component<IconState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Icon")
 }
@@ -451,8 +426,6 @@ fun SIcon(
 @Composable
 fun SLoadingShimmer(
     element: MutableState<Component<LoadingShimmerState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("LoadingShimmer")
 }
@@ -460,8 +433,6 @@ fun SLoadingShimmer(
 @Composable
 fun SDialog(
     element: MutableState<Component<DialogState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Dialog")
 }
@@ -469,8 +440,6 @@ fun SDialog(
 @Composable
 fun SSnackBar(
     element: MutableState<Component<SnackBarState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("SnackBar")
 }
@@ -478,8 +447,6 @@ fun SSnackBar(
 @Composable
 fun SLoader(
     element: MutableState<Component<LoaderState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
 ) {
     Text("Loader")
 }
@@ -487,9 +454,6 @@ fun SLoader(
 @Composable
 fun SUnknownComponent(
     element: MutableState<Component<UnknownComponentState>>,
-    triggerActions: List<TriggerAction>,
-    fallback: ScreenConfig.Fallback,
-    id: ID,
 ) {
     Text("Unknown Component")
 }

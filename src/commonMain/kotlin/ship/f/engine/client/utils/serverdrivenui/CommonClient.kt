@@ -219,80 +219,54 @@ class CommonClient : Client {
         when (state) {
             is BottomRowState -> SBottomRow(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is ButtonState -> SButton(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is CustomState -> SCustom(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is DialogState -> SDialog(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is DropDownState -> SDropDown(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is IconState -> SIcon(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is ImageState -> SImage(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is LoaderState -> SLoader(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is LoadingShimmerState -> SLoadingShimmer(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is MenuState -> SMenu(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is RadioListState -> SRadioList(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is SearchState -> SSearch(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is SnackBarState -> SSnackBar(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is FieldState -> STextField(
@@ -305,20 +279,14 @@ class CommonClient : Client {
 
             is TickListState -> STickList(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is ToggleState -> SToggle(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is VideoState -> SVideo(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                id = id,
             )
 
             is SpaceState -> Space(
@@ -327,9 +295,6 @@ class CommonClient : Client {
 
             is UnknownComponentState -> SUnknownComponent(
                 element = getComponent(id),
-                triggerActions = triggerActions,
-                fallback = fallback,
-                id = id,
             )
         }
     }
