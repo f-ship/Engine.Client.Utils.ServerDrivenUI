@@ -19,32 +19,28 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
-import ship.f.engine.client.utils.serverdrivenui.CommonClient
+import ship.f.engine.client.utils.serverdrivenui.C
+import ship.f.engine.client.utils.serverdrivenui.WithComponent
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.ID
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.*
-import ship.f.engine.shared.utils.serverdrivenui.action.Client.StateHolder
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 @Composable
 fun Space(
-    state: MutableState<StateHolder<SpaceState>>,
+    element: MutableState<Component<SpaceState>>,
 ) {
-    Spacer(modifier = Modifier.height(state.value.state.value.dp))
+    Spacer(modifier = Modifier.height(element.value.state.value.dp))
 }
 
 @Composable
 fun SText(
-    state: MutableState<StateHolder<TextState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
-    c: CommonClient,
+    element: MutableState<Component<TextState>>,
 ) {
-    val style = when (state.value.state.style) {
+    val style = when (element.value.state.style) {
         is TextState.Style.BodyLarge -> MaterialTheme.typography.bodyLarge
         is TextState.Style.BodyMedium -> MaterialTheme.typography.bodyMedium
         is TextState.Style.BodySmall -> MaterialTheme.typography.bodySmall
@@ -63,47 +59,48 @@ fun SText(
     }
 
     Text(
-        text = state.value.state.value,
+        text = element.value.state.value,
         style = style,
     )
 }
 
 @Composable
 fun STextField(
-    state: MutableState<StateHolder<FieldState>>,
-    triggerActions: List<TriggerAction>,
-    id: ID,
-    c: CommonClient,
-) {
+    element: MutableState<Component<FieldState>>,
+) = element.WithComponent {
+    val c = C
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val error = state.value.state.isValid(state.value.state.value)
-        val updatedState = state.value.state.copy(
-            localState = state.value.state.localState.copy(error = error),
-            valid = (error == null),
-        )
-        state.value = state.value.copy(state = updatedState)
-        //TODO this is certainly cumbersome copy and pasting everywhere
-        triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
-            triggerAction.action.execute(
-                //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                element = c.elementMap[id] ?: error("Element not found for ID: $id"),
-                client = c,
+        val error = isValid(value)
+        val updatedElement = element.value.update {
+            copy(
+                localState = localState.copy(error = error),
+                valid = (error == null),
             )
         }
+
+//        element.triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
+//            triggerAction.action.execute(
+//                //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
+//                element = updatedElement,
+//                client = c,
+//            )
+//        }
+
+        updatedElement.trigger<OnFieldUpdateTrigger>(c)
     }
 
-    val visualTransformation = remember(state.value.state.fieldType) {
-        when (state.value.state.fieldType) {
+    val visualTransformation = remember(fieldType) {
+        when (fieldType) {
             is FieldState.FieldType.Number, is FieldState.FieldType.Text -> VisualTransformation.None
             is FieldState.FieldType.Password -> PasswordVisualTransformation()
         }
     }
 
-    val keyboardOptions = remember(state.value.state.fieldType) {
-        when (state.value.state.fieldType) {
+    val keyboardOptions = remember(fieldType) {
+        when (fieldType) {
             is FieldState.FieldType.Number -> KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             is FieldState.FieldType.Text, is FieldState.FieldType.Password -> KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
         }
@@ -111,42 +108,41 @@ fun STextField(
 
     Column {
         Text(
-            text = state.value.state.label,
+            text = label,
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
-            value = state.value.state.value,
+            value = value,
             placeholder = {
                 Text(
-                    text = state.value.state.placeholder,
+                    text = placeholder,
                     style = MaterialTheme.typography.bodyLarge,
                 )
             },
             visualTransformation = visualTransformation,
             onValueChange = {
-                val error = state.value.state.isValid(it)
-                val updatedState = state.value.state.copy(
-                    value = it,
-                    localState = state.value.state.localState.copy(error = error),
-                    valid = (error == null),
-                )
-
-                // TODO temporarily solution to fix state update
-                state.value = state.value.copy(state = updatedState)
-                c.stateMap[id] = state.value
-
-                triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
-                    //We need to re-enable this but not update current state anymore
-                    triggerAction.action.execute(
-                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
-                        element = c.elementMap[id] ?: error("Element not found for ID: $id"),
-                        client = c,
+                val error = isValid(value)
+                val updatedElement = element.value.update {
+                    copy(
+                        localState = localState.copy(error = error),
+                        valid = (error == null),
+                        value = it
                     )
                 }
+//                element.triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
+//                    //We need to re-enable this but not update current state anymore
+//                    triggerAction.action.execute(
+//                        //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
+//                        element = updatedElement,
+//                        client = c,
+//                    )
+//                }
+
+                updatedElement.trigger<OnFieldUpdateTrigger>(c)
             },
-            isError = if (state.value.state.localState.hasLostFocus) {
-                state.value.state.isValid(state.value.state.value) != null
+            isError = if (localState.hasLostFocus) {
+                isValid(value) != null
             } else {
                 false
             },
@@ -155,17 +151,25 @@ fun STextField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     if (isFocused && !focusState.isFocused) {
-                        println("SDUI LOG ${state.value.state.label} Lost Focused")
+                        println("SDUI LOG ${label} Lost Focused")
 
                         // Only needs to run if hasLostFocus is false, a minor optimization to make in the future
-                        val updatedState = state.value.copy(
-                            state = state.value.state.copy(localState = state.value.state.localState.copy(hasLostFocus = true))
+                        val updatedElement = element.value.copy(
+                            state = copy(localState = localState.copy(hasLostFocus = true))
                         )
-                        state.value = updatedState
+//                        element.triggerActions.filterIsInstance<OnFieldUpdateTrigger>().forEach { triggerAction ->
+//                            //We need to re-enable this but not update current state anymore
+//                            triggerAction.action.execute(
+//                                //TODO We need to pull target out into the data structure for the triggers, or maybe onto the action
+//                                element = updatedElement,
+//                                client = c,
+//                            )
+//                        }
+                        updatedElement.trigger<OnFieldUpdateTrigger>(c)
                     }
                     isFocused = focusState.isFocused
                     if (focusState.isFocused) {
-                        println("SDUI LOG ${state.value.state.label} Is Focused")
+                        println("SDUI LOG ${label} Is Focused")
                     }
                 },
             shape = RoundedCornerShape(8.dp),
@@ -185,8 +189,8 @@ fun STextField(
             ),
         )
         Spacer(modifier = Modifier.height(4.dp))
-        val error = state.value.state.localState.error
-        AnimatedVisibility(visible = error != null && state.value.state.localState.hasLostFocus) {
+        val error = localState.error
+        AnimatedVisibility(visible = error != null && localState.hasLostFocus) {
             Text(
                 text = error.orEmpty(), // This causes animation issues we will need to address later
                 style = MaterialTheme.typography.bodySmall,
@@ -198,20 +202,19 @@ fun STextField(
 
 @Composable
 fun SToggle(
-    state: MutableState<StateHolder<ToggleState>>,
+    element: MutableState<Component<ToggleState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     var toggleModified by remember { mutableStateOf(false) }
-
+    val c = C
     Switch(
-        checked = if (toggleModified) state.value.state.value else state.value.state.initialState
-            ?: state.value.state.value,
+        checked = if (toggleModified) element.value.state.value else element.value.state.initialState
+            ?: element.value.state.value,
         onCheckedChange = {
             toggleModified = true
-            val updatedState = state.value.state.copy(value = it)
-            state.value = state.value.copy(state = updatedState)
+            val updatedState = element.value.state.copy(value = it)
+            element.value = element.value.copy(state = updatedState)
             //TODO this is certainly cumbersome copy and pasting everywhere
             triggerActions.filterIsInstance<OnToggleUpdateTrigger>().forEach { triggerAction ->
                 triggerAction.action.execute(
@@ -226,73 +229,66 @@ fun SToggle(
 
 @Composable
 fun SDropDown(
-    state: MutableState<StateHolder<DropDownState>>,
+    element: MutableState<Component<DropDownState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("DropDown")
 }
 
 @Composable
 fun SRadioList(
-    state: MutableState<StateHolder<RadioListState>>,
+    element: MutableState<Component<RadioListState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("RadioList")
 }
 
 @Composable
 fun STickList(
-    state: MutableState<StateHolder<TickListState>>,
+    element: MutableState<Component<TickListState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("TickList")
 }
 
 @Composable
 fun SSearch(
-    state: MutableState<StateHolder<SearchState>>,
+    element: MutableState<Component<SearchState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Search")
 }
 
 @Composable
 fun SMenu(
-    state: MutableState<StateHolder<MenuState>>,
+    element: MutableState<Component<MenuState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Menu")
 }
 
 @Composable
 fun SBottomRow(
-    state: MutableState<StateHolder<BottomRowState>>,
+    element: MutableState<Component<BottomRowState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("BottomRow")
 }
 
 @Composable
 fun SImage(
-    state: MutableState<StateHolder<ImageState>>,
+    element: MutableState<Component<ImageState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Image")
-    when (val src = state.value.state.src) {
+    when (val src = element.value.state.src) {
         is ImageState.Source.Resource -> Icon(
             painter = painterResource(
                 when (src.resource) {
@@ -300,13 +296,13 @@ fun SImage(
                     else -> Res.drawable.compose_multiplatform
                 }
             ),
-            contentDescription = state.value.state.accessibilityLabel,
+            contentDescription = element.value.state.accessibilityLabel,
         )
 
         is ImageState.Source.Url -> {
             AsyncImage(
                 model = src.url,
-                contentDescription = state.value.state.accessibilityLabel,
+                contentDescription = element.value.state.accessibilityLabel,
                 modifier = Modifier.fillMaxWidth(),
                 onError = {
                     println("Coil: Image failed to load: ${it.result.throwable}")
@@ -318,32 +314,30 @@ fun SImage(
 
 @Composable
 fun SVideo(
-    state: MutableState<StateHolder<VideoState>>,
+    element: MutableState<Component<VideoState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Video")
 }
 
 @Composable
 fun SCustom(
-    state: MutableState<StateHolder<CustomState>>,
+    element: MutableState<Component<CustomState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Custom")
 }
 
 @Composable
 fun SButton(
-    state: MutableState<StateHolder<ButtonState>>,
+    element: MutableState<Component<ButtonState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
-    when (state.value.state.buttonType) {
+    val c = C
+    when (element.value.state.buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
                 triggerActions.filterIsInstance<OnClickTrigger>().forEach { triggerAction ->
@@ -366,10 +360,10 @@ fun SButton(
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 1.dp,
             ),
-            enabled = state.value.state.valid ?: true,
+            enabled = element.value.state.valid ?: true,
         ) {
             Text(
-                text = state.value.state.value,
+                text = element.value.state.value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             )
         }
@@ -401,10 +395,10 @@ fun SButton(
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 1.dp,
             ),
-            enabled = state.value.state.valid ?: true,
+            enabled = element.value.state.valid ?: true,
         ) {
             Text(
-                text = state.value.state.value,
+                text = element.value.state.value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             )
         }
@@ -434,10 +428,10 @@ fun SButton(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
             ),
-            enabled = state.value.state.valid ?: true,
+            enabled = element.value.state.valid ?: true,
         ) {
             Text(
-                text = state.value.state.value,
+                text = element.value.state.value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -447,61 +441,55 @@ fun SButton(
 
 @Composable
 fun SIcon(
-    state: MutableState<StateHolder<IconState>>,
+    element: MutableState<Component<IconState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Icon")
 }
 
 @Composable
 fun SLoadingShimmer(
-    state: MutableState<StateHolder<LoadingShimmerState>>,
+    element: MutableState<Component<LoadingShimmerState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("LoadingShimmer")
 }
 
 @Composable
 fun SDialog(
-    state: MutableState<StateHolder<DialogState>>,
+    element: MutableState<Component<DialogState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Dialog")
 }
 
 @Composable
 fun SSnackBar(
-    state: MutableState<StateHolder<SnackBarState>>,
+    element: MutableState<Component<SnackBarState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("SnackBar")
 }
 
 @Composable
 fun SLoader(
-    state: MutableState<StateHolder<LoaderState>>,
+    element: MutableState<Component<LoaderState>>,
     triggerActions: List<TriggerAction>,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Loader")
 }
 
 @Composable
 fun SUnknownComponent(
-    state: MutableState<StateHolder<UnknownComponentState>>,
+    element: MutableState<Component<UnknownComponentState>>,
     triggerActions: List<TriggerAction>,
     fallback: ScreenConfig.Fallback,
     id: ID,
-    c: CommonClient,
 ) {
     Text("Unknown Component")
 }

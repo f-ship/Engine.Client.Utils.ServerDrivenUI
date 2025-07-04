@@ -10,6 +10,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.state.ColorSchemeState
+import ship.f.engine.shared.utils.serverdrivenui.state.State
 
 @Composable
 fun RenderScreen(
@@ -25,14 +26,25 @@ fun RenderScreen(
             screenConfig.value.lightColorScheme?.let {
                 MaterialTheme.colorScheme.fromColorSchemeState(it)
             }
-        }?: MaterialTheme.colorScheme,
+        } ?: MaterialTheme.colorScheme,
     ) {
-        LazyColumn {
-            items(screenConfig.value.state) {
-                client.RenderUI(
-                    element = it,
-                )
-            }
+        Screen(
+            screenConfig = screenConfig,
+            client = client,
+        )
+    }
+}
+
+@Composable
+fun Screen(
+    screenConfig: MutableState<ScreenConfig>,
+    client: CommonClient,
+) {
+    LazyColumn {
+        items(screenConfig.value.state) {
+            client.RenderUI(
+                element = client.getElement<State>(it.id).value,
+            )
         }
     }
 }

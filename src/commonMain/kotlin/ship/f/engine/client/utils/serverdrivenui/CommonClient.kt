@@ -3,12 +3,26 @@ package ship.f.engine.client.utils.serverdrivenui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import ship.f.engine.client.utils.serverdrivenui.components.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Element
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
 import ship.f.engine.shared.utils.serverdrivenui.action.Client
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
 import ship.f.engine.shared.utils.serverdrivenui.state.*
+
+val ClientProvider = staticCompositionLocalOf { CommonClient() }
+val C @Composable get() = ClientProvider.current
+
+@Composable
+fun <S: ComponentState>MutableState<Component<S>>.WithComponent(block: @Composable S.() -> Unit): Unit {
+    block(this.value.state)
+}
+
+@Composable
+fun <S: WidgetState>MutableState<Widget<S>>.WithWidget(block: @Composable S.() -> Unit): Unit {
+    block(this.value.state)
+}
 
 /**
  * Need to upgrade how the backstack is handled. I wonder if I can make copying more efficient
@@ -19,13 +33,17 @@ class CommonClient : Client {
     override val elementMap: MutableMap<ScreenConfig.ID, Element<out State>> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
     val shadowStateMap: MutableMap<ScreenConfig.ID, MutableState<Client.StateHolder<out State>>> = mutableMapOf()
-    val shadowElementMap: MutableState<MutableMap<ScreenConfig.ID, Element<out State>>> = mutableStateOf(elementMap)
+    val shadowElementMap: MutableMap<ScreenConfig.ID, MutableState<Element<out State>>> = mutableMapOf()
 
     override fun postUpdateHook(
         id: ScreenConfig.ID,
         stateHolder: Client.StateHolder<out State>,
     ) {
         shadowStateMap[id]?.value = stateHolder
+    }
+
+    override fun postElementUpdateHook(element: Element<out State>) {
+        shadowElementMap[element.id]?.value = element
     }
 
     var initMap: MutableMap<ScreenConfig.ID, Boolean> = mutableMapOf()
@@ -57,11 +75,13 @@ class CommonClient : Client {
         if (elementMap[element.id] != null && elementMap[element.id] != element) {
             error("Duplicate ID: ${element.id}")
         }
+        shadowElementMap[element.id] = mutableStateOf(element)
         elementMap[element.id] = element
 
+
         when (element) {
-            is ScreenConfig.Component<*> -> Unit
-            is ScreenConfig.Widget<*> -> element.state.children.forEach { setState(it) }
+            is Component<*> -> Unit
+            is Widget<*> -> element.state.children.forEach { setState(it) }
         }
     }
 
@@ -77,21 +97,23 @@ class CommonClient : Client {
                 )
                 val targetElement = elementMap[target.id] ?: error("Target element not found for ID: ${target.id}")
 
-                elementMap[target.id] = when (targetElement) {
-                    is ScreenConfig.Component<*> -> targetElement.copy(
+                val updatedElement = when (targetElement) {
+                    is Component<*> -> targetElement.copy(
                         listeners = targetElement.listeners + RemoteAction(
                             action = it.action,
                             id = element.id
                         )
                     )
 
-                    is ScreenConfig.Widget<*> -> targetElement.copy(
+                    is Widget<*> -> targetElement.copy(
                         listeners = targetElement.listeners + RemoteAction(
                             action = it.action,
                             id = element.id
                         )
                     )
                 }
+                elementMap[target.id] = updatedElement
+                shadowElementMap[target.id] = mutableStateOf(updatedElement)
 
                 shadowStateMap[target.id] = mutableStateOf(updatedStateHolder)
                 stateMap[target.id] = updatedStateHolder
@@ -100,12 +122,16 @@ class CommonClient : Client {
         }
 
         when (element) {
-            is ScreenConfig.Component<*> -> Unit
-            is ScreenConfig.Widget<*> -> element.state.children.forEach { setTriggers(it) }
+            is Component<*> -> Unit
+            is Widget<*> -> element.state.children.forEach { setTriggers(it) }
         }
     }
 
-    fun <T : State> getHolder(id: ScreenConfig.ID) = shadowStateMap[id] as MutableState<Client.StateHolder<T>>
+    fun <T : State> getHolder(id: ID) = shadowStateMap[id] as MutableState<Client.StateHolder<T>>
+
+    fun <T : State> getElement(id: ID) = shadowElementMap[id] as MutableState<Element<T>>
+    fun <T : State> getComponent(id: ID) = shadowElementMap[id] as MutableState<Component<T>>
+    fun <T : State> getWidget(id: ID) = shadowElementMap[id] as MutableState<Widget<T>>
 
     @Composable
     fun RenderWidget(
@@ -192,141 +218,118 @@ class CommonClient : Client {
     ) {
         when (state) {
             is BottomRowState -> SBottomRow(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is ButtonState -> SButton(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is CustomState -> SCustom(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is DialogState -> SDialog(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is DropDownState -> SDropDown(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is IconState -> SIcon(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is ImageState -> SImage(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is LoaderState -> SLoader(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is LoadingShimmerState -> SLoadingShimmer(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is MenuState -> SMenu(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is RadioListState -> SRadioList(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is SearchState -> SSearch(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is SnackBarState -> SSnackBar(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is FieldState -> STextField(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = getComponent(id),
             )
 
             is TextState -> SText(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = getComponent(id),
             )
 
             is TickListState -> STickList(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is ToggleState -> SToggle(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is VideoState -> SVideo(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 id = id,
-                c = this,
             )
 
             is SpaceState -> Space(
-                state = c.getHolder(id),
+                element = getComponent(id),
             )
 
             is UnknownComponentState -> SUnknownComponent(
-                state = c.getHolder(id),
+                element = getComponent(id),
                 triggerActions = triggerActions,
                 fallback = fallback,
                 id = id,
-                c = this,
             )
         }
     }

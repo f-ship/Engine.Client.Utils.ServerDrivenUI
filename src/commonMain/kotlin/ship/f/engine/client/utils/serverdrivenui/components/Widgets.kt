@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ship.f.engine.client.utils.serverdrivenui.C
 import ship.f.engine.client.utils.serverdrivenui.CommonClient
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.ID
@@ -27,7 +28,7 @@ fun SCard(
     Text("Card")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -42,7 +43,7 @@ fun SBottomSheet(
     Text("BottomSheet")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -57,7 +58,7 @@ fun SRow(
     Text("Row")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -80,7 +81,7 @@ fun SColumn(
         },
     ) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -95,7 +96,7 @@ fun SFlexRow(
     Text("FlexRow")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -110,7 +111,7 @@ fun SFlexColumn(
     Text("FlexColumn")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -125,7 +126,7 @@ fun SGrid(
     Text("Grid")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
@@ -140,7 +141,7 @@ fun SFlexGrid(
     Text("FlexGrid")
     Column(modifier = Modifier.padding(16.dp)) {
         state.value.state.children.forEach {
-            c.RenderUI(it)
+            C.RenderUI(it)
         }
     }
 }
