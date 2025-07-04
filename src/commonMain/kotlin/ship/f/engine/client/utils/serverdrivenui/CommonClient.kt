@@ -16,12 +16,12 @@ val ClientProvider = staticCompositionLocalOf { CommonClient.getClient() }
 val C @Composable get() = ClientProvider.current
 
 @Composable
-fun <S: ComponentState>MutableState<Component<S>>.WithComponent(block: @Composable S.() -> Unit): Unit {
+fun <S: ComponentState>MutableState<Component<S>>.WithComponentState(block: @Composable S.() -> Unit): Unit {
     block(this.value.state)
 }
 
 @Composable
-fun <S: WidgetState>MutableState<Widget<S>>.WithWidget(block: @Composable S.() -> Unit): Unit {
+fun <S: WidgetState>MutableState<Widget<S>>.WithWidgetState(block: @Composable S.() -> Unit): Unit {
     block(this.value.state)
 }
 
@@ -128,150 +128,136 @@ class CommonClient private constructor() : Client {
         }
     }
 
-    fun <T : State> getHolder(id: ID) = shadowStateMap[id] as MutableState<Client.StateHolder<T>>
-
     fun <T : State> getElement(id: ID) = shadowElementMap[id] as MutableState<Element<T>>
     fun <T : State> getComponent(id: ID) = shadowElementMap[id] as MutableState<Component<T>>
     fun <T : State> getWidget(id: ID) = shadowElementMap[id] as MutableState<Widget<T>>
 
     @Composable
     fun RenderWidget(
-        state: WidgetState,
-        triggerActions: List<ScreenConfig.TriggerAction>,
-        fallback: ScreenConfig.Fallback,
-        id: ScreenConfig.ID,
-        c: CommonClient,
+        widget: Widget<out WidgetState>
     ) {
-        when (state) {
+        when (widget.state) {
             is BottomSheetState -> SBottomSheet(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is CardState -> SCard(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is ColumnState -> SColumn(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is FlexRowState -> SFlexRow(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is GridState -> SGrid(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is RowState -> SRow(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is FlexGridState -> SFlexGrid(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is FlexColumnState -> SFlexColumn(
-                element = c.getWidget(id),
+                element = getWidget(widget.id),
             )
 
             is UnknownWidgetState -> SUnknownWidget(
-                element = c.getWidget(id),
-                triggerActions = triggerActions,
-                fallback = fallback,
-                id = id,
-                c = c
+                element = getWidget(widget.id),
             )
         }
     }
 
     @Composable
     fun RenderComponent(
-        state: ComponentState,
-        triggerActions: List<ScreenConfig.TriggerAction>,
-        fallback: ScreenConfig.Fallback,
-        id: ScreenConfig.ID,
-        c: CommonClient,
+        component: Component<out ComponentState>,
     ) {
-        when (state) {
+        when (component.state) {
             is BottomRowState -> SBottomRow(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is ButtonState -> SButton(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is CustomState -> SCustom(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is DialogState -> SDialog(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is DropDownState -> SDropDown(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is IconState -> SIcon(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is ImageState -> SImage(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is LoaderState -> SLoader(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is LoadingShimmerState -> SLoadingShimmer(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is MenuState -> SMenu(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is RadioListState -> SRadioList(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is SearchState -> SSearch(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is SnackBarState -> SSnackBar(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is FieldState -> STextField(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is TextState -> SText(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is TickListState -> STickList(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is ToggleState -> SToggle(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is VideoState -> SVideo(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is SpaceState -> Space(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
 
             is UnknownComponentState -> SUnknownComponent(
-                element = getComponent(id),
+                element = getComponent(component.id),
             )
         }
     }
@@ -280,22 +266,13 @@ class CommonClient private constructor() : Client {
     fun RenderUI(
         element: Element<out State>,
     ) {
-        val stateHolder = shadowStateMap[element.id]!!.value
-        when (val state = stateHolder.state) {
+        when (element.state) {
             is WidgetState -> RenderWidget(
-                state = state,
-                triggerActions = element.triggerActions,
-                fallback = element.fallback,
-                id = element.id,
-                c = this,
+                widget = element as Widget<out WidgetState>,
             )
 
             is ComponentState -> RenderComponent(
-                state = state,
-                triggerActions = element.triggerActions,
-                fallback = element.fallback,
-                id = element.id,
-                c = this,
+                component = element as Component<out ComponentState>,
             )
         }
     }

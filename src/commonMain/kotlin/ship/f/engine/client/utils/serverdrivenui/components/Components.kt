@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.client.utils.serverdrivenui.C
-import ship.f.engine.client.utils.serverdrivenui.WithComponent
+import ship.f.engine.client.utils.serverdrivenui.WithComponentState
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
@@ -31,14 +31,14 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 @Composable
 fun Space(
     element: MutableState<Component<SpaceState>>,
-) {
+) = element.WithComponentState {
     Spacer(modifier = Modifier.height(element.value.state.value.dp))
 }
 
 @Composable
 fun SText(
     element: MutableState<Component<TextState>>,
-) {
+) = element.WithComponentState {
     val style = when (element.value.state.style) {
         is TextState.Style.BodyLarge -> MaterialTheme.typography.bodyLarge
         is TextState.Style.BodyMedium -> MaterialTheme.typography.bodyMedium
@@ -66,7 +66,7 @@ fun SText(
 @Composable
 fun STextField(
     element: MutableState<Component<FieldState>>,
-) = element.WithComponent {
+) = element.WithComponentState {
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
 
@@ -201,7 +201,7 @@ fun STextField(
 @Composable
 fun SToggle(
     element: MutableState<Component<ToggleState>>,
-) {
+) = element.WithComponentState {
     val c = C
     var toggleModified by remember { mutableStateOf(false) }
     Switch(
@@ -226,49 +226,49 @@ fun SToggle(
 @Composable
 fun SDropDown(
     element: MutableState<Component<DropDownState>>,
-) {
+) = element.WithComponentState {
     Text("DropDown")
 }
 
 @Composable
 fun SRadioList(
     element: MutableState<Component<RadioListState>>,
-) {
+) = element.WithComponentState {
     Text("RadioList")
 }
 
 @Composable
 fun STickList(
     element: MutableState<Component<TickListState>>,
-) {
+) = element.WithComponentState {
     Text("TickList")
 }
 
 @Composable
 fun SSearch(
     element: MutableState<Component<SearchState>>,
-) {
+) = element.WithComponentState {
     Text("Search")
 }
 
 @Composable
 fun SMenu(
     element: MutableState<Component<MenuState>>,
-) {
+) = element.WithComponentState {
     Text("Menu")
 }
 
 @Composable
 fun SBottomRow(
     element: MutableState<Component<BottomRowState>>,
-) {
+) = element.WithComponentState {
     Text("BottomRow")
 }
 
 @Composable
 fun SImage(
     element: MutableState<Component<ImageState>>,
-) {
+) = element.WithComponentState {
     Text("Image")
     when (val src = element.value.state.src) {
         is ImageState.Source.Resource -> Icon(
@@ -297,21 +297,21 @@ fun SImage(
 @Composable
 fun SVideo(
     element: MutableState<Component<VideoState>>,
-) {
+) = element.WithComponentState {
     Text("Video")
 }
 
 @Composable
 fun SCustom(
     element: MutableState<Component<CustomState>>,
-) {
+) = element.WithComponentState {
     Text("Custom")
 }
 
 @Composable
 fun SButton(
     element: MutableState<Component<ButtonState>>,
-) {
+) = element.WithComponentState {
     val c = C
     when (element.value.state.buttonType) {
         ButtonState.ButtonType.Primary -> Button(
@@ -418,41 +418,41 @@ fun SButton(
 @Composable
 fun SIcon(
     element: MutableState<Component<IconState>>,
-) {
+) = element.WithComponentState {
     Text("Icon")
 }
 
 @Composable
 fun SLoadingShimmer(
     element: MutableState<Component<LoadingShimmerState>>,
-) {
+) = element.WithComponentState {
     Text("LoadingShimmer")
 }
 
 @Composable
 fun SDialog(
     element: MutableState<Component<DialogState>>,
-) {
+) = element.WithComponentState {
     Text("Dialog")
 }
 
 @Composable
 fun SSnackBar(
     element: MutableState<Component<SnackBarState>>,
-) {
+) = element.WithComponentState {
     Text("SnackBar")
 }
 
 @Composable
 fun SLoader(
     element: MutableState<Component<LoaderState>>,
-) {
+) = element.WithComponentState {
     Text("Loader")
 }
 
 @Composable
 fun SUnknownComponent(
     element: MutableState<Component<UnknownComponentState>>,
-) {
+) = element.WithComponentState {
     Text("Unknown Component")
 }
