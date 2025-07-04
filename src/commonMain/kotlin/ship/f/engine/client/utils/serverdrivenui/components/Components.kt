@@ -67,7 +67,6 @@ fun SText(
 fun STextField(
     element: MutableState<Component<FieldState>>,
 ) = element.WithComponent {
-    val c = C
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
 
@@ -88,7 +87,7 @@ fun STextField(
 //            )
 //        }
 
-        updatedElement.trigger<OnFieldUpdateTrigger>(c)
+        updatedElement.trigger<OnFieldUpdateTrigger>()
     }
 
     val visualTransformation = remember(fieldType) {
@@ -138,7 +137,7 @@ fun STextField(
 //                    )
 //                }
 
-                updatedElement.trigger<OnFieldUpdateTrigger>(c)
+                updatedElement.trigger<OnFieldUpdateTrigger>()
             },
             isError = if (localState.hasLostFocus) {
                 isValid(value) != null
@@ -164,7 +163,7 @@ fun STextField(
 //                                client = c,
 //                            )
 //                        }
-                        updatedElement.trigger<OnFieldUpdateTrigger>(c)
+                        updatedElement.trigger<OnFieldUpdateTrigger>()
                     }
                     isFocused = focusState.isFocused
                     if (focusState.isFocused) {
@@ -203,8 +202,8 @@ fun STextField(
 fun SToggle(
     element: MutableState<Component<ToggleState>>,
 ) {
-    var toggleModified by remember { mutableStateOf(false) }
     val c = C
+    var toggleModified by remember { mutableStateOf(false) }
     Switch(
         checked = if (toggleModified) element.value.state.value else element.value.state.initialState
             ?: element.value.state.value,

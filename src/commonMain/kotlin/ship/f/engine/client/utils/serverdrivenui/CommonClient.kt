@@ -8,10 +8,11 @@ import ship.f.engine.client.utils.serverdrivenui.components.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
 import ship.f.engine.shared.utils.serverdrivenui.action.Client
+import ship.f.engine.shared.utils.serverdrivenui.action.ClientHolder
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
-val ClientProvider = staticCompositionLocalOf { CommonClient() }
+val ClientProvider = staticCompositionLocalOf { CommonClient.getClient() }
 val C @Composable get() = ClientProvider.current
 
 @Composable
@@ -28,7 +29,7 @@ fun <S: WidgetState>MutableState<Widget<S>>.WithWidget(block: @Composable S.() -
  * Need to upgrade how the backstack is handled. I wonder if I can make copying more efficient
  */
 @Suppress("UNCHECKED_CAST")
-class CommonClient : Client {
+class CommonClient private constructor() : Client {
     override val stateMap: MutableMap<ScreenConfig.ID, Client.StateHolder<out State>> = mutableMapOf()
     override val elementMap: MutableMap<ScreenConfig.ID, Element<out State>> = mutableMapOf()
     override var banner: ScreenConfig.Fallback? = null
@@ -143,63 +144,39 @@ class CommonClient : Client {
     ) {
         when (state) {
             is BottomSheetState -> SBottomSheet(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is CardState -> SCard(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is ColumnState -> SColumn(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is FlexRowState -> SFlexRow(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is GridState -> SGrid(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is RowState -> SRow(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is FlexGridState -> SFlexGrid(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is FlexColumnState -> SFlexColumn(
-                state = c.getHolder(id),
-                triggerActions = triggerActions,
-                id = id,
-                c = this,
+                element = c.getWidget(id),
             )
 
             is UnknownWidgetState -> SUnknownWidget(
-                state = c.getHolder(id),
+                element = c.getWidget(id),
                 triggerActions = triggerActions,
                 fallback = fallback,
                 id = id,
@@ -321,5 +298,14 @@ class CommonClient : Client {
                 c = this,
             )
         }
+    }
+
+    companion object {
+        private val clients = mutableListOf<CommonClient>()
+        private fun createClient() = CommonClient().also {
+            clients.add(it)
+            ClientHolder.addClient(it)
+        }
+        fun getClient() = clients.lastOrNull() ?: createClient()
     }
 }
