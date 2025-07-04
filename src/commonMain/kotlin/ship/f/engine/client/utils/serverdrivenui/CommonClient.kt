@@ -10,6 +10,7 @@ import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
 import ship.f.engine.shared.utils.serverdrivenui.action.Client
 import ship.f.engine.shared.utils.serverdrivenui.action.ClientHolder
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
+import ship.f.engine.shared.utils.serverdrivenui.action.fGet
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 val ClientProvider = staticCompositionLocalOf { CommonClient.getClient() }
@@ -39,18 +40,9 @@ fun <S: WidgetState>MutableState<Widget<S>>.update(block: S.() -> S): Widget<S> 
  */
 @Suppress("UNCHECKED_CAST")
 class CommonClient private constructor() : Client {
-    override val stateMap: MutableMap<ID, Client.StateHolder<out State>> = mutableMapOf()
-    override val elementMap: MutableMap<ID, Element<out State>> = mutableMapOf()
     override var banner: Fallback? = null
-    val shadowStateMap: MutableMap<ID, MutableState<Client.StateHolder<out State>>> = mutableMapOf()
+    override val elementMap: MutableMap<ID, Element<out State>> = mutableMapOf()
     val shadowElementMap: MutableMap<ID, MutableState<Element<out State>>> = mutableMapOf()
-
-    override fun postUpdateHook(
-        id: ID,
-        stateHolder: Client.StateHolder<out State>,
-    ) {
-        shadowStateMap[id]?.value = stateHolder
-    }
 
     override fun postElementUpdateHook(element: Element<out State>) {
         shadowElementMap[element.id]?.value = element
@@ -79,9 +71,6 @@ class CommonClient private constructor() : Client {
     }
 
     private fun setState(element: Element<out State>) {
-        val stateHolder = Client.StateHolder(element.state)
-        shadowStateMap[element.id] = mutableStateOf(stateHolder)
-        stateMap[element.id] = stateHolder
         if (elementMap[element.id] != null && elementMap[element.id] != element) {
             error("Duplicate ID: ${element.id}")
         }
@@ -96,17 +85,9 @@ class CommonClient private constructor() : Client {
     }
 
     private fun setTriggers(element: Element<out State>) {
-        element.triggerActions.filterIsInstance<ScreenConfig.TriggerAction.OnStateUpdateTrigger>().forEach {
+        element.triggerActions.filterIsInstance<TriggerAction.OnStateUpdateTrigger>().forEach {
             it.action.targetIds.forEach { target ->
-                val stateHolder = shadowStateMap[target.id]!!.value
-                val updatedStateHolder = stateHolder.copy(
-                    listeners = stateHolder.listeners + RemoteAction(
-                        action = it.action,
-                        id = element.id
-                    )
-                )
-                val targetElement = elementMap[target.id] ?: error("Target element not found for ID: ${target.id}")
-
+                val targetElement = elementMap.fGet(target.id)
                 val updatedElement = when (targetElement) {
                     is Component<*> -> targetElement.copy(
                         listeners = targetElement.listeners + RemoteAction(
@@ -124,10 +105,6 @@ class CommonClient private constructor() : Client {
                 }
                 elementMap[target.id] = updatedElement
                 shadowElementMap[target.id] = mutableStateOf(updatedElement)
-
-                shadowStateMap[target.id] = mutableStateOf(updatedStateHolder)
-                stateMap[target.id] = updatedStateHolder
-                println(shadowStateMap[target.id]?.value)
             }
         }
 
