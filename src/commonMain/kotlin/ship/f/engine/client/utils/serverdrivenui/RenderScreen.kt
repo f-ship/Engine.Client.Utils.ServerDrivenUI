@@ -12,6 +12,9 @@ import ship.f.engine.client.utils.serverdrivenui.ext.fromColorSchemeState
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.state.State
 
+/**
+ * Entry point for rendering the screen using a screenConfig and a client
+ */
 @Composable
 fun RenderScreen(
     screenConfig: MutableState<ScreenConfig>,

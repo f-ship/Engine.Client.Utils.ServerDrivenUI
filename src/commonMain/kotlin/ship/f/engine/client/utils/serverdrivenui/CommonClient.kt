@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import ship.f.engine.client.utils.serverdrivenui.elements.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
-import ship.f.engine.shared.utils.serverdrivenui.action.Meta
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger
 import ship.f.engine.shared.utils.serverdrivenui.client.Client
@@ -18,45 +17,71 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
  * Main Client, in which much of its functionality should probably be pushed into the main client
  */
 @Suppress("UNCHECKED_CAST")
-class CommonClient private constructor() : Client {
-    override var banner: Fallback? = null
-    override val elementMap: MutableMap<ID, Element<out State>> = mutableMapOf()
-    override val metaMap: MutableMap<ID, Meta> = mutableMapOf()
-    val shadowElementMap: MutableMap<ID, MutableState<Element<out State>>> = mutableMapOf()
+class CommonClient private constructor() : Client() {
+    /**
+     * The map of elements that the common client keeps track of using mutable states
+     */
+    val reactiveElementMap: MutableMap<ID, MutableState<Element<out State>>> = mutableMapOf()
 
-    override fun postElementUpdateHook(element: Element<out State>) {
-        shadowElementMap[element.id]?.value = element
-    }
-
-    var initMap: MutableMap<ID, Boolean> = mutableMapOf()
-
-    val backstack: MutableList<ScreenConfig> = mutableListOf()
-
-    // Make this have a default empty screen config instead of making this nullable
+    /**
+     * Navigable backstack of screenConfigs
+     */
     var currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) } ?: mutableStateOf(ScreenConfig())
-    fun addConfig(config: ScreenConfig) {
-        backstack.add(config)
-        currentScreen.value = config
-    }
 
+    /**
+     * Get a mutable state of an element by its ID
+     */
+
+    fun <T : State> getElement(id: ID) = reactiveElementMap[id] as MutableState<Element<T>>
+    /**
+     * Get a mutable state of a component by its ID
+     */
+
+    fun <T : State> getComponent(id: ID) = reactiveElementMap[id] as MutableState<Component<T>>
+
+    /**
+     * Get a mutable state of a widget by its ID
+     */
+    fun <T : State> getWidget(id: ID) = reactiveElementMap[id] as MutableState<Widget<T>>
+
+    /**
+     * Push a new screenConfig onto the backstack and set the state of the screenConfig
+     */
     fun pushScreen(config: ScreenConfig) {
-        if (initMap[config.id] ?: true) {
+        if (initScreenConfigMap[config.id] ?: true) {
             config.state.forEach {
                 setState(it as Element<State>)
                 setTriggers(it)
             }
-            initMap[config.id] = false
+            initScreenConfigMap[config.id] = false
         }
         addConfig(config)
     }
 
+    /**
+     * Used to implement a reactive update of the state of an element.
+     */
+    override fun postReactiveUpdate(element: Element<out State>) {
+        reactiveElementMap[element.id]?.value = element
+    }
+
+    /**
+     * Add a screenConfig to the backstack
+     */
+    private fun addConfig(config: ScreenConfig) {
+        backstack.add(config)
+        currentScreen.value = config
+    }
+
+    /**
+     * Used to recursively add elements from the screenConfig to the client's element map
+     */
     private fun setState(element: Element<out State>) {
         if (elementMap[element.id] != null && elementMap[element.id] != element) {
             error("Duplicate ID: ${element.id}")
         }
-        shadowElementMap[element.id] = mutableStateOf(element)
+        reactiveElementMap[element.id] = mutableStateOf(element)
         elementMap[element.id] = element
-
 
         when (element) {
             is Component<*> -> Unit
@@ -64,27 +89,22 @@ class CommonClient private constructor() : Client {
         }
     }
 
+    /**
+     * Used to recursively add triggers to the client's element map
+     */
     private fun setTriggers(element: Element<out State>) {
         element.triggers.filterIsInstance<Trigger.OnStateUpdateTrigger>().forEach {
             it.action.targetIds.forEach { target ->
                 val targetElement = elementMap.fGet(target.id)
-                val updatedElement = when (targetElement) {
-                    is Component<*> -> targetElement.copy(
-                        listeners = targetElement.listeners + RemoteAction(
-                            action = it.action,
-                            id = element.id
-                        )
+                val updatedElement = targetElement.updateElement(
+                    listeners = targetElement.listeners + RemoteAction(
+                        action = it.action,
+                        id = element.id,
                     )
+                )
 
-                    is Widget<*> -> targetElement.copy(
-                        listeners = targetElement.listeners + RemoteAction(
-                            action = it.action,
-                            id = element.id
-                        )
-                    )
-                }
                 elementMap[target.id] = updatedElement
-                shadowElementMap[target.id] = mutableStateOf(updatedElement)
+                reactiveElementMap[target.id] = mutableStateOf(updatedElement)
             }
         }
 
@@ -94,10 +114,23 @@ class CommonClient private constructor() : Client {
         }
     }
 
-    fun <T : State> getElement(id: ID) = shadowElementMap[id] as MutableState<Element<T>>
-    fun <T : State> getComponent(id: ID) = shadowElementMap[id] as MutableState<Component<T>>
-    fun <T : State> getWidget(id: ID) = shadowElementMap[id] as MutableState<Widget<T>>
+    /**
+     * Render either a component or widget
+     * May remove the distinction between components and widgets in the future
+     */
+    @Composable
+    fun RenderUI(
+        element: Element<out State>,
+    ) {
+        when (element.state) {
+            is WidgetState -> RenderWidget(widget = element as Widget<out WidgetState>)
+            is ComponentState -> RenderComponent(component = element as Component<out ComponentState>)
+        }
+    }
 
+    /**
+     * Entry point used for rendering widgets
+     */
     @Composable
     fun RenderWidget(
         widget: Widget<out WidgetState>
@@ -115,6 +148,9 @@ class CommonClient private constructor() : Client {
         }
     }
 
+    /**
+     * Entry point used for rendering components
+     */
     @Composable
     fun RenderComponent(
         component: Component<out ComponentState>,
@@ -143,22 +179,23 @@ class CommonClient private constructor() : Client {
         }
     }
 
-    @Composable
-    fun RenderUI(
-        element: Element<out State>,
-    ) {
-        when (element.state) {
-            is WidgetState -> RenderWidget(widget = element as Widget<out WidgetState>)
-            is ComponentState -> RenderComponent(component = element as Component<out ComponentState>)
-        }
-    }
-
     companion object {
+        /**
+         * List of CommonClients created by the application
+         */
         private val clients = mutableListOf<CommonClient>()
+
+        /**
+         * Method used to create a new CommonClient and add it to the list of common clients and general clients used in shared modules
+         */
         private fun createClient() = CommonClient().also {
             clients.add(it)
             ClientHolder.addClient(it)
         }
+
+        /**
+         * CommonClient Provider used to ensure multiple clients are not accidentally created simultaneously
+         */
         fun getClient() = clients.lastOrNull() ?: createClient()
     }
 }

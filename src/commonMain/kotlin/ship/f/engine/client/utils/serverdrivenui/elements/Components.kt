@@ -21,7 +21,6 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import org.jetbrains.compose.resources.painterResource
-import ship.f.engine.client.utils.serverdrivenui.components.testConfig
 import ship.f.engine.client.utils.serverdrivenui.ext.C
 import ship.f.engine.client.utils.serverdrivenui.ext.PasswordVisualTransformation
 import ship.f.engine.client.utils.serverdrivenui.ext.WithComponentState
@@ -29,6 +28,7 @@ import ship.f.engine.client.utils.serverdrivenui.ext.update
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
+import ship.f.engine.client.utils.serverdrivenui.temp.testConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Component
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.*
 import ship.f.engine.shared.utils.serverdrivenui.state.*

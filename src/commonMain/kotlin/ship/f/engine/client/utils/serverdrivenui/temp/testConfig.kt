@@ -1,12 +1,12 @@
-package ship.f.engine.client.utils.serverdrivenui.components
+package ship.f.engine.client.utils.serverdrivenui.temp
 
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
-import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnFieldUpdateTrigger
-import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnStateUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.action.Action
 import ship.f.engine.shared.utils.serverdrivenui.action.Action.UpdateState
 import ship.f.engine.shared.utils.serverdrivenui.action.Target
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnFieldUpdateTrigger
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnStateUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 val testConfig = ScreenConfig(

@@ -7,8 +7,19 @@ import androidx.compose.ui.graphics.Color
 import ship.f.engine.client.utils.serverdrivenui.CommonClient
 import ship.f.engine.shared.utils.serverdrivenui.state.ColorSchemeState
 
+/**
+ * Composition Local of CommonClient to provide the client to elements
+ */
 val ClientProvider = staticCompositionLocalOf { CommonClient.getClient() }
+
+/**
+ * Convenience property to access the current client from within a Composable
+ */
 val C @Composable get() = ClientProvider.current
+
+/**
+ * Convenience method to convert a ColorSchemeState to a Material ColorScheme
+ */
 fun ColorScheme.fromColorSchemeState(colorSchemeState: ColorSchemeState) = copy(
     primary = Color(colorSchemeState.primary),
     onPrimary = Color(colorSchemeState.onPrimary),

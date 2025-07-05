@@ -7,6 +7,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 
+/**
+ * Visual transformation for password fields.
+ */
 class PasswordVisualTransformation(private val mask: Char = '•') : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
