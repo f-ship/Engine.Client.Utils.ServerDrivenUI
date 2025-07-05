@@ -56,19 +56,18 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation("io.coil-kt.coil3:coil-compose:3.2.0")
-
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.2.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
         }
         androidMain.dependencies {
-            implementation("io.coil-kt.coil3:coil-network-ktor3:3.2.0")
-            implementation("io.ktor:ktor-client-android:3.1.3")
+            implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
         }
         appleMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:3.2.0")
+            implementation("io.ktor:ktor-client-darwin:3.2.1")
         }
         jvmMain.dependencies {
-            implementation("io.ktor:ktor-client-java:3.2.0")
+            implementation("io.ktor:ktor-client-java:3.2.1")
         }
     }
 }

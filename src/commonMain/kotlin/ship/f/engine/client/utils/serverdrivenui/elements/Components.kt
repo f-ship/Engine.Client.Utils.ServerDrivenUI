@@ -18,6 +18,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.client.utils.serverdrivenui.components.testConfig
 import ship.f.engine.client.utils.serverdrivenui.ext.C
@@ -258,7 +260,9 @@ fun SImage(
 
         is ImageState.Source.Url -> {
             AsyncImage(
-                model = src.url,
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(src.url)
+                    .build(),
                 contentDescription = accessibilityLabel,
                 modifier = Modifier.fillMaxWidth(),
                 onError = {
