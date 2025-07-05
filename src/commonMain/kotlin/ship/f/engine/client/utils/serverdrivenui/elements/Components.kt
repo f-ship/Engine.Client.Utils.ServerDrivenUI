@@ -76,7 +76,7 @@ fun STextField(
     var isFocused by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val error = isValid(value)
+        val error = isError(value)
         val updatedElement = element.update {
             copy(
                 localState = localState.copy(error = error),
@@ -116,7 +116,7 @@ fun STextField(
             },
             visualTransformation = visualTransformation,
             onValueChange = {
-                val error = isValid(value)
+                val error = isError(it)
                 val updatedElement = element.update {
                     copy(
                         localState = localState.copy(error = error),
@@ -128,7 +128,7 @@ fun STextField(
                 updatedElement.trigger<OnFieldUpdateTrigger>()
             },
             isError = if (localState.hasLostFocus) {
-                isValid(value) != null
+                isError(value) != null
             } else {
                 false
             },
