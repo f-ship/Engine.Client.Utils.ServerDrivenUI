@@ -21,14 +21,12 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import org.jetbrains.compose.resources.painterResource
-import ship.f.engine.client.utils.serverdrivenui.ext.C
 import ship.f.engine.client.utils.serverdrivenui.ext.PasswordVisualTransformation
 import ship.f.engine.client.utils.serverdrivenui.ext.WithComponentState
 import ship.f.engine.client.utils.serverdrivenui.ext.update
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
-import ship.f.engine.client.utils.serverdrivenui.temp.testConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Component
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.*
 import ship.f.engine.shared.utils.serverdrivenui.state.*
@@ -291,7 +289,7 @@ fun SCustom(
 fun SButton(
     element: MutableState<Component<ButtonState>>,
 ) = element.WithComponentState {
-    val c = C
+
     when (buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
@@ -299,9 +297,7 @@ fun SButton(
                 element.value.trigger<OnHoldTrigger>()
             },
             shape = RoundedCornerShape(8.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 1.dp,
-            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid ?: true,
         ) {
             Text(
@@ -321,9 +317,7 @@ fun SButton(
             ),
             shape = RoundedCornerShape(8.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 1.dp,
-            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid ?: true,
         ) {
             Text(
@@ -336,14 +330,9 @@ fun SButton(
             onClick = {
                 element.value.trigger<OnClickTrigger>()
                 element.value.trigger<OnHoldTrigger>()
-
-                //TODO for testing purposes
-                c.pushScreen(testConfig)
             },
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
             enabled = valid ?: true,
         ) {
             Text(

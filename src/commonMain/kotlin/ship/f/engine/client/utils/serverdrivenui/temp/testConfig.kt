@@ -2,15 +2,18 @@ package ship.f.engine.client.utils.serverdrivenui.temp
 
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
-import ship.f.engine.shared.utils.serverdrivenui.action.Action
 import ship.f.engine.shared.utils.serverdrivenui.action.Action.UpdateState
+import ship.f.engine.shared.utils.serverdrivenui.action.Action.UpdateValue
 import ship.f.engine.shared.utils.serverdrivenui.action.Target
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnFieldUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnStateUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
+/**
+ * Temporary configuration for the test screen
+ */
 val testConfig = ScreenConfig(
-    state = listOf(
+    children = listOf(
         Widget(
             state = ColumnState(
                 children = listOf(
@@ -25,21 +28,19 @@ val testConfig = ScreenConfig(
                                 Component(
                                     state = TextState(
                                         value = "",
-//                                        type = "UnknownStateText",
                                     ),
                                 ),
                                 Component(
-                                    id = ID(id = "TextId", scope = ""),
+                                    id = ID(id = "TestConfig-TextId", scope = ""),
                                     state = TextState(
                                         value = "",
-//                                        type = "TextState",
                                     ),
                                     triggers = listOf(
                                         OnStateUpdateTrigger(
-                                            action = Action.UpdateValue(
+                                            action = UpdateValue(
                                                 targetIds = listOf(
                                                     Target(
-                                                        id = ID(id = "TextFieldId", scope = ""),
+                                                        id = ID(id = "TestConfig-TextFieldId", scope = ""),
                                                     )
                                                 )
                                             )
@@ -47,7 +48,7 @@ val testConfig = ScreenConfig(
                                     )
                                 ),
                                 Component(
-                                    id = ID(id = "TextFieldId", scope = ""),
+                                    id = ID(id = "TestConfig-TextFieldId", scope = ""),
                                     state = FieldState(
                                         value = "",
                                         initialValue = "",
@@ -73,13 +74,18 @@ val testConfig = ScreenConfig(
             state = RowState(
                 children = listOf(
                     Component(
-                        id = ID(id = "TextFieldId2", scope = ""),
+                        id = ID(id = "TestConfig-TextFieldId2", scope = ""),
                         state = FieldState(
                             value = "",
                             initialValue = "",
                             placeholder = "",
                             label = "",
                         ),
+                        triggers = listOf(
+                            OnFieldUpdateTrigger(
+                                action = UpdateState(),
+                            )
+                        )
                     )
                 ),
                 arrangement = Arrangement.Flex,
@@ -101,9 +107,7 @@ val testConfig = ScreenConfig(
             state = FlexGridState(),
         ),
         Widget(
-            state = FlexGridState(
-//                type = "UnknownStateGrid"
-            ),
+            state = FlexGridState(),
         )
     )
 )

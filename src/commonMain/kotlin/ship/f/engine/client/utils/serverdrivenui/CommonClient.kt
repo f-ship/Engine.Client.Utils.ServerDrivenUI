@@ -6,11 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import ship.f.engine.client.utils.serverdrivenui.elements.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
-import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
-import ship.f.engine.shared.utils.serverdrivenui.action.Trigger
 import ship.f.engine.shared.utils.serverdrivenui.client.Client
 import ship.f.engine.shared.utils.serverdrivenui.client.ClientHolder
-import ship.f.engine.shared.utils.serverdrivenui.ext.fGet
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 /**
@@ -26,37 +23,22 @@ class CommonClient private constructor() : Client() {
     /**
      * Navigable backstack of screenConfigs
      */
-    var currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) } ?: mutableStateOf(ScreenConfig())
+    val currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) } ?: mutableStateOf(ScreenConfig())
 
     /**
      * Get a mutable state of an element by its ID
      */
-
     fun <T : State> getElement(id: ID) = reactiveElementMap[id] as MutableState<Element<T>>
+
     /**
      * Get a mutable state of a component by its ID
      */
-
     fun <T : State> getComponent(id: ID) = reactiveElementMap[id] as MutableState<Component<T>>
 
     /**
      * Get a mutable state of a widget by its ID
      */
     fun <T : State> getWidget(id: ID) = reactiveElementMap[id] as MutableState<Widget<T>>
-
-    /**
-     * Push a new screenConfig onto the backstack and set the state of the screenConfig
-     */
-    fun pushScreen(config: ScreenConfig) {
-        if (initScreenConfigMap[config.id] ?: true) {
-            config.state.forEach {
-                setState(it as Element<State>)
-                setTriggers(it)
-            }
-            initScreenConfigMap[config.id] = false
-        }
-        addConfig(config)
-    }
 
     /**
      * Used to implement a reactive update of the state of an element.
@@ -66,55 +48,20 @@ class CommonClient private constructor() : Client() {
     }
 
     /**
-     * Add a screenConfig to the backstack
+     * Used to create a reactive update for an element.
      */
-    private fun addConfig(config: ScreenConfig) {
-        backstack.add(config)
-        currentScreen.value = config
-    }
-
-    /**
-     * Used to recursively add elements from the screenConfig to the client's element map
-     */
-    private fun setState(element: Element<out State>) {
-        if (elementMap[element.id] != null && elementMap[element.id] != element) {
-            error("Duplicate ID: ${element.id}")
-        }
+    override fun createReactiveUpdate(element: Element<out State>) {
         reactiveElementMap[element.id] = mutableStateOf(element)
-        elementMap[element.id] = element
-
-        when (element) {
-            is Component<*> -> Unit
-            is Widget<*> -> element.state.children.forEach { setState(it) }
-        }
     }
 
     /**
-     * Used to recursively add triggers to the client's element map
+     * Used to implement a reactive update of the state of the screen config
      */
-    private fun setTriggers(element: Element<out State>) {
-        element.triggers.filterIsInstance<Trigger.OnStateUpdateTrigger>().forEach {
-            it.action.targetIds.forEach { target ->
-                val targetElement = elementMap.fGet(target.id)
-                val updatedElement = targetElement.updateElement(
-                    listeners = targetElement.listeners + RemoteAction(
-                        action = it.action,
-                        id = element.id,
-                    )
-                )
-
-                elementMap[target.id] = updatedElement
-                reactiveElementMap[target.id] = mutableStateOf(updatedElement)
-            }
-        }
-
-        when (element) {
-            is Component<*> -> Unit
-            is Widget<*> -> element.state.children.forEach { setTriggers(it) }
-        }
+    override fun postScreenConfig() {
+        currentScreen.value = backstack.last()
     }
 
-    /**
+     /**
      * Render either a component or widget
      * May remove the distinction between components and widgets in the future
      */

@@ -11,4 +11,12 @@ class AndroidClient : Client() {
     override fun postReactiveUpdate(element: ScreenConfig.Element<out State>) {
         TODO("Not yet implemented")
     }
+
+    override fun createReactiveUpdate(element: ScreenConfig.Element<out State>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun postScreenConfig() {
+        TODO("Not yet implemented")
+    }
 }

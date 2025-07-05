@@ -33,7 +33,7 @@ fun RenderScreen(
             } ?: MaterialTheme.colorScheme,
         ) {
             LazyColumn {
-                items(screenConfig.value.state) {
+                items(screenConfig.value.children) {
                     client.RenderUI(
                         element = client.getElement<State>(it.id).value,
                     )
