@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui.components
+package ship.f.engine.client.utils.serverdrivenui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

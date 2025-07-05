@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui.components
+package ship.f.engine.client.utils.serverdrivenui.elements
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ship.f.engine.client.utils.serverdrivenui.C
-import ship.f.engine.client.utils.serverdrivenui.WithWidgetState
+import ship.f.engine.client.utils.serverdrivenui.ext.C
+import ship.f.engine.client.utils.serverdrivenui.ext.WithWidgetState
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Fallback.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Widget
 import ship.f.engine.shared.utils.serverdrivenui.state.*

@@ -1,7 +1,7 @@
 package ship.f.engine.client.utils.serverdrivenui
 
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
-import ship.f.engine.shared.utils.serverdrivenui.action.Client
+import ship.f.engine.shared.utils.serverdrivenui.client.Client
 import ship.f.engine.shared.utils.serverdrivenui.state.State
 
 /**

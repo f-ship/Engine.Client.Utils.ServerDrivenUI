@@ -2,8 +2,8 @@ package ship.f.engine.client.utils.serverdrivenui.components
 
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.OnFieldUpdateTrigger
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.OnStateUpdateTrigger
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnFieldUpdateTrigger
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnStateUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.action.Action
 import ship.f.engine.shared.utils.serverdrivenui.action.Action.UpdateState
 import ship.f.engine.shared.utils.serverdrivenui.action.Target
@@ -34,7 +34,7 @@ val testConfig = ScreenConfig(
                                         value = "",
 //                                        type = "TextState",
                                     ),
-                                    triggerActions = listOf(
+                                    triggers = listOf(
                                         OnStateUpdateTrigger(
                                             action = Action.UpdateValue(
                                                 targetIds = listOf(
@@ -54,7 +54,7 @@ val testConfig = ScreenConfig(
                                         placeholder = "",
                                         label = "",
                                     ),
-                                    triggerActions = listOf(
+                                    triggers = listOf(
                                         OnFieldUpdateTrigger(
                                             action = UpdateState(),
                                         )

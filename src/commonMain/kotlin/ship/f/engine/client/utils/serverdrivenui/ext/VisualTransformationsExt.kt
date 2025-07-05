@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui.components
+package ship.f.engine.client.utils.serverdrivenui.ext
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString

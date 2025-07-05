@@ -3,40 +3,18 @@ package ship.f.engine.client.utils.serverdrivenui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.staticCompositionLocalOf
-import ship.f.engine.client.utils.serverdrivenui.components.*
+import ship.f.engine.client.utils.serverdrivenui.elements.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
-import ship.f.engine.shared.utils.serverdrivenui.action.Client
-import ship.f.engine.shared.utils.serverdrivenui.action.ClientHolder
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
-import ship.f.engine.shared.utils.serverdrivenui.action.fGet
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger
+import ship.f.engine.shared.utils.serverdrivenui.client.Client
+import ship.f.engine.shared.utils.serverdrivenui.client.ClientHolder
+import ship.f.engine.shared.utils.serverdrivenui.ext.fGet
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
-val ClientProvider = staticCompositionLocalOf { CommonClient.getClient() }
-val C @Composable get() = ClientProvider.current
-
-@Composable
-fun <S: ComponentState>MutableState<Component<S>>.WithComponentState(block: @Composable S.() -> Unit) {
-    block(this.value.state)
-}
-
-fun <S: ComponentState>MutableState<Component<S>>.update(block: S.() -> S): Component<S> {
-    return value.update(block)
-}
-
-@Composable
-fun <S: WidgetState>MutableState<Widget<S>>.WithWidgetState(block: @Composable S.() -> Unit) {
-    block(this.value.state)
-}
-
-fun <S: WidgetState>MutableState<Widget<S>>.update(block: S.() -> S): Widget<S> {
-    return value.update(block)
-}
-
-
 /**
- * Need to upgrade how the backstack is handled. I wonder if I can make copying more efficient
+ * Main Client, in which much of its functionality should probably be pushed into the main client
  */
 @Suppress("UNCHECKED_CAST")
 class CommonClient private constructor() : Client {
@@ -85,7 +63,7 @@ class CommonClient private constructor() : Client {
     }
 
     private fun setTriggers(element: Element<out State>) {
-        element.triggerActions.filterIsInstance<TriggerAction.OnStateUpdateTrigger>().forEach {
+        element.triggers.filterIsInstance<Trigger.OnStateUpdateTrigger>().forEach {
             it.action.targetIds.forEach { target ->
                 val targetElement = elementMap.fGet(target.id)
                 val updatedElement = when (targetElement) {

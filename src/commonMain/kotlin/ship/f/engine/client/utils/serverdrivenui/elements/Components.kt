@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui.components
+package ship.f.engine.client.utils.serverdrivenui.elements
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -19,14 +19,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
-import ship.f.engine.client.utils.serverdrivenui.C
-import ship.f.engine.client.utils.serverdrivenui.WithComponentState
+import ship.f.engine.client.utils.serverdrivenui.components.testConfig
+import ship.f.engine.client.utils.serverdrivenui.ext.C
+import ship.f.engine.client.utils.serverdrivenui.ext.PasswordVisualTransformation
+import ship.f.engine.client.utils.serverdrivenui.ext.WithComponentState
+import ship.f.engine.client.utils.serverdrivenui.ext.update
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
-import ship.f.engine.client.utils.serverdrivenui.update
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Component
-import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.TriggerAction.*
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.*
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 @Composable
