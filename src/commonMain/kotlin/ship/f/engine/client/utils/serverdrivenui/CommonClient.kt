@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import ship.f.engine.client.utils.serverdrivenui.elements.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
+import ship.f.engine.shared.utils.serverdrivenui.action.Meta
 import ship.f.engine.shared.utils.serverdrivenui.action.RemoteAction
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger
 import ship.f.engine.shared.utils.serverdrivenui.client.Client
@@ -20,6 +21,7 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 class CommonClient private constructor() : Client {
     override var banner: Fallback? = null
     override val elementMap: MutableMap<ID, Element<out State>> = mutableMapOf()
+    override val metaMap: MutableMap<ID, Meta> = mutableMapOf()
     val shadowElementMap: MutableMap<ID, MutableState<Element<out State>>> = mutableMapOf()
 
     override fun postElementUpdateHook(element: Element<out State>) {
