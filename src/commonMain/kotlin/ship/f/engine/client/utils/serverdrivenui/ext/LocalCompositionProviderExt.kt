@@ -2,10 +2,15 @@ package ship.f.engine.client.utils.serverdrivenui.ext
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import ship.f.engine.client.utils.serverdrivenui.CommonClient
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.state.ColorSchemeState
+
+@Composable
+fun rememberCommonClient(config: ScreenConfig) = remember(config) { CommonClient.getClient().apply { navigate(config) } }
 
 /**
  * Composition Local of CommonClient to provide the client to elements
