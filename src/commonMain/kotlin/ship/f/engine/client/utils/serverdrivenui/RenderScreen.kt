@@ -17,8 +17,8 @@ import ship.f.engine.shared.utils.serverdrivenui.state.State
  */
 @Composable
 fun RenderScreen(
-    screenConfig: MutableState<ScreenConfig>,
-    client: CommonClient,
+    client: CommonClient = CommonClient.getClient(),
+    screenConfig: MutableState<ScreenConfig> = client.currentScreen,
 ) {
     CompositionLocalProvider(ClientProvider provides client) {
         MaterialTheme(
