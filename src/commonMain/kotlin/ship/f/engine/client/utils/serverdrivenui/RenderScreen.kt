@@ -1,12 +1,13 @@
 package ship.f.engine.client.utils.serverdrivenui
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Modifier
 import ship.f.engine.client.utils.serverdrivenui.ext.ClientProvider
 import ship.f.engine.client.utils.serverdrivenui.ext.fromColorSchemeState
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
@@ -17,7 +18,8 @@ import ship.f.engine.shared.utils.serverdrivenui.state.State
  */
 @Composable
 fun RenderScreen(
-    client: CommonClient = CommonClient.getClient(),
+    projectName: String? = null,
+    client: CommonClient = CommonClient.getClient(projectName),
     screenConfig: MutableState<ScreenConfig> = client.currentScreen,
 ) {
     CompositionLocalProvider(ClientProvider provides client) {
@@ -32,8 +34,8 @@ fun RenderScreen(
                 }
             } ?: MaterialTheme.colorScheme,
         ) {
-            LazyColumn {
-                items(screenConfig.value.children) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                screenConfig.value.children.forEach {
                     client.RenderUI(
                         element = client.getElement<State>(it.id).value,
                     )

@@ -88,7 +88,7 @@ val testConfig = ScreenConfig(
                         )
                     )
                 ),
-                arrangement = Arrangement.Flex,
+                arrangement = Arrange.Flex,
             ),
         ),
         Widget(

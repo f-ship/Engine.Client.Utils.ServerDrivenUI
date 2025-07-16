@@ -14,7 +14,7 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
  * Main Client, in which much of its functionality should probably be pushed into the main client
  */
 @Suppress("UNCHECKED_CAST")
-class CommonClient private constructor() : Client() {
+class CommonClient private constructor(val projectName: String? = null) : Client() {
     /**
      * The map of elements that the common client keeps track of using mutable states
      */
@@ -24,6 +24,13 @@ class CommonClient private constructor() : Client() {
      * Navigable backstack of screenConfigs
      */
     val currentScreen = backstack.lastOrNull()?.let { mutableStateOf(it) } ?: mutableStateOf(ScreenConfig())
+
+
+    /**
+     * This is the name of the project that is being bundled into an app
+     * This is used to determine the location of local assets in the project
+     */
+    fun getDrawableResourcePath(path: String) = "composeResources/$projectName.generated.resources/drawable/$path"
 
     /**
      * Get a mutable state of an element by its ID
@@ -85,6 +92,7 @@ class CommonClient private constructor() : Client() {
         when (widget.state) {
             is BottomSheetState -> SBottomSheet(element = getWidget(widget.id))
             is CardState -> SCard(element = getWidget(widget.id))
+            is StackState -> SStack(element = getWidget(widget.id))
             is ColumnState -> SColumn(element = getWidget(widget.id))
             is FlexRowState -> SFlexRow(element = getWidget(widget.id))
             is GridState -> SGrid(element = getWidget(widget.id))
@@ -118,7 +126,7 @@ class CommonClient private constructor() : Client() {
             is SnackBarState -> SSnackBar(element = getComponent(component.id))
             is FieldState -> STextField(element = getComponent(component.id))
             is TextState -> SText(element = getComponent(component.id))
-            is TickListState -> STickList(element = getComponent(component.id))
+            is CheckboxState -> SCheckbox(element = getComponent(component.id))
             is ToggleState -> SToggle(element = getComponent(component.id))
             is VideoState -> SVideo(element = getComponent(component.id))
             is SpaceState -> Space(element = getComponent(component.id))
@@ -135,7 +143,7 @@ class CommonClient private constructor() : Client() {
         /**
          * Method used to create a new CommonClient and add it to the list of common clients and general clients used in shared modules
          */
-        private fun createClient() = CommonClient().also {
+        private fun createClient(projectName: String? = null) = CommonClient(projectName = projectName).also {
             clients.add(it)
             ClientHolder.addClient(it)
         }
@@ -143,6 +151,6 @@ class CommonClient private constructor() : Client() {
         /**
          * CommonClient Provider used to ensure multiple clients are not accidentally created simultaneously
          */
-        fun getClient() = clients.lastOrNull() ?: createClient()
+        fun getClient(projectName: String? = null) = clients.lastOrNull() ?: createClient(projectName = projectName)
     }
 }

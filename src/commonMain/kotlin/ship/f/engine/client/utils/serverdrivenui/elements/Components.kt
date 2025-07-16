@@ -2,10 +2,8 @@ package ship.f.engine.client.utils.serverdrivenui.elements
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -13,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -20,10 +19,10 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
+import org.jetbrains.compose.resources.InternalResourceApi
+import org.jetbrains.compose.resources.getResourceUri
 import org.jetbrains.compose.resources.painterResource
-import ship.f.engine.client.utils.serverdrivenui.ext.PasswordVisualTransformation
-import ship.f.engine.client.utils.serverdrivenui.ext.WithComponentState
-import ship.f.engine.client.utils.serverdrivenui.ext.update
+import ship.f.engine.client.utils.serverdrivenui.ext.*
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
@@ -35,7 +34,11 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 fun Space(
     element: MutableState<Component<SpaceState>>,
 ) = element.WithComponentState {
-    Spacer(modifier = Modifier.height(value.dp))
+    Spacer(
+        modifier = Modifier
+            .height(value.dp)
+            .width(value.dp)
+    )
 }
 
 @Composable
@@ -63,6 +66,7 @@ fun SText(
     Text(
         text = value,
         style = style,
+        textAlign = textAlign.toTextAlign(),
     )
 }
 
@@ -213,10 +217,41 @@ fun SRadioList(
 }
 
 @Composable
-fun STickList(
-    element: MutableState<Component<TickListState>>,
+fun SCheckbox(
+    element: MutableState<Component<CheckboxState>>,
 ) = element.WithComponentState {
-    Text("TickList")
+    var tickModified by remember { mutableStateOf(false) }
+    if (manualPadding) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 16.dp) {
+            Checkbox(
+                checked = if (tickModified) value else initialState ?: value,
+                onCheckedChange = {
+                    tickModified = true
+                    val updatedElement = element.update {
+                        copy(
+                            value = it
+                        )
+                    }
+
+                    updatedElement.trigger<OnTickUpdateTrigger>()
+                },
+            )
+        }
+    } else {
+        Checkbox(
+            checked = if (tickModified) value else initialState ?: value,
+            onCheckedChange = {
+                tickModified = true
+                val updatedElement = element.update {
+                    copy(
+                        value = it
+                    )
+                }
+
+                updatedElement.trigger<OnTickUpdateTrigger>()
+            },
+        )
+    }
 }
 
 @Composable
@@ -240,20 +275,23 @@ fun SBottomRow(
     Text("BottomRow")
 }
 
+@OptIn(InternalResourceApi::class)
 @Composable
 fun SImage(
     element: MutableState<Component<ImageState>>,
 ) = element.WithComponentState {
-    Text("Image")
+    val modifier = size.toModifier()
     when (val src = src) {
         is ImageState.Source.Resource -> Icon(
             painter = painterResource(
                 when (src.resource) {
                     "icon-back" -> Res.drawable.icon_back
+                    "compose-multiplatform" -> Res.drawable.compose_multiplatform
                     else -> Res.drawable.compose_multiplatform
                 }
             ),
             contentDescription = accessibilityLabel,
+            modifier = modifier,
         )
 
         is ImageState.Source.Url -> {
@@ -262,7 +300,20 @@ fun SImage(
                     .data(src.url)
                     .build(),
                 contentDescription = accessibilityLabel,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier,
+                error = painterResource(Res.drawable.compose_multiplatform),
+                onError = {
+                    println("Coil: Image failed to load: ${it.result.throwable}")
+                }
+            )
+        }
+
+        is ImageState.Source.Local -> {
+            AsyncImage(
+                model = getResourceUri(C.getDrawableResourcePath(src.file)), //TODO a terrible hack
+                contentDescription = accessibilityLabel,
+                modifier = modifier,
+                error = painterResource(Res.drawable.compose_multiplatform),
                 onError = {
                     println("Coil: Image failed to load: ${it.result.throwable}")
                 }
@@ -285,10 +336,38 @@ fun SCustom(
     Text("Custom")
 }
 
+@OptIn(InternalResourceApi::class)
 @Composable
 fun SButton(
     element: MutableState<Component<ButtonState>>,
 ) = element.WithComponentState {
+
+    val leadingIcon: @Composable () -> Unit = {
+        leadingIcon?.let {
+            AsyncImage(
+                model = when (it) {
+                    is ImageState.Source.Local -> getResourceUri(C.getDrawableResourcePath(it.file))
+                    is ImageState.Source.Resource -> painterResource(
+                        when (it.resource) {
+                            "icon-back" -> Res.drawable.icon_back
+                            "compose-multiplatform" -> Res.drawable.compose_multiplatform
+                            else -> Res.drawable.compose_multiplatform
+                        }
+                    )
+
+                    is ImageState.Source.Url -> ImageRequest.Builder(LocalPlatformContext.current)
+                        .data(it.url)
+                        .build()
+                },
+                contentDescription = null,
+                error = painterResource(Res.drawable.compose_multiplatform),
+                onError = {
+                    println("Coil: Image failed to load: ${it.result.throwable}")
+                }
+            )
+            sSpace()
+        }
+    }
 
     when (buttonType) {
         ButtonState.ButtonType.Primary -> Button(
@@ -299,7 +378,10 @@ fun SButton(
             shape = RoundedCornerShape(8.dp),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid ?: true,
+            modifier = size.toModifier(),
         ) {
+            leadingIcon()
+            sSpace()
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
@@ -319,28 +401,27 @@ fun SButton(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid ?: true,
+            modifier = size.toModifier(),
         ) {
+            leadingIcon()
+            sSpace()
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             )
         }
 
-        ButtonState.ButtonType.Tertiary -> Button(
-            onClick = {
-                element.value.trigger<OnClickTrigger>()
-                element.value.trigger<OnHoldTrigger>()
-            },
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            enabled = valid ?: true,
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
+        ButtonState.ButtonType.Tertiary -> Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = size
+                .toModifier()
+                .clickable(valid ?: true, role = Role.Button) {
+                    element.value.trigger<OnClickTrigger>()
+                    element.value.trigger<OnHoldTrigger>()
+                },
+        )
     }
 }
 
