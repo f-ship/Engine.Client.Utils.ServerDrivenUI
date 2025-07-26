@@ -4,10 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -16,16 +18,8 @@ import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.ImageRequest
 import org.jetbrains.compose.resources.InternalResourceApi
-import org.jetbrains.compose.resources.getResourceUri
-import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.client.utils.serverdrivenui.ext.*
-import ship.f.engine.client.utils.serverdrivenui.generated.resources.Res
-import ship.f.engine.client.utils.serverdrivenui.generated.resources.compose_multiplatform
-import ship.f.engine.client.utils.serverdrivenui.generated.resources.icon_back
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Component
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.*
 import ship.f.engine.shared.utils.serverdrivenui.state.*
@@ -33,9 +27,10 @@ import ship.f.engine.shared.utils.serverdrivenui.state.*
 @Composable
 fun Space(
     element: MutableState<Component<SpaceState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Spacer(
-        modifier = Modifier
+        modifier = modifier
             .height(value.dp)
             .width(value.dp)
     )
@@ -44,6 +39,7 @@ fun Space(
 @Composable
 fun SText(
     element: MutableState<Component<TextState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     val style = when (style) {
         is TextState.Style.BodyLarge -> MaterialTheme.typography.bodyLarge
@@ -67,12 +63,14 @@ fun SText(
         text = value,
         style = style,
         textAlign = textAlign.toTextAlign(),
+        modifier = modifier,
     )
 }
 
 @Composable
 fun STextField(
     element: MutableState<Component<FieldState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
@@ -102,7 +100,7 @@ fun STextField(
         }
     }
 
-    Column {
+    Column(modifier = modifier) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium
@@ -185,6 +183,7 @@ fun STextField(
 @Composable
 fun SToggle(
     element: MutableState<Component<ToggleState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     var toggleModified by remember { mutableStateOf(false) }
     Switch(
@@ -198,13 +197,15 @@ fun SToggle(
             }
 
             updatedElement.trigger<OnToggleUpdateTrigger>()
-        }
+        },
+        modifier = modifier,
     )
 }
 
 @Composable
 fun SDropDown(
     element: MutableState<Component<DropDownState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("DropDown")
 }
@@ -212,6 +213,7 @@ fun SDropDown(
 @Composable
 fun SRadioList(
     element: MutableState<Component<RadioListState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("RadioList")
 }
@@ -219,9 +221,10 @@ fun SRadioList(
 @Composable
 fun SCheckbox(
     element: MutableState<Component<CheckboxState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     var tickModified by remember { mutableStateOf(false) }
-    if (manualPadding) {
+    if (manualPadding) { // TODO we shouldn't have duplicated code nonsense like this
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 16.dp) {
             Checkbox(
                 checked = if (tickModified) value else initialState ?: value,
@@ -233,7 +236,7 @@ fun SCheckbox(
                         )
                     }
 
-                    updatedElement.trigger<OnTickUpdateTrigger>()
+                    updatedElement.trigger<OnCheckUpdateTrigger>()
                 },
             )
         }
@@ -248,8 +251,9 @@ fun SCheckbox(
                     )
                 }
 
-                updatedElement.trigger<OnTickUpdateTrigger>()
+                updatedElement.trigger<OnCheckUpdateTrigger>()
             },
+            modifier = modifier,
         )
     }
 }
@@ -257,6 +261,7 @@ fun SCheckbox(
 @Composable
 fun SSearch(
     element: MutableState<Component<SearchState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Search")
 }
@@ -264,6 +269,7 @@ fun SSearch(
 @Composable
 fun SMenu(
     element: MutableState<Component<MenuState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Menu")
 }
@@ -271,6 +277,7 @@ fun SMenu(
 @Composable
 fun SBottomRow(
     element: MutableState<Component<BottomRowState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("BottomRow")
 }
@@ -279,52 +286,29 @@ fun SBottomRow(
 @Composable
 fun SImage(
     element: MutableState<Component<ImageState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
-    val modifier = size.toModifier()
-    when (val src = src) {
-        is ImageState.Source.Resource -> Icon(
-            painter = painterResource(
-                when (src.resource) {
-                    "icon-back" -> Res.drawable.icon_back
-                    "compose-multiplatform" -> Res.drawable.compose_multiplatform
-                    else -> Res.drawable.compose_multiplatform
+    src.ToImage(
+        modifier = modifier
+            .then( if (element.value.triggers.filterIsInstance<OnClickTrigger>().isNotEmpty()){
+                Modifier.clickable(enabled = true, role = Role.Button) {
+                    element.value.trigger<OnClickTrigger>()
                 }
-            ),
-            contentDescription = accessibilityLabel,
-            modifier = modifier,
-        )
-
-        is ImageState.Source.Url -> {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(src.url)
-                    .build(),
-                contentDescription = accessibilityLabel,
-                modifier = modifier,
-                error = painterResource(Res.drawable.compose_multiplatform),
-                onError = {
-                    println("Coil: Image failed to load: ${it.result.throwable}")
-                }
-            )
-        }
-
-        is ImageState.Source.Local -> {
-            AsyncImage(
-                model = getResourceUri(C.getDrawableResourcePath(src.file)), //TODO a terrible hack
-                contentDescription = accessibilityLabel,
-                modifier = modifier,
-                error = painterResource(Res.drawable.compose_multiplatform),
-                onError = {
-                    println("Coil: Image failed to load: ${it.result.throwable}")
-                }
-            )
-        }
-    }
+            } else {
+                Modifier
+            })
+            .then(size.toModifier())
+            .then(padding.let { // TODO replace long winded method for handling padding
+                Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
+            }),
+        accessibilityLabel = accessibilityLabel,
+    )
 }
 
 @Composable
 fun SVideo(
     element: MutableState<Component<VideoState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Video")
 }
@@ -332,6 +316,7 @@ fun SVideo(
 @Composable
 fun SCustom(
     element: MutableState<Component<CustomState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Custom")
 }
@@ -340,35 +325,21 @@ fun SCustom(
 @Composable
 fun SButton(
     element: MutableState<Component<ButtonState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
-
+    val updatedModifier = modifier
+        .then(size.toModifier())
+        .then(padding.let { // TODO replace long winded method for handling padding
+            Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
+        })
     val leadingIcon: @Composable () -> Unit = {
         leadingIcon?.let {
-            AsyncImage(
-                model = when (it) {
-                    is ImageState.Source.Local -> getResourceUri(C.getDrawableResourcePath(it.file))
-                    is ImageState.Source.Resource -> painterResource(
-                        when (it.resource) {
-                            "icon-back" -> Res.drawable.icon_back
-                            "compose-multiplatform" -> Res.drawable.compose_multiplatform
-                            else -> Res.drawable.compose_multiplatform
-                        }
-                    )
-
-                    is ImageState.Source.Url -> ImageRequest.Builder(LocalPlatformContext.current)
-                        .data(it.url)
-                        .build()
-                },
-                contentDescription = null,
-                error = painterResource(Res.drawable.compose_multiplatform),
-                onError = {
-                    println("Coil: Image failed to load: ${it.result.throwable}")
-                }
-            )
+            it.ToImage()
             sSpace()
         }
     }
 
+    // TODO clean up this mess so I'm not creating 3 buttons
     when (buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
@@ -378,7 +349,7 @@ fun SButton(
             shape = RoundedCornerShape(8.dp),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid ?: true,
-            modifier = size.toModifier(),
+            modifier = updatedModifier,
         ) {
             leadingIcon()
             sSpace()
@@ -401,7 +372,7 @@ fun SButton(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid ?: true,
-            modifier = size.toModifier(),
+            modifier = updatedModifier,
         ) {
             leadingIcon()
             sSpace()
@@ -415,8 +386,7 @@ fun SButton(
             text = value,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
             color = MaterialTheme.colorScheme.primary,
-            modifier = size
-                .toModifier()
+            modifier = updatedModifier
                 .clickable(valid ?: true, role = Role.Button) {
                     element.value.trigger<OnClickTrigger>()
                     element.value.trigger<OnHoldTrigger>()
@@ -426,15 +396,52 @@ fun SButton(
 }
 
 @Composable
-fun SIcon(
-    element: MutableState<Component<IconState>>,
+fun SNotification(
+    element: MutableState<Component<NotificationState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
-    Text("Icon")
+    // TODO need to make this look consistent across all screens
+    // TODO need a parameter that makes it possible to reposition the notification
+    // TODO duplicating this code to handle clickable icons
+    Box(modifier = modifier.then( if (element.value.triggers.filterIsInstance<OnClickTrigger>().isNotEmpty()){
+        Modifier.clickable(enabled = true, role = Role.Button) {
+            element.value.trigger<OnClickTrigger>()
+        }
+    } else {
+        Modifier
+    })) {
+        image?.ToImage()
+        number?.toString()?.let {
+            if (isActive) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .align(numberAlign.toAlignment())
+                        .size(16.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onPrimary),
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(2.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
 fun SLoadingShimmer(
     element: MutableState<Component<LoadingShimmerState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("LoadingShimmer")
 }
@@ -442,6 +449,7 @@ fun SLoadingShimmer(
 @Composable
 fun SDialog(
     element: MutableState<Component<DialogState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Dialog")
 }
@@ -449,6 +457,7 @@ fun SDialog(
 @Composable
 fun SSnackBar(
     element: MutableState<Component<SnackBarState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("SnackBar")
 }
@@ -456,6 +465,7 @@ fun SSnackBar(
 @Composable
 fun SLoader(
     element: MutableState<Component<LoaderState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Loader")
 }
@@ -463,6 +473,7 @@ fun SLoader(
 @Composable
 fun SUnknownComponent(
     element: MutableState<Component<UnknownComponentState>>,
+    modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     Text("Unknown Component")
 }
