@@ -236,6 +236,7 @@ fun SCheckbox(
                         )
                     }
 
+                    element.value.deferredTrigger(element.value)
                     updatedElement.trigger<OnCheckUpdateTrigger>()
                 },
             )
@@ -251,6 +252,7 @@ fun SCheckbox(
                     )
                 }
 
+                element.value.deferredTrigger(element.value)
                 updatedElement.trigger<OnCheckUpdateTrigger>()
             },
             modifier = modifier,
