@@ -37,7 +37,7 @@ val testConfig = ScreenConfig(
                                     triggers = listOf(
                                         OnStateUpdateTrigger(
                                             action = UpdateValue(
-                                                targetId = ElementId(id = "TestConfig-TextFieldId", scope = ""),
+                                                publisherId = ElementId(id = "TestConfig-TextFieldId", scope = ""),
                                             )
                                         ),
                                     )
