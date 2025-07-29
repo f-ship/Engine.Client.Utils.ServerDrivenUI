@@ -4,7 +4,6 @@ import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
 import ship.f.engine.shared.utils.serverdrivenui.action.Action.UpdateState
 import ship.f.engine.shared.utils.serverdrivenui.action.Action.UpdateValue
-import ship.f.engine.shared.utils.serverdrivenui.action.Target
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnFieldUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnStateUpdateTrigger
 import ship.f.engine.shared.utils.serverdrivenui.state.*
@@ -31,24 +30,20 @@ val testConfig = ScreenConfig(
                                     ),
                                 ),
                                 Component(
-                                    id = ID(id = "TestConfig-TextId", scope = ""),
+                                    id = ElementId(id = "TestConfig-TextId", scope = ""),
                                     state = TextState(
                                         value = "",
                                     ),
                                     triggers = listOf(
                                         OnStateUpdateTrigger(
                                             action = UpdateValue(
-                                                targetIds = listOf(
-                                                    Target(
-                                                        id = ID(id = "TestConfig-TextFieldId", scope = ""),
-                                                    )
-                                                )
+                                                targetId = ElementId(id = "TestConfig-TextFieldId", scope = ""),
                                             )
                                         ),
                                     )
                                 ),
                                 Component(
-                                    id = ID(id = "TestConfig-TextFieldId", scope = ""),
+                                    id = ElementId(id = "TestConfig-TextFieldId", scope = ""),
                                     state = FieldState(
                                         value = "",
                                         initialValue = "",
@@ -57,7 +52,7 @@ val testConfig = ScreenConfig(
                                     ),
                                     triggers = listOf(
                                         OnFieldUpdateTrigger(
-                                            action = UpdateState(),
+                                            action = UpdateState,
                                         )
                                     )
                                 ),
@@ -74,7 +69,7 @@ val testConfig = ScreenConfig(
             state = RowState(
                 children = listOf(
                     Component(
-                        id = ID(id = "TestConfig-TextFieldId2", scope = ""),
+                        id = ElementId(id = "TestConfig-TextFieldId2", scope = ""),
                         state = FieldState(
                             value = "",
                             initialValue = "",
@@ -83,7 +78,7 @@ val testConfig = ScreenConfig(
                         ),
                         triggers = listOf(
                             OnFieldUpdateTrigger(
-                                action = UpdateState(),
+                                action = UpdateState,
                             )
                         )
                     )

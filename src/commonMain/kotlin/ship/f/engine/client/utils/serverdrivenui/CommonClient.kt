@@ -19,7 +19,7 @@ class CommonClient private constructor(val projectName: String? = null) : Client
     /**
      * The map of elements that the common client keeps track of using mutable states
      */
-    val reactiveElementMap: MutableMap<ID, MutableState<Element<out State>>> = mutableMapOf()
+    val reactiveElementMap: MutableMap<ElementId, MutableState<Element<out State>>> = mutableMapOf()
 
     /**
      * Navigable backstack of screenConfigs
@@ -36,17 +36,17 @@ class CommonClient private constructor(val projectName: String? = null) : Client
     /**
      * Get a mutable state of an element by its ID
      */
-    fun <T : State> getElement(id: ID) = reactiveElementMap[id] as MutableState<Element<T>>
+    fun <T : State> getElement(id: ElementId) = reactiveElementMap[id] as MutableState<Element<T>>
 
     /**
      * Get a mutable state of a component by its ID
      */
-    fun <T : State> getComponent(id: ID) = reactiveElementMap[id] as MutableState<Component<T>>
+    fun <T : State> getComponent(id: ElementId) = reactiveElementMap[id] as MutableState<Component<T>>
 
     /**
      * Get a mutable state of a widget by its ID
      */
-    fun <T : State> getWidget(id: ID) = reactiveElementMap[id] as MutableState<Widget<T>>
+    fun <T : State> getWidget(id: ElementId) = reactiveElementMap[id] as MutableState<Widget<T>>
 
     /**
      * Used to implement a reactive update of the state of an element.
