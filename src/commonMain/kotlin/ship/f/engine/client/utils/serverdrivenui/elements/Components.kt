@@ -63,7 +63,10 @@ fun SText(
         text = value,
         style = style,
         textAlign = textAlign.toTextAlign(),
-        modifier = modifier,
+        modifier = modifier
+            .then(padding.let { // TODO replace long winded method for handling padding
+                Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
+            }),
     )
 }
 

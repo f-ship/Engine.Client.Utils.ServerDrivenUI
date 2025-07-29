@@ -3,6 +3,7 @@ package ship.f.engine.client.utils.serverdrivenui.elements
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,10 +15,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import ship.f.engine.client.utils.serverdrivenui.ext.*
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Element
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Fallback.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Widget
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnClickTrigger
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 import ship.f.engine.shared.utils.serverdrivenui.state.Arrange.Flex
 
@@ -42,6 +46,7 @@ fun SCard(
                 .then(padding.let { // TODO replace long winded method for handling padding
                     Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
                 })
+                .then(background?.let { Modifier.background(Color(it)) } ?: Modifier),
         ) {
             Column {
                 children.forEach {
@@ -101,6 +106,13 @@ fun SColumn(
 ) = element.WithWidgetState {
     Column(
         modifier = modifier // TODO create a much cleaner way to chain modifiers together
+            .then( if (element.value.triggers.filterIsInstance<OnClickTrigger>().isNotEmpty()){
+                Modifier.clickable(enabled = true, role = Role.Button) {
+                    element.value.trigger<OnClickTrigger>()
+                }
+            } else {
+                Modifier
+            })
             .then(size.toModifier())
             .then(padding.let { // TODO replace long winded method for handling padding
                 Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
@@ -170,8 +182,29 @@ fun SFlexColumn(
         horizontalAlignment = if (arrangement is Flex || arrangement is Arrange.Center) Alignment.CenterHorizontally else Alignment.Start,
         verticalArrangement = arrangement.toVerticalArrangement(),
     ) {
-        items(children) {
-            C.RenderUI(it)
+        val groupedChildren = mutableListOf<MutableList<Element<out State>>>()
+        children.forEach {
+            if (groupedChildren.isEmpty()) {
+                groupedChildren.add(mutableListOf(it))
+            } else if(it.state.isStickyHeader != groupedChildren.last().last().state.isStickyHeader) {
+                groupedChildren.add(mutableListOf(it))
+            } else {
+                groupedChildren.last().add(it)
+            }
+        }
+
+        groupedChildren.forEach { group ->
+            if (group.last().state.isStickyHeader) {
+                group.forEach { element ->
+                    stickyHeader {
+                        C.RenderUI(element)
+                    }
+                }
+            } else {
+                items(group) { element ->
+                    C.RenderUI(element)
+                }
+            }
         }
     }
 }
