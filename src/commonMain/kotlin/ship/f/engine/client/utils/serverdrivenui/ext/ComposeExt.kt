@@ -1,5 +1,8 @@
 package ship.f.engine.client.utils.serverdrivenui.ext
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
@@ -10,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -19,6 +23,8 @@ import org.jetbrains.compose.resources.InternalResourceApi
 import org.jetbrains.compose.resources.getResourceUri
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.client.utils.serverdrivenui.generated.resources.*
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
+import ship.f.engine.shared.utils.serverdrivenui.action.Trigger.OnClickTrigger
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 import ship.f.engine.shared.utils.serverdrivenui.state.Align.*
 import ship.f.engine.shared.utils.serverdrivenui.state.Arrange.Flex
@@ -75,9 +81,34 @@ fun STextAlign.toTextAlign() = when (this) {
     STextAlign.Start -> TextAlign.Start
 }
 
+@Composable
+fun Padding.toModifier() = Modifier.padding(top = top.dp, bottom = bottom.dp, start = start.dp, end = end.dp)
+
+@Composable
+fun Border?.toModifier() = this?.let {
+    Modifier.border(width = it.width.dp, color = Color(it.color))
+} ?: Modifier
+
+@Composable
+fun Long?.toModifier() = this?.let { Modifier.background(Color(it)) } ?: Modifier
 /**
  * Convenience method to convert a ColorSchemeState to a Material ColorScheme
  */
+
+@Composable
+fun ScreenConfig.Element<out State>.toOnClickModifier() = if (triggers.filterIsInstance<OnClickTrigger>().isNotEmpty()){
+    Modifier.clickable(enabled = true, role = Role.Button) {
+        trigger<OnClickTrigger>()
+    }
+} else {
+    Modifier
+}
+
+@Composable
+fun ScreenConfig.Element<out State>.toDefaultModifier() = Modifier
+    .then( toOnClickModifier())
+    .then(state.size.toModifier())
+    .then(state.padding.toModifier())
 fun ColorScheme.fromColorSchemeState(colorSchemeState: ColorSchemeState) = copy(
     primary = Color(colorSchemeState.primary),
     onPrimary = Color(colorSchemeState.onPrimary),

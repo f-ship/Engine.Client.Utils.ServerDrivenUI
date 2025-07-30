@@ -63,10 +63,7 @@ fun SText(
         text = value,
         style = style,
         textAlign = textAlign.toTextAlign(),
-        modifier = modifier
-            .then(padding.let { // TODO replace long winded method for handling padding
-                Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
-            }),
+        modifier = modifier.then(element.value.toDefaultModifier()),
     )
 }
 
@@ -295,17 +292,7 @@ fun SImage(
 ) = element.WithComponentState {
     src.ToImage(
         modifier = modifier
-            .then( if (element.value.triggers.filterIsInstance<OnClickTrigger>().isNotEmpty()){
-                Modifier.clickable(enabled = true, role = Role.Button) {
-                    element.value.trigger<OnClickTrigger>()
-                }
-            } else {
-                Modifier
-            })
-            .then(size.toModifier())
-            .then(padding.let { // TODO replace long winded method for handling padding
-                Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
-            }),
+            .then( element.value.toDefaultModifier()),
         accessibilityLabel = accessibilityLabel,
     )
 }
@@ -333,10 +320,8 @@ fun SButton(
     modifier: Modifier = Modifier,
 ) = element.WithComponentState {
     val updatedModifier = modifier
-        .then(size.toModifier())
-        .then(padding.let { // TODO replace long winded method for handling padding
-            Modifier.padding(top = it.top.dp, bottom = it.bottom.dp, start = it.start.dp, end = it.end.dp)
-        })
+        .then(size.toModifier()) // TODO not using generic toDefaultModifier because need to cleanup OnClick
+        .then(padding.toModifier())
     val leadingIcon: @Composable () -> Unit = {
         leadingIcon?.let {
             it.ToImage()
@@ -344,7 +329,7 @@ fun SButton(
         }
     }
 
-    // TODO clean up this mess so I'm not creating 3 buttons
+    // TODO clean up this mess so I'm not creating 3 buttons, bro this foolishness cannot be tolerated
     when (buttonType) {
         ButtonState.ButtonType.Primary -> Button(
             onClick = {
@@ -408,13 +393,7 @@ fun SNotification(
     // TODO need to make this look consistent across all screens
     // TODO need a parameter that makes it possible to reposition the notification
     // TODO duplicating this code to handle clickable icons
-    Box(modifier = modifier.then( if (element.value.triggers.filterIsInstance<OnClickTrigger>().isNotEmpty()){
-        Modifier.clickable(enabled = true, role = Role.Button) {
-            element.value.trigger<OnClickTrigger>()
-        }
-    } else {
-        Modifier
-    })) {
+    Box(modifier = modifier.then( element.value.toDefaultModifier())) {
         image?.ToImage()
         number?.toString()?.let {
             if (isActive) {
