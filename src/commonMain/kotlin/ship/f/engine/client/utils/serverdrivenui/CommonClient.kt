@@ -9,6 +9,7 @@ import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
 import ship.f.engine.shared.utils.serverdrivenui.client.Client
 import ship.f.engine.shared.utils.serverdrivenui.client.ClientHolder
+import ship.f.engine.shared.utils.serverdrivenui.ext.fGet
 import ship.f.engine.shared.utils.serverdrivenui.state.*
 
 /**
@@ -19,7 +20,7 @@ class CommonClient private constructor(val projectName: String? = null) : Client
     /**
      * The map of elements that the common client keeps track of using mutable states
      */
-    val reactiveElementMap: MutableMap<ElementId, MutableState<Element<out State>>> = mutableMapOf()
+    val reactiveElementMap: MutableMap<String, MutableMap<String, MutableState<Element<out State>>>> = mutableMapOf()
 
     /**
      * Navigable backstack of screenConfigs
@@ -36,30 +37,39 @@ class CommonClient private constructor(val projectName: String? = null) : Client
     /**
      * Get a mutable state of an element by its ID
      */
-    fun <T : State> getElement(id: ElementId) = reactiveElementMap[id] as MutableState<Element<T>>
+    fun <T : State> getElement(id: ElementId) = reactiveElementMap.fGet(id.id).fGet(id.scope).let {
+        reactiveElementMap.fGet(id.id).fGet(it.value.activeScope ) as MutableState<Element<T>>
+    }
 
     /**
      * Get a mutable state of a component by its ID
      */
-    fun <T : State> getComponent(id: ElementId) = reactiveElementMap[id] as MutableState<Component<T>>
+    fun <T : State> getComponent(id: ElementId) = reactiveElementMap.fGet(id.id).fGet(id.scope).let {
+        reactiveElementMap.fGet(id.id).fGet(it.value.activeScope ) as MutableState<Component<T>>
+    }
 
     /**
      * Get a mutable state of a widget by its ID
      */
-    fun <T : State> getWidget(id: ElementId) = reactiveElementMap[id] as MutableState<Widget<T>>
+    fun <T : State> getWidget(id: ElementId) = reactiveElementMap.fGet(id.id).fGet(id.scope).let {
+        reactiveElementMap.fGet(id.id).fGet(it.value.activeScope ) as MutableState<Widget<T>>
+    }
 
-    /**
+    /**Ï
      * Used to implement a reactive update of the state of an element.
      */
     override fun postReactiveUpdate(element: Element<out State>) {
-        reactiveElementMap[element.id]?.value = element
+        reactiveElementMap[element.id.id]?.get(element.id.scope)?.value = element
     }
 
     /**
      * Used to create a reactive update for an element.
      */
     override fun createReactiveUpdate(element: Element<out State>) {
-        reactiveElementMap[element.id] = mutableStateOf(element)
+        if (reactiveElementMap[element.id.id] == null) {
+            reactiveElementMap[element.id.id] = mutableMapOf()
+        }
+        reactiveElementMap[element.id.id]!![element.id.scope] = mutableStateOf(element)
     }
 
     /**
