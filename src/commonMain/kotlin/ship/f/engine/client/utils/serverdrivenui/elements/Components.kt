@@ -454,6 +454,34 @@ fun SLoader(
     Text("Loader")
 }
 
+// TODO implementation is a little janky but it works well enough for now so I'm not going to worry about it
+@Composable
+fun SDivider(
+    element: MutableState<Component<DividerState>>,
+    modifier: Modifier = Modifier,
+) = element.WithComponentState {
+    when(val size = size) {
+        is Fill -> {
+            val horizontalFill = size.horizontalFill
+            val verticalFill = size.verticalFill
+            if (horizontalFill != null) {
+                HorizontalDivider(modifier.fillMaxWidth(horizontalFill))
+            } else if (verticalFill != null) {
+                VerticalDivider(modifier.fillMaxHeight(verticalFill))
+            }
+        }
+        is Fixed -> if (size.width > size.height) {
+            HorizontalDivider(modifier.width(size.width.dp))
+        } else {
+            VerticalDivider(modifier.height(size.height.dp))
+        }
+        is Weight -> TODO("This is actually okay bro, but..... I'm not okay so not implementing for now!")
+        is DefaultSize -> TODO("This is not okay bro")
+        is Window -> TODO("This is also not okay bro")
+        is MatchParent -> TODO("This is super useful to have here to be honest")
+    }
+}
+
 @Composable
 fun SUnknownComponent(
     element: MutableState<Component<UnknownComponentState>>,

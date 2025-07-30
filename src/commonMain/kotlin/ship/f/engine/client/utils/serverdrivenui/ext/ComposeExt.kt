@@ -72,6 +72,10 @@ fun Size.toModifier() = when (val size = this) {
         .width((LocalWindowInfo.current.containerSize.width / LocalDensity.current.density).dp)
 
     is Weight -> Modifier // TODO whoops weight doesn't fit in here
+
+    is MatchParent -> Modifier
+        .fillMaxHeight() // Match parent height
+        .wrapContentHeight(unbounded = true) // Don't influence parent height
 }
 
 @Composable

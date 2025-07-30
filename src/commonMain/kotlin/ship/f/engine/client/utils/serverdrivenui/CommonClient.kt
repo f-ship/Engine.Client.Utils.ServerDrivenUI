@@ -242,6 +242,10 @@ class CommonClient private constructor(val projectName: String? = null) : Client
                 element = getComponent(component.id),
                 modifier = modifier,
             )
+            is DividerState -> SDivider(
+                element = getComponent(component.id),
+                modifier = modifier,
+            )
             is UnknownComponentState -> SUnknownComponent(
                 element = getComponent(component.id),
                 modifier = modifier,

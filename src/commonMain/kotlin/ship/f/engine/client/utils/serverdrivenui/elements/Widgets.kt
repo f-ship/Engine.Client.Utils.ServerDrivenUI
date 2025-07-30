@@ -1,10 +1,7 @@
 package ship.f.engine.client.utils.serverdrivenui.elements
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,6 +75,7 @@ fun SRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .then(element.value.toDefaultModifier())
+            .height(IntrinsicSize.Min) // TODO watch out that this isn't a gotcha at some point
     ) {
         children.forEach {
             val m = (it.state as? ColumnState)?.let { state ->
@@ -99,7 +97,7 @@ fun SColumn(
     Column(
         modifier = modifier // TODO create a much cleaner way to chain modifiers together
             .then( element.value.toDefaultModifier())
-            .then(border.toModifier())
+//            .then(border.toModifier()) // TODO temp disable as need to improve how this works
             .then(background.toModifier()),
         horizontalAlignment = if (arrangement is Flex || arrangement is Arrange.Center) Alignment.CenterHorizontally else Alignment.Start, // TODO need to also address issues like these
         verticalArrangement = arrangement.toVerticalArrangement(),
