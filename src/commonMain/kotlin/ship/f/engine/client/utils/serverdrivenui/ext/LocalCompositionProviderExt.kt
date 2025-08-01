@@ -18,4 +18,3 @@ val ClientProvider = staticCompositionLocalOf { CommonClient.getClient() }
  * Convenience property to access the current client from within a Composable
  */
 val C @Composable get() = ClientProvider.current
-

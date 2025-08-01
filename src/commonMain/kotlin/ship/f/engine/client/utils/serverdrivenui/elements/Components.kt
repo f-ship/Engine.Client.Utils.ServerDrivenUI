@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight.Companion.W400
+import androidx.compose.ui.text.font.FontWeight.Companion.W600
+import androidx.compose.ui.text.font.FontWeight.Companion.W800
 import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -57,13 +60,19 @@ fun SText(
         is TextState.Style.TitleLarge -> MaterialTheme.typography.titleLarge
         is TextState.Style.TitleMedium -> MaterialTheme.typography.titleMedium
         is TextState.Style.TitleSmall -> MaterialTheme.typography.titleSmall
-    }
+    }.copy(fontWeight = when (fontWeight) {
+        TextState.Weight.Bold -> W800
+        TextState.Weight.ExtraBold -> W900
+        TextState.Weight.Normal -> W400
+        TextState.Weight.SemiBold -> W600
+    })
 
     Text(
         text = value,
         style = style,
         textAlign = textAlign.toTextAlign(),
         modifier = modifier.then(element.value.toDefaultModifier()),
+        color = color.toColor(),
     )
 }
 
@@ -294,6 +303,7 @@ fun SImage(
         modifier = modifier
             .then( element.value.toDefaultModifier()),
         accessibilityLabel = accessibilityLabel,
+        color = color,
     )
 }
 

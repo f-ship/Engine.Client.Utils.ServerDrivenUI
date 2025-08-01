@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ship.f.engine.client.utils.serverdrivenui.ext.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Element
@@ -35,7 +35,7 @@ fun SCard(
                     bottomEnd = shape.bottomEnd.dp,
                 )
             },
-            border = BorderStroke(width = 1.dp, color = Color(0xFFD5D7DA)),
+            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
             modifier = modifier
                 .then(element.value.toDefaultModifier())
                 .then(background.toModifier()),
@@ -171,9 +171,9 @@ fun SFlexColumn(
         groupedChildren.forEach { group ->
             if (group.last().state.isStickyHeader) {
                 group.forEach { element ->
-                    stickyHeader {
-                        C.RenderUI(element)
-                    }
+//                    stickyHeader { TODO temporarily disable sticky headers as they look janky
+//                        C.RenderUI(element)
+//                    }
                 }
             } else {
                 items(group) { element ->

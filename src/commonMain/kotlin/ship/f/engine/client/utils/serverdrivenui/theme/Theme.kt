@@ -19,6 +19,7 @@ import ship.f.engine.client.utils.serverdrivenui.generated.resources.inter_varia
 val LightColorScheme = lightColorScheme(
     primary = Color(0xFFE64A19),
     onPrimary = Color(0xFFFFFFFF),
+
     onSecondaryContainer = Color(0xFF414651),
 
     background = Color(0xFFF9F9F9),

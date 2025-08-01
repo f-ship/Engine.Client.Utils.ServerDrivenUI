@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -116,6 +117,8 @@ fun ScreenConfig.Element<out State>.toDefaultModifier() = Modifier
 fun ColorScheme.fromColorSchemeState(colorSchemeState: ColorSchemeState) = copy(
     primary = Color(colorSchemeState.primary),
     onPrimary = Color(colorSchemeState.onPrimary),
+    secondary = Color(colorSchemeState.secondary),
+    onSecondary = Color(colorSchemeState.onSecondary),
     onSecondaryContainer = Color(colorSchemeState.onSecondaryContainer),
     secondaryContainer = Color(colorSchemeState.secondaryContainer),
     background = Color(colorSchemeState.background),
@@ -125,6 +128,7 @@ fun ColorScheme.fromColorSchemeState(colorSchemeState: ColorSchemeState) = copy(
     surfaceVariant = Color(colorSchemeState.surfaceVariant),
     onSurfaceVariant = Color(colorSchemeState.onSurfaceVariant),
     outline = Color(colorSchemeState.outline),
+    outlineVariant = Color(colorSchemeState.outlineVariant),
 )
 
 @OptIn(InternalResourceApi::class)
@@ -133,6 +137,7 @@ fun ImageState.Source.ToImage(
     modifier: Modifier = Modifier,
     accessibilityLabel: String? = null,
     scaleType: ScaleType = Default,
+    color: ColorSchemeState.Color? = null,
 ) {
     val scale = when (scaleType) {
         is Default -> ContentScale.Fit
@@ -162,6 +167,7 @@ fun ImageState.Source.ToImage(
                     }
                 } ?: Modifier
             } ?: Modifier),
+            tint = color.toColor()
         )
 
         is ImageState.Source.Url -> {
@@ -192,4 +198,23 @@ fun ImageState.Source.ToImage(
             )
         }
     }
+}
+
+@Composable
+fun ColorSchemeState.Color?.toColor() = when(this){
+    is ColorSchemeState.Color.Background -> MaterialTheme.colorScheme.background
+    is ColorSchemeState.Color.OnBackground -> MaterialTheme.colorScheme.onBackground
+    is ColorSchemeState.Color.OnPrimary -> MaterialTheme.colorScheme.onPrimary
+    is ColorSchemeState.Color.OnSecondary -> MaterialTheme.colorScheme.onSecondary
+    is ColorSchemeState.Color.OnSecondaryContainer -> MaterialTheme.colorScheme.onSecondaryContainer
+    is ColorSchemeState.Color.OnSurface -> MaterialTheme.colorScheme.onSurface
+    is ColorSchemeState.Color.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
+    is ColorSchemeState.Color.Outline -> MaterialTheme.colorScheme.outline
+    is ColorSchemeState.Color.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
+    is ColorSchemeState.Color.Primary -> MaterialTheme.colorScheme.primary
+    is ColorSchemeState.Color.Secondary -> MaterialTheme.colorScheme.secondary
+    is ColorSchemeState.Color.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
+    is ColorSchemeState.Color.Surface -> MaterialTheme.colorScheme.surface
+    is ColorSchemeState.Color.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
+    null -> Color.Unspecified
 }
