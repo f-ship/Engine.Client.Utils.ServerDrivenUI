@@ -3,6 +3,7 @@ package ship.f.engine.client.utils.serverdrivenui.elements
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -139,10 +140,14 @@ fun SFlexRow(
     element: MutableState<Widget<FlexRowState>>,
     modifier: Modifier = Modifier,
 ) = element.WithWidgetState {
-    Text("FlexRow")
-    Column(modifier = modifier.padding(16.dp)) {
-        children.forEach {
-            C.RenderUI(it)
+    LazyRow(
+        horizontalArrangement = arrangement.toHorizontalArrangement(),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .then(element.value.toDefaultModifier())
+    ) {
+        items(children) { element ->
+            C.RenderUI(element)
         }
     }
 }
