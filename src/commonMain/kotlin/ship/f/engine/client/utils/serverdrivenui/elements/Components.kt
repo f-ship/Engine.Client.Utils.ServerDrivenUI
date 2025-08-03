@@ -84,7 +84,8 @@ fun STextField(
     // TODO to handle IME action we will need to do a little more work
     var isFocused by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    // TODO as always this launchedEffect so now trying remember doesn't quite trigger quickly enough, will need a work around eventually
+    remember(element) {
         val error = isError(value)
         val updatedElement = element.update {
             copy(

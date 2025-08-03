@@ -153,7 +153,7 @@ fun SFlexColumn(
     modifier: Modifier = Modifier,
 ) = element.WithWidgetState {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.then(element.value.toDefaultModifier()),
         horizontalAlignment = if (arrangement is Flex || arrangement is Arrange.Center) Alignment.CenterHorizontally else Alignment.Start,
         verticalArrangement = arrangement.toVerticalArrangement(),
     ) {
