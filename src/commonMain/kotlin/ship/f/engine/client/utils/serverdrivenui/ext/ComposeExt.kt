@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -182,6 +183,7 @@ fun ImageState.Source.ToImage(
                     println("Coil: Image failed to load: ${it.result.throwable}")
                 },
                 contentScale = scale,
+                colorFilter = color?.toColor()?.let { ColorFilter.tint(it) }
             )
         }
 
@@ -195,6 +197,7 @@ fun ImageState.Source.ToImage(
                     println("Coil: Image failed to load: ${it.result.throwable}")
                 },
                 contentScale = scale,
+                colorFilter = color?.toColor()?.let { ColorFilter.tint(it) }
             )
         }
     }
