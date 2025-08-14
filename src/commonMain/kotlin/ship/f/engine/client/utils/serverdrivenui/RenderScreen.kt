@@ -1,5 +1,7 @@
 package ship.f.engine.client.utils.serverdrivenui
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,11 +36,26 @@ fun RenderScreen(
                 }
             } ?: MaterialTheme.colorScheme,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                screenConfig.value.children.forEach {
-                    client.RenderUI(
-                        element = client.getElement<State>(it.id).value,
-                    )
+            AnimatedContent(
+                targetState = screenConfig.value,
+                transitionSpec = {
+                    // New screen enters from the right; old slides left out.
+                    (slideInHorizontally(
+                        initialOffsetX = { it },          // start just off the right edge
+                        animationSpec = tween(300)
+                    ) + fadeIn(tween(150))) togetherWith
+                            (slideOutHorizontally(
+                                targetOffsetX = { -it / 4 },      // slight parallax
+                                animationSpec = tween(300)
+                            ) + fadeOut(tween(150)))
+                }
+            ) { targetState ->
+                Column(modifier = Modifier.fillMaxSize()) {
+                    targetState.children.forEach {
+                        client.RenderUI(
+                            element = client.getElement<State>(it.id).value,
+                        )
+                    }
                 }
             }
         }
