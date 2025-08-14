@@ -147,7 +147,7 @@ fun STextField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     if (isFocused && !focusState.isFocused) {
-                        println("SDUI LOG ${label} Lost Focused")
+                        println("SDUI LOG $label Lost Focused")
 
                         // Only needs to run if hasLostFocus is false, a minor optimization to make in the future
                         val updatedElement = element.update {
@@ -159,7 +159,7 @@ fun STextField(
                     }
                     isFocused = focusState.isFocused
                     if (focusState.isFocused) {
-                        println("SDUI LOG ${label} Is Focused")
+                        println("SDUI LOG $label Is Focused")
                     }
                 },
             shape = RoundedCornerShape(8.dp),
@@ -354,10 +354,21 @@ fun SButton(
         ) {
             leadingIcon()
             sSpace()
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = W900),
+                )
+                if (loading){
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            }
         }
 
         ButtonState.ButtonType.Secondary -> Button(

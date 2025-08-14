@@ -1,12 +1,10 @@
 package ship.f.engine.client.utils.serverdrivenui.elements
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,12 +34,16 @@ fun SCard(
                     bottomEnd = shape.bottomEnd.dp,
                 )
             },
-            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
+            border = border.toBorderStroke(),
+            color = color.toColor(),
             modifier = modifier
                 .then(element.value.toDefaultModifier())
-                .then(background.toModifier()),
+                .then(background.toModifier())
         ) {
-            Column {
+            Column(
+                modifier = innerPadding.toModifier(),
+                horizontalAlignment = alignment.toHorizontalAlignment(),
+            ) {
                 children.forEach {
                     C.RenderUI(it)
                 }

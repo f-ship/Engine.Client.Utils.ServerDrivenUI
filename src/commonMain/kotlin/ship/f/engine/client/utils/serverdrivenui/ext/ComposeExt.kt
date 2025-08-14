@@ -1,5 +1,6 @@
 package ship.f.engine.client.utils.serverdrivenui.ext
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,6 +42,18 @@ fun Align.toAlignment() = when (this) {
     BottomStart -> Alignment.BottomStart
     CenterStart -> Alignment.CenterStart
     TopStart -> Alignment.TopStart
+}
+
+fun Align.toHorizontalAlignment() = when(this) {
+    BottomCenter -> Alignment.CenterHorizontally
+    BottomEnd -> Alignment.End
+    BottomStart -> Alignment.Start
+    Center -> Alignment.CenterHorizontally
+    CenterEnd -> Alignment.End
+    CenterStart -> Alignment.Start
+    TopCenter -> Alignment.CenterHorizontally
+    TopEnd -> Alignment.End
+    TopStart -> Alignment.Start
 }
 
 fun Arrange.toVerticalArrangement() = when (this) {
@@ -92,8 +105,13 @@ fun Padding.toModifier() = Modifier.padding(top = top.dp, bottom = bottom.dp, st
 
 @Composable
 fun Border?.toModifier() = this?.let {
-    Modifier.border(width = it.width.dp, color = Color(it.color))
+    Modifier.border(width = it.width.dp, color = it.color.toColor())
 } ?: Modifier
+
+@Composable
+fun Border?.toBorderStroke() = this?.let {
+    BorderStroke(it.width.dp, it.color.toColor())
+}
 
 @Composable
 fun Long?.toModifier() = this?.let { Modifier.background(Color(it)) } ?: Modifier
@@ -219,5 +237,7 @@ fun ColorSchemeState.Color?.toColor() = when(this){
     is ColorSchemeState.Color.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
     is ColorSchemeState.Color.Surface -> MaterialTheme.colorScheme.surface
     is ColorSchemeState.Color.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
+    is ColorSchemeState.Color.Error -> MaterialTheme.colorScheme.error
+    is ColorSchemeState.Color.OnError -> MaterialTheme.colorScheme.onError
     null -> Color.Unspecified
 }
