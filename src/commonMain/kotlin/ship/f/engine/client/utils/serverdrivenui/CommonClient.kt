@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import ship.f.engine.client.utils.serverdrivenui.elements.*
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig
 import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.*
+import ship.f.engine.shared.utils.serverdrivenui.ScreenConfig.Companion.root
 import ship.f.engine.shared.utils.serverdrivenui.client.Client
 import ship.f.engine.shared.utils.serverdrivenui.client.ClientHolder
 import ship.f.engine.shared.utils.serverdrivenui.ext.fGet
@@ -77,6 +78,28 @@ class CommonClient private constructor(val projectName: String? = null) : Client
      */
     override fun postScreenConfig() {
         currentScreen.value = backstack.last()
+    }
+
+    fun popBackstack() {
+        if (backstack.isNotEmpty()) backstack.removeLast()
+        while (backstack.isNotEmpty() && !backstack.last().keepInBackstack) {
+            backstack.removeLast()
+        }
+        if (backstack.isNotEmpty()) {
+            currentScreen.value = backstack.last().copy(forward = false)
+        }
+        if (backstack.isEmpty()) {
+            currentScreen.value = root
+        }
+    }
+
+    fun canPop(): Boolean {
+        val copy = backstack.map { it }.toMutableList()
+        if (copy.isNotEmpty()) copy.removeLast()
+        while(copy.isNotEmpty() && !copy.last().keepInBackstack) {
+            copy.removeLast()
+        }
+        return copy.isNotEmpty()
     }
 
     /**

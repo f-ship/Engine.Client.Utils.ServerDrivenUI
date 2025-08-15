@@ -55,6 +55,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation("org.jetbrains.compose.ui:ui-backhandler:1.8.0")
             implementation("io.coil-kt.coil3:coil-compose:3.2.0")
             implementation("io.coil-kt.coil3:coil-network-ktor3:3.2.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
