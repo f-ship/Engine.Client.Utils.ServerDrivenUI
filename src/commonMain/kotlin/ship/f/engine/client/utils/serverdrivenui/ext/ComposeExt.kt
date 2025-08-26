@@ -133,21 +133,21 @@ fun ScreenConfig.Element<out State>.toDefaultModifier() = Modifier
     .then( toOnClickModifier())
     .then(state.size.toModifier())
     .then(state.padding.toModifier())
-fun ColorScheme.fromColorSchemeState(colorSchemeState: ColorSchemeState) = copy(
-    primary = Color(colorSchemeState.primary),
-    onPrimary = Color(colorSchemeState.onPrimary),
-    secondary = Color(colorSchemeState.secondary),
-    onSecondary = Color(colorSchemeState.onSecondary),
-    onSecondaryContainer = Color(colorSchemeState.onSecondaryContainer),
-    secondaryContainer = Color(colorSchemeState.secondaryContainer),
-    background = Color(colorSchemeState.background),
-    onBackground = Color(colorSchemeState.onBackground),
-    surface = Color(colorSchemeState.surface),
-    onSurface = Color(colorSchemeState.onSurface),
-    surfaceVariant = Color(colorSchemeState.surfaceVariant),
-    onSurfaceVariant = Color(colorSchemeState.onSurfaceVariant),
-    outline = Color(colorSchemeState.outline),
-    outlineVariant = Color(colorSchemeState.outlineVariant),
+fun ColorScheme.fromColorSchemeState(colorScheme: ColorSchemeState) = copy(
+    primary = Color(colorScheme.primary),
+    onPrimary = Color(colorScheme.onPrimary),
+    secondary = Color(colorScheme.secondary),
+    onSecondary = Color(colorScheme.onSecondary),
+    onSecondaryContainer = Color(colorScheme.onSecondaryContainer),
+    secondaryContainer = Color(colorScheme.secondaryContainer),
+    background = Color(colorScheme.background),
+    onBackground = Color(colorScheme.onBackground),
+    surface = Color(colorScheme.surface),
+    onSurface = Color(colorScheme.onSurface),
+    surfaceVariant = Color(colorScheme.surfaceVariant),
+    onSurfaceVariant = Color(colorScheme.onSurfaceVariant),
+    outline = Color(colorScheme.outline),
+    outlineVariant = Color(colorScheme.outlineVariant),
 )
 
 @OptIn(InternalResourceApi::class)

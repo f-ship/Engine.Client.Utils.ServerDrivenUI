@@ -138,7 +138,7 @@ fun SStack(
 }
 
 @Composable
-fun SFlexRow(
+fun SFlexRow    (
     element: MutableState<Widget<FlexRowState>>,
     modifier: Modifier = Modifier,
 ) = element.WithWidgetState {

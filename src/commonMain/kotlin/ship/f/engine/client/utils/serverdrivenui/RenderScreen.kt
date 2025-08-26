@@ -28,7 +28,7 @@ fun RenderScreen(
     screenConfig: MutableState<ScreenConfig> = client.currentScreen,
 ) {
     CompositionLocalProvider(ClientProvider provides client) {
-        MaterialTheme(
+        MaterialTheme (
             colorScheme = if (isSystemInDarkTheme()) {
                 screenConfig.value.darkColorScheme?.let {
                     MaterialTheme.colorScheme.fromColorSchemeState(it)
@@ -38,6 +38,8 @@ fun RenderScreen(
                     MaterialTheme.colorScheme.fromColorSchemeState(it)
                 }
             } ?: MaterialTheme.colorScheme,
+            shapes = MaterialTheme.shapes,
+            typography = MaterialTheme.typography,
         ) {
             AnimatedContent(
                 targetState = screenConfig.value,
@@ -63,7 +65,6 @@ fun RenderScreen(
                                     animationSpec = tween(300)
                                 ) + fadeOut(tween(150)))
                     }
-
                 }
             ) { targetState ->
                 Column(modifier = Modifier.fillMaxSize()) {

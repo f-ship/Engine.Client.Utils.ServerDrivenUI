@@ -1,10 +1,7 @@
 package ship.f.engine.client.utils.serverdrivenui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -77,7 +74,7 @@ val InterVariable: FontFamily
  * A Temporary solution until we make an expanded UntitledTypography class is we can just roughly match designs for now.
  * Creating a full system only makes sense once we have the full set of designs to work with.
  */
-val typography: Typography
+val defaultTypography: Typography
     @Composable
     get() = Typography().let {
         val f = InterVariable
@@ -106,15 +103,15 @@ val typography: Typography
  */
 @Composable
 fun ServerDrivenUITheme(
-    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    colorScheme: ColorScheme = if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme,
+    typography: Typography = defaultTypography,
+    shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
 ) {
-    val colors = if (useDarkTheme) DarkColorScheme else LightColorScheme
-
-    // We are not currently interested in shapes as they are not used as often as colors
     MaterialTheme(
-        colorScheme = colors,
-        content = content,
+        colorScheme = colorScheme,
         typography = typography,
+        shapes = shapes,
+        content = content,
     )
 }

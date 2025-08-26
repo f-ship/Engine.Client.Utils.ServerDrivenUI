@@ -408,6 +408,7 @@ fun SButton(
 }
 
 @Composable
+@Deprecated("This will be replaced with a proper Rive implementation")
 fun SNotification(
     element: MutableState<Component<NotificationState>>,
     modifier: Modifier = Modifier,
