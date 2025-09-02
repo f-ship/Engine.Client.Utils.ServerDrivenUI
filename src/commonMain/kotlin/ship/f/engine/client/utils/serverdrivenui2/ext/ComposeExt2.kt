@@ -1,8 +1,6 @@
 package ship.f.engine.client.utils.serverdrivenui2.ext
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -388,3 +386,12 @@ fun State2.toModifier2() = Modifier
             else -> Modifier
         }
     )
+    .then(if (C.isDebug && C.focusedState.value == id) Modifier.border(width = 2.dp, color = Color.Red) else Modifier)
+    .then(
+        if (C.isDebug) Modifier.combinedClickable(
+        onLongClick = {
+            C.focusedState.value = id
+            update { reset() }
+        },
+        onClick = {}
+    ) else Modifier)

@@ -7,17 +7,123 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.Resource
+import ship.f.engine.client.utils.serverdrivenui2.CommonClient2.FocusDirection.*
+import ship.f.engine.client.utils.serverdrivenui2.ext.Debug
 import ship.f.engine.client.utils.serverdrivenui2.state.*
 import ship.f.engine.shared.utils.serverdrivenui2.client.BackStackEntry2
 import ship.f.engine.shared.utils.serverdrivenui2.client.Client2
 import ship.f.engine.shared.utils.serverdrivenui2.client.ClientHolder2
+import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.ToJsonAction2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.MetaId2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.StateId2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ChildrenModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.ext.g2
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Suppress("UNCHECKED_CAST")
 class CommonClient2 private constructor(override val projectName: String? = null) : Client2() {
+
+    @Debug
+    val focusedState: MutableState<StateId2?> = mutableStateOf(StateId2("agenda"))
+
+    @Debug
+    var isDebug: Boolean = true
+
+    @Debug
+    fun changeFocus(direction: FocusDirection) { //TODO rewrite ugly debugging code with build variant
+        when(direction) {
+            After -> {
+                focusedState.value?.let { focused ->
+                    val id = reverseIdMap[focusedState.value]
+                    if (id == null) return
+                    (get<State2>(id) as? ChildrenModifier2<State2>)?.let { parent ->
+                        val index = parent.children.indexOfFirst { it.id == focused }
+                        if (index + 1 < parent.children.size) {
+                            val focus = parent.children[index + 1].id
+                            focusedState.value = focus
+                            get<State2>(focus).apply {
+                                update{ reset() }
+                            }
+                            ToJsonAction2(
+                                targetStateId = focus,
+                                targetMetaId = MetaId2("json-meta")
+                            ).run(
+                                state = get<State2>(focus),
+                                client = this@CommonClient2
+                            )
+                        }
+                    }
+                }
+            }
+            Before -> {
+                focusedState.value?.let { focused ->
+                    val id = reverseIdMap[focusedState.value]
+                    if (id == null) return
+                    (get<State2>(id) as? ChildrenModifier2<State2>)?.let { parent ->
+                        val index = parent.children.indexOfFirst { it.id == focused }
+                        if (index - 1 >= 0) {
+                            val focus = parent.children[index - 1].id
+                            focusedState.value = focus
+                            get<State2>(focus).apply {
+                                update{ reset() }
+                            }
+                            ToJsonAction2(
+                                targetStateId = focus,
+                                targetMetaId = MetaId2("json-meta")
+                            ).run(
+                                state = get<State2>(focus),
+                                client = this@CommonClient2
+                            )
+                        }
+                    }
+                }
+            }
+            Down -> {
+                focusedState.value?.let {
+                    (get<State2>(it) as? ChildrenModifier2<State2>)?.let { parent ->
+                        val focus = parent.children.firstOrNull()?.id
+                        if (focus == null) return
+                        focusedState.value = focus
+                        get<State2>(focus).apply {
+                            update{ reset() }
+                        }
+                        ToJsonAction2(
+                            targetStateId = focus,
+                            targetMetaId = MetaId2("json-meta")
+                        ).run(
+                            state = get<State2>(focus),
+                            client = this@CommonClient2
+                        )
+                    }
+                }
+            }
+            Up -> {
+                val focus = reverseIdMap[focusedState.value]
+                if (focus == null) return
+                focusedState.value = focus
+                get<State2>(focus).apply {
+                    update{ reset() }
+                }
+                ToJsonAction2(
+                    targetStateId = focus,
+                    targetMetaId = MetaId2("json-meta")
+                ).run(
+                    state = get<State2>(focus),
+                    client = this@CommonClient2
+                )
+            }
+        }
+    }
+
+    @Debug
+    sealed class FocusDirection {
+        data object Up : FocusDirection()
+        data object Down : FocusDirection()
+        data object Before : FocusDirection()
+        data object After : FocusDirection()
+    }
+
     val reactiveStateMap: MutableMap<Id2, MutableState<State2>> = mutableMapOf()
     val reactiveBackStack: SnapshotStateList<BackStackEntry2> = mutableStateListOf()
 
@@ -67,7 +173,8 @@ class CommonClient2 private constructor(override val projectName: String? = null
             is TextFieldState2 -> TextField2(s = getReactiveState(state.id), m = modifier)
             is TextState2 -> Text2(s = getReactiveState(state.id), m = modifier)
             is VerticalDividerState2 -> VerticalDivider2(s = getReactiveState(state.id), m = modifier)
-            is UnknownState2 -> Unit
+            is DropDownState2 -> DropDown2(s = getReactiveState(state.id), m = modifier)
+            is UnknownState2 -> Unknown2(s = getReactiveState(state.id), m = modifier)
         }
     }
 

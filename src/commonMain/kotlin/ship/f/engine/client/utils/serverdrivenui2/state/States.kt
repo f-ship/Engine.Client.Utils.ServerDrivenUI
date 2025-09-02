@@ -218,7 +218,34 @@ fun VerticalDivider2(
 }
 
 @Composable
-fun UnknownState2(
+fun DropDown2(
+    s: MutableState<DropDownState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    Column(
+        modifier = modifier
+            .height(IntrinsicSize.Max)
+    ) {
+        IconButton(onClick = { update { copy(isExpanded = !isExpanded) } }, modifier = Modifier.fillMaxWidth()) {
+            Text(text = selectedItem?.title ?: items.first().title)
+        }
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { update { copy(isExpanded = false) } },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items.forEach {
+                DropdownMenuItem(
+                    text = { Text(it.title) },
+                    onClick = { update { copy(selectedItem = it) } },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Unknown2(
     s: MutableState<UnknownState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
