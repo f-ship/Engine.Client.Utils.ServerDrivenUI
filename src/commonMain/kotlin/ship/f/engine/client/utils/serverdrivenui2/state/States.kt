@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
@@ -380,5 +382,37 @@ fun Screen2(
                 modifier = toModifier2(it.weight)
             )
         }
+    }
+}
+
+@Composable
+fun ToField(json: JsonElement, key: String, level: Int = 0) {
+    when(json) {
+        is JsonArray -> json.forEachIndexed { index, j -> ToField(j, index.toString(), level + 1) }
+        is JsonObject -> json.forEach { (key, value) ->
+            ToField(value, key, level + 1)
+        }
+        is JsonPrimitive -> ToTextField(json, key, level)
+        is JsonNull -> Unit
+    }
+}
+
+@Composable
+fun ToTextField(json: JsonPrimitive, key: String, level: Int) {
+    TextField(
+        value = json.content,
+        label = { Text(key) },
+        onValueChange = { /* Handle value change */ },
+        modifier = Modifier.fillMaxWidth().padding(start = level.dp * 16)
+    )
+}
+@Composable
+fun Builder2(
+    s: MutableState<BuilderState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    (C.get(metaId) as? JsonMeta2)?.json?.let {
+        Text("${it.jsonObject["id"]}")
+        ToField(it, "root")
     }
 }

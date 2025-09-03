@@ -174,6 +174,7 @@ class CommonClient2 private constructor(override val projectName: String? = null
             is TextState2 -> Text2(s = getReactiveState(state.id), m = modifier)
             is VerticalDividerState2 -> VerticalDivider2(s = getReactiveState(state.id), m = modifier)
             is DropDownState2 -> DropDown2(s = getReactiveState(state.id), m = modifier)
+            is BuilderState2 -> Builder2(s = getReactiveState(state.id), m = modifier)
             is UnknownState2 -> Unknown2(s = getReactiveState(state.id), m = modifier)
         }
     }
