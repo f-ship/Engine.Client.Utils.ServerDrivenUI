@@ -22,7 +22,7 @@ import ship.f.engine.shared.utils.serverdrivenui2.ext.g2
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Suppress("UNCHECKED_CAST")
-class CommonClient2 private constructor(override val projectName: String? = null) : Client2() {
+open class CommonClient2 protected constructor(override val projectName: String? = null) : Client2() {
 
     @Debug
     val focusedState: MutableState<StateId2?> = mutableStateOf(StateId2("agenda"))

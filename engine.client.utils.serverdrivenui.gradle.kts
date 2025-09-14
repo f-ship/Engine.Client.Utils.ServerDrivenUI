@@ -83,4 +83,13 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
+//    flavorDimensions += "environment"
+//    productFlavors {
+//        create("dev") {
+//            dimension = "environment"
+//        }
+//        create("full") {
+//            dimension = "environment"
+//        }
+//    }
 }
