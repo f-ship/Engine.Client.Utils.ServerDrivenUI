@@ -38,7 +38,6 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnCli
 import ship.f.engine.shared.utils.serverdrivenui2.state.ImageState2
 import ship.f.engine.shared.utils.serverdrivenui2.state.State2
 
-
 /**
  * Launched effect typically allows one frame to slip by before finish executing.
  * In the case a local resource is used in the very first screen, this will lead to a crash as it will not be found.
@@ -386,9 +385,9 @@ fun State2.toModifier2() = Modifier
             else -> Modifier
         }
     )
-    .then(if (C.isDebug && C.focusedState.value == id) Modifier.border(width = 2.dp, color = Color.Red) else Modifier)
+    .then(if (C.isDev && C.focusedState.value == id) Modifier.border(width = 2.dp, color = Color.Red) else Modifier)
     .then(
-        if (C.isDebug) Modifier.combinedClickable(
+        if (C.isDev) Modifier.combinedClickable(
         onLongClick = {
             C.focusedState.value = id
             update { reset() }

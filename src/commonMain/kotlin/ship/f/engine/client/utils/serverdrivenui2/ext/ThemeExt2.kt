@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.FontResource
-import ship.f.engine.client.utils.serverdrivenui2.CommonClient2
+import ship.f.engine.shared.utils.serverdrivenui2.client.CommonClient2
 import ship.f.engine.shared.utils.serverdrivenui2.client.Client2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Shapes2

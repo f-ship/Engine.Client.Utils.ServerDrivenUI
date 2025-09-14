@@ -13,10 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.Resource
-import ship.f.engine.client.utils.serverdrivenui2.CommonClient2.FocusDirection.*
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client.BackStackEntry2
 import ship.f.engine.shared.utils.serverdrivenui2.client.ClientHolder2
+import ship.f.engine.shared.utils.serverdrivenui2.client.CommonClient2
+import ship.f.engine.shared.utils.serverdrivenui2.client.CommonClient2.FocusDirection.*
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -47,7 +48,7 @@ fun ServerDrivenScreen2(
                 BackHandler(client.canPop()) { client.pop() }
                 Column {
                     // TODO to make a DebugCommonClient using a build variant Ugly Ugly Code
-                    if (C.isDebug) {
+                    if (C.isDev) {
                         Column(
                             modifier = Modifier.padding(top = 12.dp)
                         ) {
@@ -72,7 +73,7 @@ fun ServerDrivenScreen2(
                             }
                         }
                     }
-                    client.Render(targetState.state)
+                    Render(targetState.state)
                 }
             }
         }

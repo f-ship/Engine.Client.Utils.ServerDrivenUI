@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.*
+import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
@@ -271,7 +272,7 @@ fun Card2(
             horizontalAlignment = alignment.toHorizontalAlignment2(),
         ) {
             children.forEach {
-                C.Render(
+                Render(
                     state = it,
                     modifier = toModifier2(it.weight)
                 )
@@ -291,7 +292,7 @@ fun Row2(
         modifier = modifier //Look into whether we need this here or not
     ) {
         children.forEach {
-            C.Render(
+            Render(
                 state = it,
                 modifier = toModifier2(it.weight)
             )
@@ -311,7 +312,7 @@ fun Column2(
         modifier = modifier.then(Modifier.background(color.toColor2())),
     ) {
         children.forEach {
-            C.Render(
+            Render(
                 state = it,
                 modifier = toModifier2(it.weight)
             )
@@ -329,7 +330,7 @@ fun Box2(
         modifier = modifier.then(Modifier.background(color.toColor2())),
     ) {
         children.forEach {
-            C.Render(state = it)
+            Render(state = it)
         }
     }
 }
@@ -345,7 +346,7 @@ fun LazyRow2(
         verticalAlignment = alignment.toVerticalAlignment2(),
     ) {
         items(children) {
-            C.Render(state = it)
+            Render(state = it)
         }
     }
 }
@@ -361,7 +362,7 @@ fun LazyColumn2(
         modifier = modifier
     ) {
         items(children) {
-            C.Render(state = it)
+            Render(state = it)
         }
     }
 }
@@ -377,7 +378,7 @@ fun Screen2(
         modifier = modifier
     ) {
         children.forEach {
-            C.Render(
+            Render(
                 state = it,
                 modifier = toModifier2(it.weight)
             )
