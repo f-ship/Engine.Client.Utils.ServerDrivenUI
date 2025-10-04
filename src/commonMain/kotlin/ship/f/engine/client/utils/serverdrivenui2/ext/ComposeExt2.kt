@@ -1,6 +1,8 @@
 package ship.f.engine.client.utils.serverdrivenui2.ext
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -12,8 +14,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -138,12 +147,95 @@ fun ColorScheme2.Color2.toColor2() = when (this) {
     is ColorScheme2.Color2.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
     is ColorScheme2.Color2.Tertiary -> MaterialTheme.colorScheme.tertiary
     is ColorScheme2.Color2.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
+    is ColorScheme2.Color2.Transparent -> Color.Transparent
     is ColorScheme2.Color2.Unspecified -> Color.Unspecified
+    is ColorScheme2.Color2.Gradient -> Color.Unspecified.also { println("Gradient is not supported") }
+}
+
+@Composable
+fun ColorScheme2.Color2.toBrush() = when (this) {
+    is ColorScheme2.Color2.Gradient -> when (direction) {
+        is ColorScheme2.Color2.Gradient.GradientDirection.Horizontal -> Brush.horizontalGradient(colors.map {
+            it.color.toColor2().copy(alpha = it.alpha)
+        })
+
+        is ColorScheme2.Color2.Gradient.GradientDirection.Vertical -> Brush.verticalGradient(colors.map {
+            it.color.toColor2().copy(alpha = it.alpha)
+        })
+    }
+
+    else -> Brush.also { println("Brush is not supported for solid color as of yet, will be soon") }
+} as Brush
+
+@Composable
+fun Draw2.toModifier2() = when (val draw = this) {
+    is Draw2.Behind2.Circle2 -> {
+        when (color) {
+            is ColorScheme2.Color2.Gradient -> {
+                val brush = color.toBrush()
+                Modifier.drawBehind {
+                    drawCircle(
+                        brush = brush,
+                        radius = size.maxDimension * 0.5f,
+                    )
+                }
+            }
+
+            else -> {
+                val color = color.toColor2()
+                Modifier.drawBehind {
+                    drawCircle(
+                        color = color,
+                        radius = radius ?: (size.maxDimension * 0.5f),
+                    )
+                }
+            }
+        }
+    }
+
+    is Draw2.Behind2.Rectangle2 -> {
+        when (color) {
+            is ColorScheme2.Color2.Gradient -> {
+                val brush = color.toBrush()
+                Modifier.drawBehind {
+                    val path = rectangleToPath(this@toModifier2)
+                    drawPath(path, brush = brush)
+                }
+            }
+            else -> {
+                val color = color.toColor2()
+                Modifier.drawBehind {
+                    val path = rectangleToPath(this@toModifier2)
+                    drawPath(path, color = color)
+                }
+            }
+        }
+    }
+}
+
+fun DrawScope.rectangleToPath(rectangle: Draw2.Behind2.Rectangle2): Path {
+    val rect = Rect(
+        left = rectangle.roundRect.rect.left?.dp?.toPx() ?: 0f,
+        right = rectangle.roundRect.rect.right?.dp?.toPx() ?: size.width,
+        top = rectangle.roundRect.rect.top?.dp?.toPx() ?: 0f,
+        bottom = rectangle.roundRect.rect.bottom?.dp?.toPx() ?: size.height
+    )
+    val roundRect = RoundRect(
+        rect = rect,
+        topLeft = rectangle.roundRect.topLeft.let { CornerRadius(it.dp.toPx(), it.dp.toPx()) },
+        topRight = rectangle.roundRect.topRight.let { CornerRadius(it.dp.toPx(), it.dp.toPx()) },
+        bottomLeft = rectangle.roundRect.bottomLeft.let { CornerRadius(it.dp.toPx(), it.dp.toPx()) },
+        bottomRight = rectangle.roundRect.bottomRight.let { CornerRadius(it.dp.toPx(), it.dp.toPx()) },
+    )
+
+    return Path().apply { addRoundRect(roundRect) }
 }
 
 @Composable
 fun Size2.toModifier2() = when (val size = this) {
     is Size2.DefaultSize2 -> Modifier
+    is Size2.HorizontalSize2 -> size.toModifier2()
+    is Size2.VerticalSize2 -> size.toModifier2()
 
     is Size2.Fill2 -> Modifier
         .fillMaxWidth(horizontalFill)
@@ -154,12 +246,6 @@ fun Size2.toModifier2() = when (val size = this) {
         height = size.height.dp
     )
 
-    is Size2.HorizontalFill2 -> Modifier
-        .fillMaxWidth(size.fill)
-
-    is Size2.VerticalFill2 -> Modifier
-        .fillMaxHeight(size.fill)
-
     is Size2.MatchParent2 -> Modifier
         .fillMaxSize()
         .wrapContentSize(unbounded = true)
@@ -168,6 +254,36 @@ fun Size2.toModifier2() = when (val size = this) {
         height = (LocalWindowInfo.current.containerSize.height / LocalDensity.current.density).dp,
         width = (LocalWindowInfo.current.containerSize.width / LocalDensity.current.density).dp
     )
+
+    is Size2.IntrinsicHorizontalSize2 -> Modifier.width(
+        when (size.horizontal) {
+            is Size2.Intrinsic2.Max2 -> IntrinsicSize.Max
+            is Size2.Intrinsic2.Min -> IntrinsicSize.Min
+        }
+    ).then(size.vertical?.toModifier2() ?: Modifier)
+
+    is Size2.IntrinsicVerticalSize2 -> Modifier.height(
+        when (size.vertical) {
+            Size2.Intrinsic2.Max2 -> IntrinsicSize.Max
+            Size2.Intrinsic2.Min -> IntrinsicSize.Min
+        }
+    ).then(size.horizontal?.toModifier2() ?: Modifier)
+
+    is Size2.HorizontalFill2 -> Modifier.fillMaxWidth(size.fill).then(size.vertical?.toModifier2() ?: Modifier)
+
+    is Size2.VerticalFill2 -> Modifier.fillMaxHeight(size.fill).then(size.horizontal?.toModifier2() ?: Modifier)
+}
+
+@Composable
+fun Size2.HorizontalSize2.toModifier2() = when (val size = this) {
+    is Size2.HorizontalOnlyFill2 -> Modifier.fillMaxWidth(size.fill)
+    is Size2.FixedHorizontal2 -> Modifier.width(size.width.dp)
+}
+
+@Composable
+fun Size2.VerticalSize2.toModifier2() = when (val size = this) {
+    is Size2.FixedVertical2 -> Modifier.height(size.height.dp)
+    is Size2.VerticalOnlyFill2 -> Modifier.fillMaxHeight(size.fill)
 }
 
 @Composable
@@ -175,6 +291,13 @@ fun ImageState2.ToImage2(modifier: Modifier) {
     when (val src = src) {
         is Resource2 -> Icon(
             painter = painterResource(C.getResource(src.location)),
+            contentDescription = contentDescription,
+            modifier = modifier,
+            tint = color.toColor2()
+        )
+
+        is Material2 -> Icon(
+            imageVector = C.getImageVector(src.location),
             contentDescription = contentDescription,
             modifier = modifier,
             tint = color.toColor2()
@@ -196,6 +319,7 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             modifier = modifier,
             onError = {
                 /* TODO to use proper SDUI logging */
+                println("BizClik Error loading image: ${it.result.throwable}")
             },
             contentScale = contentScale.toContentScale2(),
             colorFilter = ColorFilter.tint(color.toColor2())
@@ -205,9 +329,11 @@ fun ImageState2.ToImage2(modifier: Modifier) {
 
 @Composable
 fun State2.addOnClick(modifier: Modifier, enabled: Boolean = true) = (this as? OnClickModifier2)?.let {
-    modifier.clickable(enabled = enabled, role = Role.Button) {
-        it.onClickTrigger.trigger()
-    }
+    if (onClickTrigger.actions.isNotEmpty()) {
+        modifier.clickable(enabled = enabled, role = Role.Button) {
+            it.onClickTrigger.trigger()
+        }
+    } else modifier
 } ?: modifier
 
 @Composable
@@ -356,6 +482,25 @@ fun Alignment2.toAlignment2(): Alignment = when (this) {
 } as Alignment
 
 @Composable
+fun Alignment2.to2DAlignment2(): Alignment = when (this) {
+    is Alignment2.VerticalAlignment2.CenterVertically2 -> Alignment.Center
+    is Alignment2.HorizontalAlignment2.CenterHorizontally2 -> Alignment.Center
+    is Alignment2.HorizontalAlignment2.Start2 -> Alignment.TopStart
+    is Alignment2.HorizontalAlignment2.End2 -> Alignment.TopEnd
+    is Alignment2.VerticalAlignment2.Bottom2 -> Alignment.BottomCenter
+    is Alignment2.VerticalAlignment2.Top2 -> Alignment.TopCenter
+    is Alignment2.HorizontalAndVerticalAlignment2.TopStart2 -> Alignment.TopStart
+    is Alignment2.HorizontalAndVerticalAlignment2.TopCenter2 -> Alignment.TopCenter
+    is Alignment2.HorizontalAndVerticalAlignment2.TopEnd2 -> Alignment.TopEnd
+    is Alignment2.HorizontalAndVerticalAlignment2.CenterStart2 -> Alignment.CenterStart
+    is Alignment2.HorizontalAndVerticalAlignment2.Center2 -> Alignment.Center
+    is Alignment2.HorizontalAndVerticalAlignment2.CenterEnd2 -> Alignment.CenterEnd
+    is Alignment2.HorizontalAndVerticalAlignment2.BottomStart2 -> Alignment.BottomStart
+    is Alignment2.HorizontalAndVerticalAlignment2.BottomCenter2 -> Alignment.BottomCenter
+    is Alignment2.HorizontalAndVerticalAlignment2.BottomEnd2 -> Alignment.BottomEnd
+}
+
+@Composable
 fun ColumnScope.toModifier2(weight: Weight2?) = when (weight) {
     null -> Modifier
     else -> Modifier.weight(weight.value)
@@ -375,6 +520,8 @@ fun PaddingValues2.toModifier2() = Modifier.padding(
     bottom = bottom.dp
 )
 
+val modifierChain = mutableListOf<State2.() -> Modifier>()
+
 @Composable
 fun State2.toModifier2() = Modifier
     .then(size.toModifier2())
@@ -384,13 +531,17 @@ fun State2.toModifier2() = Modifier
             is InnerPaddingModifier2<*> -> this.padding.toModifier2()
             else -> Modifier
         }
-    )
-    .then(if (C.isDev && C.focusedState.value == id) Modifier.border(width = 2.dp, color = Color.Red) else Modifier)
-    .then(
-        if (C.isDev) Modifier.combinedClickable(
-        onLongClick = {
-            C.focusedState.value = id
-            update { reset() }
-        },
-        onClick = {}
-    ) else Modifier)
+    ).let {
+        var modifier = it
+        for (modifierProvider in modifierChain) {
+            modifier = modifier.then(modifierProvider())
+        }
+        modifier
+    }.let {
+        var modifier = it
+        for (draw in draws) {
+            modifier = modifier.then(draw.toModifier2())
+        }
+        modifier
+    }
+

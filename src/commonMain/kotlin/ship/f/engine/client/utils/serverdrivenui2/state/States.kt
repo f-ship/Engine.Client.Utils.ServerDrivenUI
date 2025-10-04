@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.Render
@@ -66,6 +68,12 @@ fun TextField2(
         OutlinedTextField(
             value = text,
             visualTransformation = fieldType.toVisualTransformation2(),
+            placeholder = { Text(placeholder) },
+            leadingIcon = {
+                leadingIcon?.let {
+                    it.ToImage2(it.toModifier2())
+                }
+            },
             onValueChange = {
                 val error = isError(it)
                 update {
@@ -101,6 +109,28 @@ fun TextField2(
             )
         }
     }
+}
+
+@Composable
+fun Search2(
+    s: MutableState<SearchState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    OutlinedTextField(
+        value = text,
+        leadingIcon = {
+            leadingIcon?.let {
+                it.ToImage2(it.toModifier2())
+            }
+        },
+        visualTransformation = fieldType.toVisualTransformation2(),
+        placeholder = { Text(placeholder) },
+        onValueChange = { update { copy(text = it) } },
+        keyboardOptions = fieldType.toKeyboardOptions2(),
+        modifier = modifier,
+        shape = shape.toShape2(),
+        colors = textFieldDefaults2()
+    )
 }
 
 @Composable
@@ -309,7 +339,9 @@ fun Column2(
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
-        modifier = modifier.then(Modifier.background(color.toColor2())),
+        modifier = modifier
+            .then(Modifier.background(color.toColor2()))
+            .then(addOnClick(modifier)),
     ) {
         children.forEach {
             Render(
@@ -326,7 +358,7 @@ fun Box2(
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
     Box(
-        contentAlignment = alignment.toAlignment2(),
+        contentAlignment = alignment.to2DAlignment2(),
         modifier = modifier.then(Modifier.background(color.toColor2())),
     ) {
         children.forEach {
@@ -359,7 +391,13 @@ fun LazyColumn2(
     LazyColumn(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
-        modifier = modifier
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = innerPadding.start.dp,
+            end = innerPadding.end.dp,
+            top = innerPadding.top.dp,
+            bottom = innerPadding.bottom.dp
+        ),
     ) {
         items(children) {
             Render(state = it)
@@ -375,7 +413,7 @@ fun Screen2(
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
-        modifier = modifier
+        modifier = modifier.background(Color.Transparent),
     ) {
         children.forEach {
             Render(
@@ -387,12 +425,42 @@ fun Screen2(
 }
 
 @Composable
+fun Scaffold2(
+    s: MutableState<ScaffoldState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    if (children.size != 3) throw IllegalStateException("Scaffold must have exactly 3 children")
+    Scaffold(
+        topBar = {
+            Render(state = children[0])
+        },
+        bottomBar = {
+            Render(state = children[2])
+        },
+        containerColor = color.toColor2(),
+    ) { paddingValues ->
+        Column(
+            verticalArrangement = arrangement.toVerticalArrangement2(),
+            horizontalAlignment = alignment.toHorizontalAlignment2(),
+            modifier = modifier.padding(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                top = paddingValues.calculateTopPadding(),
+            )
+        ) {
+            Render(state = children[1])
+        }
+    }
+}
+
+@Composable
 fun ToField(json: JsonElement, key: String, level: Int = 0) {
-    when(json) {
+    when (json) {
         is JsonArray -> json.forEachIndexed { index, j -> ToField(j, index.toString(), level + 1) }
         is JsonObject -> json.forEach { (key, value) ->
             ToField(value, key, level + 1)
         }
+
         is JsonPrimitive -> ToTextField(json, key, level)
         is JsonNull -> Unit
     }
@@ -407,13 +475,14 @@ fun ToTextField(json: JsonPrimitive, key: String, level: Int) {
         modifier = Modifier.fillMaxWidth().padding(start = level.dp * 16)
     )
 }
+
 @Composable
 fun Builder2(
     s: MutableState<BuilderState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
     (C.get(metaId) as? JsonMeta2)?.json?.let {
-        Text("${it.jsonObject["id"]}")
+        Text("Observing ${(it.jsonObject["id"] as? JsonObject)?.getValue("name")}")
         ToField(it, "root")
     }
 }
