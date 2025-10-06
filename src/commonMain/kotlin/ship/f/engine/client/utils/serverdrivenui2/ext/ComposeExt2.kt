@@ -2,6 +2,7 @@ package ship.f.engine.client.utils.serverdrivenui2.ext
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,8 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.WeightM
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnClickModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.state.ImageState2
 import ship.f.engine.shared.utils.serverdrivenui2.state.State2
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Launched effect typically allows one frame to slip by before finish executing.
@@ -186,7 +189,7 @@ fun Draw2.toModifier2() = when (val draw = this) {
                 Modifier.drawBehind {
                     drawCircle(
                         color = color,
-                        radius = radius ?: (size.maxDimension * 0.5f),
+                        radius = radius?.dp?.toPx() ?: (size.maxDimension * 0.5f),
                     )
                 }
             }
@@ -211,6 +214,17 @@ fun Draw2.toModifier2() = when (val draw = this) {
             }
         }
     }
+
+    is Draw2.Border2 -> Modifier
+        .border(width = width.dp, color = color.toColor2(), shape = shape.toShape2())
+        .then(padding.toModifier2())
+
+    is Draw2.Offset2 -> Modifier.offset(x = x.dp, y = y.dp)
+
+    is Draw2.RadialOffset2 -> Modifier.offset(
+        x = (cos(angle) * radius).dp,
+        y = (sin(angle) * radius).dp
+    )
 }
 
 fun DrawScope.rectangleToPath(rectangle: Draw2.Behind2.Rectangle2): Path {
@@ -519,7 +533,6 @@ fun PaddingValues2.toModifier2() = Modifier.padding(
     top = top.dp,
     bottom = bottom.dp
 )
-
 val modifierChain = mutableListOf<State2.() -> Modifier>()
 
 @Composable

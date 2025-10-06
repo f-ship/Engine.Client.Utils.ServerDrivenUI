@@ -25,6 +25,7 @@ fun Render(
             is LazyColumnState2 -> LazyColumn2(s = getReactiveState(state.id), m = modifier)
             is LazyRowState2 -> LazyRow2(s = getReactiveState(state.id), m = modifier)
             is RowState2 -> Row2(s = getReactiveState(state.id), m = modifier)
+            is FlowRowState2 -> FlowRow2(s = getReactiveState(state.id), m = modifier)
             is ScreenState2 -> Screen2(s = getReactiveState(state.id), m = modifier)
             is ScaffoldState2 -> Scaffold2(s = getReactiveState(state.id), m = modifier)
             is SpacerState2 -> Spacer2(s = getReactiveState(state.id), m = modifier)

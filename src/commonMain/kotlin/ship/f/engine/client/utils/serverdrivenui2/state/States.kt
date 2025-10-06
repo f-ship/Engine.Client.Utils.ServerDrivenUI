@@ -319,7 +319,7 @@ fun Row2(
     Row(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
-        modifier = modifier //Look into whether we need this here or not
+        modifier = modifier
     ) {
         children.forEach {
             Render(
@@ -328,6 +328,24 @@ fun Row2(
             )
         }
 
+    }
+}
+
+@Composable
+fun FlowRow2(
+    s: MutableState<FlowRowState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    FlowRow(
+        horizontalArrangement = arrangement.toHorizontalArrangement2(),
+        modifier = modifier
+    ) {
+        children.forEach {
+            Render(
+                state = it,
+                modifier = toModifier2(it.weight)
+            )
+        }
     }
 }
 
