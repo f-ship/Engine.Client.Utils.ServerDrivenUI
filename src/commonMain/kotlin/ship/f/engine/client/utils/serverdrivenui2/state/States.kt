@@ -69,11 +69,8 @@ fun TextField2(
             value = text,
             visualTransformation = fieldType.toVisualTransformation2(),
             placeholder = { Text(placeholder) },
-            leadingIcon = {
-                leadingIcon?.let {
-                    it.ToImage2(it.toModifier2())
-                }
-            },
+            leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
+            trailingIcon = trailingIcon?.let { { it.ToImage2(it.toModifier2()) } },
             onValueChange = {
                 val error = isError(it)
                 update {
@@ -118,11 +115,8 @@ fun Search2(
 ) = s.WithState2(m) { modifier ->
     OutlinedTextField(
         value = text,
-        leadingIcon = {
-            leadingIcon?.let {
-                it.ToImage2(it.toModifier2())
-            }
-        },
+        leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
+        trailingIcon = trailingIcon?.let { { it.ToImage2(it.toModifier2()) } },
         visualTransformation = fieldType.toVisualTransformation2(),
         placeholder = { Text(placeholder) },
         onValueChange = { update { copy(text = it) } },
@@ -377,7 +371,7 @@ fun Box2(
 ) = s.WithState2(m) { modifier ->
     Box(
         contentAlignment = alignment.to2DAlignment2(),
-        modifier = modifier.then(Modifier.background(color.toColor2())),
+        modifier = modifier.then(Modifier.background(color = color.toColor2(), shape = shape.toShape2()))
     ) {
         children.forEach {
             Render(state = it)
