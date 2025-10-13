@@ -70,7 +70,7 @@ fun UIType2.toButtonColors2() = when (this) {
 
     is UIType2.Tertiary2 -> ButtonDefaults.buttonColors(
         containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary,
     )
 }
 
@@ -369,7 +369,7 @@ fun textFieldDefaults2() = TextFieldDefaults.colors(
     focusedTextColor = MaterialTheme.colorScheme.primary,
     unfocusedTextColor = Color.Unspecified,
     focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+    unfocusedIndicatorColor = Color.Transparent, // TODO hardcoded for now
     disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
     focusedLabelColor = MaterialTheme.colorScheme.primary,
     unfocusedLabelColor = Color.Unspecified,

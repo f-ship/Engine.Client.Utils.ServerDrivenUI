@@ -8,9 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -21,9 +19,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
+import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.EmitPopulatedSideEffect2
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Size2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
+import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.models.OnClickTrigger2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
@@ -60,11 +62,13 @@ fun TextField2(
     }
 
     Column(modifier) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
+        if (label.isNotEmpty()){
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
         OutlinedTextField(
             value = text,
             visualTransformation = fieldType.toVisualTransformation2(),
@@ -113,10 +117,54 @@ fun Search2(
     s: MutableState<SearchState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+
+    //TODO temporary hard coding on frontend
+    var randomId by remember { mutableStateOf(getRandomString()) }
+
     OutlinedTextField(
         value = text,
         leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
-        trailingIcon = trailingIcon?.let { { it.ToImage2(it.toModifier2()) } },
+        trailingIcon = trailingIcon?.let {
+            {
+                it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
+//                    it.onClickTrigger.trigger()
+                    OnClickTrigger2(
+                        EmitPopulatedSideEffect2(
+                            sideEffect = PopulatedSideEffectMeta2(
+                                metaId = Id2.MetaId2("SendMessage"),
+                                states = listOf(
+                                    C.get(Id2.StateId2("ChatDetail-Search-chat-5ppru", alias = "Message"))
+                                ),
+                                metas = listOf(
+                                    DataMeta2(
+                                        metaId = Id2.MetaId2("Chat"),
+                                        data = mapOf(
+                                            "chatId" to DataMeta2.DataMetaType2.StringData("chat-5ppru"),
+                                            "messageId" to DataMeta2.DataMetaType2.RandomIdStateData(
+                                                pre = "ChatMessage-",
+                                                navigation = NavigationConfig2.StateOperation2.InsertionOperation2.End2(
+                                                    inside = Id2.StateId2("ChatDetail-Messages-chat-5ppru"),
+                                                    stateId = Id2.StateId2(),
+                                                ),
+                                                state = RowState2(
+                                                    size = Size2.HorizontalFill2(),
+                                                    children = listOf(
+                                                        TextState2(
+                                                            text = text,
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                    ).trigger()
+                    update { copy(text = "") }
+                })
+            }
+        },
         visualTransformation = fieldType.toVisualTransformation2(),
         placeholder = { Text(placeholder) },
         onValueChange = { update { copy(text = it) } },
@@ -220,6 +268,7 @@ fun Button2(
             Text(
                 text = it,
                 style = textStyle.toTextStyle2(fontWeight),
+                color = MaterialTheme.colorScheme.primary,
                 modifier = modifier.clickable(enabled = valid.value, role = Role.Button) {
                     onClickTrigger.trigger()
                 }
