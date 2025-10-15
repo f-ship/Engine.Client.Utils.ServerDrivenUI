@@ -65,6 +65,9 @@ kotlin {
         }
         androidMain.dependencies {
             implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+            // Media3 ExoPlayer + UI
+            implementation("androidx.media3:media3-exoplayer:1.4.1")
+            implementation("androidx.media3:media3-ui:1.4.1")
         }
         appleMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:3.2.1")

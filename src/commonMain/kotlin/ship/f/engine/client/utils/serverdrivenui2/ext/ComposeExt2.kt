@@ -150,6 +150,7 @@ fun ColorScheme2.Color2.toColor2() = when (this) {
     is ColorScheme2.Color2.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
     is ColorScheme2.Color2.Tertiary -> MaterialTheme.colorScheme.tertiary
     is ColorScheme2.Color2.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
+    is ColorScheme2.Color2.Gradient.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
     is ColorScheme2.Color2.Transparent -> Color.Transparent
     is ColorScheme2.Color2.Unspecified -> Color.Unspecified
     is ColorScheme2.Color2.Gradient -> Color.Unspecified.also { println("Gradient is not supported") }

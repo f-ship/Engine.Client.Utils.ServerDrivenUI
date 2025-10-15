@@ -22,6 +22,7 @@ fun Render(
             is ColumnState2 -> Column2(s = getReactiveState(state.id), m = modifier)
             is HorizontalDividerState2 -> HorizontalDivider2(s = getReactiveState(state.id), m = modifier)
             is ImageState2 -> Image2(s = getReactiveState(state.id), m = modifier)
+            is VideoState2 -> Video2(s = getReactiveState(state.id), m = modifier)
             is LazyColumnState2 -> LazyColumn2(s = getReactiveState(state.id), m = modifier)
             is LazyRowState2 -> LazyRow2(s = getReactiveState(state.id), m = modifier)
             is RowState2 -> Row2(s = getReactiveState(state.id), m = modifier)
@@ -36,6 +37,7 @@ fun Render(
             is VerticalDividerState2 -> VerticalDivider2(s = getReactiveState(state.id), m = modifier)
             is DropDownState2 -> DropDown2(s = getReactiveState(state.id), m = modifier)
             is BuilderState2 -> Builder2(s = getReactiveState(state.id), m = modifier)
+            is FadeInState2 -> FadeIn2(s = getReactiveState(state.id), m = modifier)
             is UnknownState2 -> Unknown2(s = getReactiveState(state.id), m = modifier)
         }
     }

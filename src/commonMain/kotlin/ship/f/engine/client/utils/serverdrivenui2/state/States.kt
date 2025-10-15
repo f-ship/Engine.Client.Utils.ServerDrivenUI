@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
@@ -224,6 +225,12 @@ fun Image2(
 }
 
 @Composable
+expect fun Video2(
+    s: MutableState<VideoState2>,
+    m: Modifier = Modifier,
+)
+
+@Composable
 fun Button2(
     s: MutableState<ButtonState2>,
     m: Modifier = Modifier,
@@ -362,8 +369,9 @@ fun Row2(
     Row(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
-        modifier = modifier
-    ) {
+        modifier = modifier.then(addOnClick(modifier)),
+
+        ) {
         children.forEach {
             Render(
                 state = it,
@@ -545,5 +553,26 @@ fun Builder2(
     (C.get(metaId) as? JsonMeta2)?.json?.let {
         Text("Observing ${(it.jsonObject["id"] as? JsonObject)?.getValue("name")}")
         ToField(it, "root")
+    }
+}
+
+@Composable
+fun FadeIn2(
+    s: MutableState<FadeInState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(s) {
+        delay(delay.toLong())
+        visible = true
+    }
+    AnimatedVisibility(
+        visible = visible,
+    ) {
+        children.forEach {
+            Render(
+                state = it,
+            )
+        }
     }
 }
