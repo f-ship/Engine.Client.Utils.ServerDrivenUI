@@ -15,12 +15,19 @@ import ship.f.engine.client.utils.serverdrivenui2.ext.WithState2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2
 import ship.f.engine.shared.utils.serverdrivenui2.state.VideoState2
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalForeignApi::class)
 @Composable
 actual fun Video2(
     s: MutableState<VideoState2>,
     m: Modifier,
 ) = s.WithState2(m) { modifier ->
+    Video2(modifier)
+}
+
+@OptIn(ExperimentalResourceApi::class, ExperimentalForeignApi::class)
+@Composable
+actual fun VideoState2.Video2(
+    modifier: Modifier,
+) {
     val controller = remember { AVPlayerViewController() }
     val player = remember { AVPlayer() }
 

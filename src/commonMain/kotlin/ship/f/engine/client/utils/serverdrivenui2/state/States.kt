@@ -35,6 +35,13 @@ fun Spacer2(
     s: MutableState<SpacerState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Spacer2(modifier = modifier)
+}
+
+@Composable
+fun SpacerState2.Spacer2(
+    modifier: Modifier = Modifier,
+) {
     Spacer(modifier = modifier)
 }
 
@@ -43,6 +50,13 @@ fun Text2(
     s: MutableState<TextState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Text2(modifier = modifier)
+}
+
+@Composable
+fun TextState2.Text2(
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
         style = textStyle.toTextStyle2(fontWeight),
@@ -57,13 +71,20 @@ fun TextField2(
     s: MutableState<TextFieldState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    TextField2(modifier = modifier)
+}
+
+@Composable
+fun TextFieldState2.TextField2(
+    modifier: Modifier = Modifier,
+) {
     remember(this.id) {
         val error = isError(text)
         update { copy(error = error, valid = Valid2(error == null)) }
     }
 
     Column(modifier) {
-        if (label.isNotEmpty()){
+        if (label.isNotEmpty()) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
@@ -118,7 +139,13 @@ fun Search2(
     s: MutableState<SearchState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Search2(modifier)
+}
 
+@Composable
+fun SearchState2.Search2(
+    modifier: Modifier = Modifier
+) {
     //TODO temporary hard coding on frontend
     var randomId by remember { mutableStateOf(getRandomString()) }
 
@@ -181,6 +208,13 @@ fun Switch2(
     s: MutableState<SwitchState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Switch2(modifier)
+}
+
+@Composable
+fun SwitchState2.Switch2(
+    modifier: Modifier = Modifier,
+) {
     Switch(
         checked = if (modified) toggle.value else initialToggle ?: toggle.value,
         onCheckedChange = {
@@ -201,6 +235,13 @@ fun CheckBox2(
     s: MutableState<CheckboxState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    CheckBox2(modifier)
+}
+
+@Composable
+fun CheckboxState2.CheckBox2(
+    modifier: Modifier = Modifier,
+) {
     Checkbox(
         checked = if (modified) toggle.value else initialToggle ?: toggle.value,
         onCheckedChange = {
@@ -221,6 +262,13 @@ fun Image2(
     s: MutableState<ImageState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Image2(modifier)
+}
+
+@Composable
+fun ImageState2.Image2(
+    modifier: Modifier = Modifier,
+) {
     ToImage2(addOnClick(modifier = modifier))
 }
 
@@ -231,10 +279,33 @@ expect fun Video2(
 )
 
 @Composable
+expect fun VideoState2.Video2(
+    modifier: Modifier = Modifier,
+)
+
+@Composable
+expect fun CameraGallery2(
+    s: MutableState<CameraGalleryState2>,
+    m: Modifier = Modifier,
+)
+
+@Composable
+expect fun CameraGalleryState2.CameraGallery2(
+    modifier: Modifier = Modifier,
+)
+
+@Composable
 fun Button2(
     s: MutableState<ButtonState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Button2(modifier)
+}
+
+@Composable
+fun ButtonState2.Button2(
+    modifier: Modifier = Modifier,
+) {
     val leadingIcon: @Composable () -> Unit = {
         leadingIcon?.run {
             ToImage2(Modifier)
@@ -289,6 +360,13 @@ fun HorizontalDivider2(
     s: MutableState<HorizontalDividerState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    HorizontalDivider2(modifier)
+}
+
+@Composable
+fun HorizontalDividerState2.HorizontalDivider2(
+    modifier: Modifier = Modifier,
+) {
     HorizontalDivider(modifier)
 }
 
@@ -297,6 +375,13 @@ fun VerticalDivider2(
     s: MutableState<VerticalDividerState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    VerticalDivider2(modifier)
+}
+
+@Composable
+fun VerticalDividerState2.VerticalDivider2(
+    modifier: Modifier = Modifier,
+) {
     VerticalDivider(modifier)
 }
 
@@ -305,6 +390,13 @@ fun DropDown2(
     s: MutableState<DropDownState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    DropDown2(modifier)
+}
+
+@Composable
+fun DropDownState2.DropDown2(
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .height(IntrinsicSize.Max)
@@ -332,6 +424,13 @@ fun Unknown2(
     s: MutableState<UnknownState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Unknown2(modifier)
+}
+
+@Composable
+fun UnknownState2.Unknown2(
+    modifier: Modifier = Modifier,
+) {
     // TODO The initialTrigger is what determines it's behaviour
 }
 
@@ -340,6 +439,13 @@ fun Card2(
     s: MutableState<CardState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Card2(modifier)
+}
+
+@Composable
+fun CardState2.Card2(
+    modifier: Modifier = Modifier,
+) {
     Surface(
         shape = shape.toShape2(),
         border = border.toBorder2(),
@@ -366,6 +472,13 @@ fun Row2(
     s: MutableState<RowState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Row2(modifier)
+}
+
+@Composable
+fun RowState2.Row2(
+    modifier: Modifier = Modifier,
+) {
     Row(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
@@ -378,7 +491,6 @@ fun Row2(
                 modifier = toModifier2(it.weight)
             )
         }
-
     }
 }
 
@@ -387,6 +499,13 @@ fun FlowRow2(
     s: MutableState<FlowRowState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    FlowRow2(modifier)
+}
+
+@Composable
+fun FlowRowState2.FlowRow2(
+    modifier: Modifier = Modifier,
+) {
     FlowRow(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         modifier = modifier
@@ -405,6 +524,13 @@ fun Column2(
     s: MutableState<ColumnState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Column2(modifier)
+}
+
+@Composable
+fun ColumnState2.Column2(
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
@@ -426,6 +552,13 @@ fun Box2(
     s: MutableState<BoxState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Box2(modifier)
+}
+
+@Composable
+fun BoxState2.Box2(
+    modifier: Modifier = Modifier,
+) {
     Box(
         contentAlignment = alignment.to2DAlignment2(),
         modifier = modifier.then(Modifier.background(color = color.toColor2(), shape = shape.toShape2()))
@@ -441,6 +574,13 @@ fun LazyRow2(
     s: MutableState<LazyRowState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    LazyRow2(modifier)
+}
+
+@Composable
+fun LazyRowState2.LazyRow2(
+    modifier: Modifier = Modifier,
+) {
     LazyRow(
         modifier = modifier,
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
@@ -457,6 +597,13 @@ fun LazyColumn2(
     s: MutableState<LazyColumnState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    LazyColumn2(modifier)
+}
+
+@Composable
+fun LazyColumnState2.LazyColumn2(
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
@@ -479,6 +626,13 @@ fun Screen2(
     s: MutableState<ScreenState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Screen2(modifier)
+}
+
+@Composable
+fun ScreenState2.Screen2(
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
@@ -498,6 +652,13 @@ fun Scaffold2(
     s: MutableState<ScaffoldState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Scaffold2(modifier)
+}
+
+@Composable
+fun ScaffoldState2.Scaffold2(
+    modifier: Modifier = Modifier,
+) {
     if (children.size != 3) throw IllegalStateException("Scaffold must have exactly 3 children")
     Scaffold(
         topBar = {
@@ -550,6 +711,13 @@ fun Builder2(
     s: MutableState<BuilderState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    Builder2(modifier)
+}
+
+@Composable
+fun BuilderState2.Builder2(
+    modifier: Modifier = Modifier,
+) {
     (C.get(metaId) as? JsonMeta2)?.json?.let {
         Text("Observing ${(it.jsonObject["id"] as? JsonObject)?.getValue("name")}")
         ToField(it, "root")
@@ -561,8 +729,15 @@ fun FadeIn2(
     s: MutableState<FadeInState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    FadeIn2(modifier)
+}
+
+@Composable
+fun FadeInState2.FadeIn2(
+    modifier: Modifier = Modifier,
+) {
     var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(s) {
+    LaunchedEffect(this) {
         delay(delay.toLong())
         visible = true
     }

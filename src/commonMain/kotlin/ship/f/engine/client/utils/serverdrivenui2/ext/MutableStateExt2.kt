@@ -11,12 +11,27 @@ fun <S: State2> MutableState<S>.WithState2(
     modifier: Modifier,
     block: @Composable S.(Modifier) -> Unit)
 {
-    this.value.run {
+    value.run {
         LaunchedEffect(id) {
             onInitialRenderTrigger.trigger()
         }
         if (visible.value) {
-            block(this, modifier.then(this.toModifier2()))
+            block(this, modifier.then(toModifier2()))
+        }
+    }
+}
+
+@Composable
+fun State2.WithState2(
+    modifier: Modifier,
+    block: @Composable State2.(Modifier) -> Unit)
+{
+    run {
+        LaunchedEffect(id) {
+            onInitialRenderTrigger.trigger()
+        }
+        if (visible.value) {
+            block(this, modifier.then(toModifier2()))
         }
     }
 }

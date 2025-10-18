@@ -22,12 +22,19 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2
 import ship.f.engine.shared.utils.serverdrivenui2.state.VideoState2
 import java.io.File
 
-@OptIn(UnstableApi::class, InternalResourceApi::class, InternalResourceApi::class)
 @Composable
 actual fun Video2(
     s: MutableState<VideoState2>,
     m: Modifier,
 ) = s.WithState2(m) { modifier ->
+    Video2(modifier)
+}
+
+@OptIn(UnstableApi::class, InternalResourceApi::class, InternalResourceApi::class)
+@Composable
+actual fun VideoState2.Video2(
+    modifier: Modifier,
+) {
     val context = LocalContext.current
     val exoPlayer = remember { ExoPlayer.Builder(context).build() }
 

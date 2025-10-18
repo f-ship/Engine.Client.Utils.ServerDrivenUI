@@ -12,5 +12,12 @@ actual fun Video2(
     s: MutableState<VideoState2>,
     m: Modifier,
 ) = s.WithState2(m) { modifier ->
+    Video2(modifier)
+}
+
+@Composable
+actual fun VideoState2.Video2(
+    modifier: Modifier,
+) {
     Text("Video is not supported on this jvm platform")
 }
