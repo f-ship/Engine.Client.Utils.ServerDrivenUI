@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
@@ -35,9 +36,12 @@ import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
+import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.ImageRequest
+import coil3.util.DebugLogger
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
@@ -49,6 +53,8 @@ import ship.f.engine.shared.utils.serverdrivenui2.state.ImageState2
 import ship.f.engine.shared.utils.serverdrivenui2.state.State2
 import kotlin.math.cos
 import kotlin.math.sin
+
+
 
 /**
  * Launched effect typically allows one frame to slip by before finish executing.
@@ -303,25 +309,34 @@ fun Size2.VerticalSize2.toModifier2() = when (val size = this) {
 
 @Composable
 fun ImageState2.ToImage2(modifier: Modifier) {
+    val ctx = LocalPlatformContext.current
+
+    val loader = remember(ctx) {
+        ImageLoader.Builder(ctx)
+            .components { add(KtorNetworkFetcherFactory()) }
+            .logger(DebugLogger()) // see Coil logs
+            .build()
+    }
+
     when (val src = src) {
         is Resource2 -> Icon(
             painter = painterResource(C.getResource(src.location)),
             contentDescription = contentDescription,
-            modifier = modifier,
+            modifier = modifier.clip(shape.toShape2()),
             tint = color.toColor2()
         )
 
         is Material2 -> Icon(
             imageVector = C.getImageVector(src.location),
             contentDescription = contentDescription,
-            modifier = modifier,
+            modifier = modifier.clip(shape.toShape2()),
             tint = color.toColor2()
         )
 
         is Local2 -> Image(
             painter = painterResource(C.getResource(src.location)),
             contentDescription = contentDescription,
-            modifier = modifier,
+            modifier = modifier.clip(shape.toShape2()),
             contentScale = contentScale.toContentScale2(),
             colorFilter = ColorFilter.tint(color.toColor2())
         )
@@ -330,14 +345,15 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             model = ImageRequest.Builder(LocalPlatformContext.current)
                 .data(src.location)
                 .build(),
+            imageLoader = loader,
             contentDescription = contentDescription,
-            modifier = modifier,
+            modifier = modifier.clip(shape.toShape2()),
             onError = {
                 /* TODO to use proper SDUI logging */
                 println("BizClik Error loading image: ${it.result.throwable}")
             },
             contentScale = contentScale.toContentScale2(),
-            colorFilter = ColorFilter.tint(color.toColor2())
+//            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
         )
     }
 }

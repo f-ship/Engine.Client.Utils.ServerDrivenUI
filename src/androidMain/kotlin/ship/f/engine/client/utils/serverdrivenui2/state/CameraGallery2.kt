@@ -79,7 +79,7 @@ actual fun CameraGalleryState2.CameraGallery2(
         launchCamera = false
     }
 
-    val clickableModifier = modifier.clickable { // TODO to not have this stuff hardcoded
+    val clickableModifier = modifier.clip(shape.toShape2()).clickable { // TODO to not have this stuff hardcoded
         imageSourceOptionDialog = true
     }
 
@@ -88,7 +88,7 @@ actual fun CameraGalleryState2.CameraGallery2(
             Image(
                 bitmap = imageBitmap!!,
                 contentDescription = "Profile",
-                modifier = clickableModifier.clip(shape.toShape2()),
+                modifier = clickableModifier,
                 contentScale = ContentScale.Crop
             )
         } else {
@@ -96,7 +96,7 @@ actual fun CameraGalleryState2.CameraGallery2(
                 Render(state = it, modifier = clickableModifier)
             } ?: Box(
                 contentAlignment = Alignment.Center,
-                modifier = clickableModifier.clip(shape.toShape2()).background(color.toColor2())) {
+                modifier = clickableModifier.background(color.toColor2())) {
 //                Text(text = "Edit Photo") // TODO the edit should not be a part of this
             }
         }
