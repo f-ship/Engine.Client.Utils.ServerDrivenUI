@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
@@ -53,7 +52,6 @@ import ship.f.engine.shared.utils.serverdrivenui2.state.ImageState2
 import ship.f.engine.shared.utils.serverdrivenui2.state.State2
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 
 /**
@@ -338,7 +336,7 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             contentDescription = contentDescription,
             modifier = modifier.clip(shape.toShape2()),
             contentScale = contentScale.toContentScale2(),
-            colorFilter = ColorFilter.tint(color.toColor2())
+//            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
         )
 
         is Url2 -> AsyncImage(
