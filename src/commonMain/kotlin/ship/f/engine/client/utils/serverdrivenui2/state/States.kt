@@ -6,7 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -614,6 +617,35 @@ fun LazyColumnState2.LazyColumn2(
             top = innerPadding.top.dp,
             bottom = innerPadding.bottom.dp
         ),
+    ) {
+        items(children) {
+            Render(state = it)
+        }
+    }
+}
+
+@Composable
+fun LazyGrid2(
+    s: MutableState<LazyGridState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    LazyGrid2(modifier)
+}
+
+@Composable
+fun LazyGridState2.LazyGrid2(
+    modifier: Modifier = Modifier,
+) {
+    LazyVerticalGrid(
+        verticalArrangement = arrangement.toVerticalArrangement2(),
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = innerPadding.start.dp,
+            end = innerPadding.end.dp,
+            top = innerPadding.top.dp,
+            bottom = innerPadding.bottom.dp
+        ),
+        columns = GridCells.Adaptive(64.dp), // TODO this shouldn't be hardcoded
     ) {
         items(children) {
             Render(state = it)
