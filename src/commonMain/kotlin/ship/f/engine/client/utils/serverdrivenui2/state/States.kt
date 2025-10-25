@@ -486,8 +486,7 @@ fun RowState2.Row2(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
         modifier = modifier.then(addOnClick(modifier)),
-
-        ) {
+    ) {
         children.forEach {
             Render(
                 state = it,
