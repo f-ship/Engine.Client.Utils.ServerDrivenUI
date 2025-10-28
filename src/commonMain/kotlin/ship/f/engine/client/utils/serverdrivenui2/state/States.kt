@@ -551,18 +551,7 @@ fun ColumnState2.Column2(
             .then(Modifier.background(color.toColor2()))
             .then(addOnClick(modifier)),
     ) {
-        println("Rendering Column2 $path")
-        println("${C.childrenMap[path]}")
-        C.childrenMap[path]?.forEach {
-            if (it.path == path) {
-                C.childrenMap[path]?.forEach { c ->
-                    println("child ${c.path}")
-                }
-                throw RuntimeException("Infinite loop detected for path $path")
-            }
-        }
         (C.childrenMap[path] ?: children).forEach {
-            println("child ${it.path}")
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
