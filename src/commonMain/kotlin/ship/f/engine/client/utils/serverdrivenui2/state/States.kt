@@ -333,19 +333,20 @@ fun ButtonState2.Button2(
             leadingIcon()
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth() // TODO hardcoded to ensure column fills button
             ) {
-                text?.let {
-                    Text(
-                        text = it,
-                        style = textStyle.toTextStyle2(fontWeight)
-                    )
-                }
                 if (loading.value) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
+                    CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp),
                     )
+                } else {
+                    text?.let {
+                        Text(
+                            text = it,
+                            style = textStyle.toTextStyle2(fontWeight)
+                        )
+                    }
                 }
             }
         }
