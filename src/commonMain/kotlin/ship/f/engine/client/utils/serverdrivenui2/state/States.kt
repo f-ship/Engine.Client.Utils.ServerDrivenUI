@@ -1,5 +1,6 @@
 package ship.f.engine.client.utils.serverdrivenui2.state
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,8 +13,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
@@ -23,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
+import ship.f.engine.shared.utils.serverdrivenui2.client.BackStackEntry2
 import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.EmitPopulatedSideEffect2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
@@ -460,7 +465,13 @@ fun CardState2.Card2(
             verticalArrangement = arrangement.toVerticalArrangement2(),
             horizontalAlignment = alignment.toHorizontalAlignment2(),
         ) {
-            children.forEach {
+//            children.forEach {
+//                Render(
+//                    state = it,
+//                    modifier = toModifier2(it.weight)
+//                )
+//            }
+            (C.childrenMap[path] ?: children).forEach {
                 Render(
                     state = it,
                     modifier = toModifier2(it.weight)
@@ -487,7 +498,7 @@ fun RowState2.Row2(
         verticalAlignment = alignment.toVerticalAlignment2(),
         modifier = modifier.then(addOnClick(modifier)),
     ) {
-        children.forEach {
+        (C.childrenMap[path] ?: children).forEach {
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
@@ -512,7 +523,7 @@ fun FlowRowState2.FlowRow2(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         modifier = modifier
     ) {
-        children.forEach {
+        (C.childrenMap[path] ?: children).forEach {
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
@@ -540,7 +551,18 @@ fun ColumnState2.Column2(
             .then(Modifier.background(color.toColor2()))
             .then(addOnClick(modifier)),
     ) {
-        children.forEach {
+        println("Rendering Column2 $path")
+        println("${C.childrenMap[path]}")
+        C.childrenMap[path]?.forEach {
+            if (it.path == path) {
+                C.childrenMap[path]?.forEach { c ->
+                    println("child ${c.path}")
+                }
+                throw RuntimeException("Infinite loop detected for path $path")
+            }
+        }
+        (C.childrenMap[path] ?: children).forEach {
+            println("child ${it.path}")
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
@@ -557,6 +579,7 @@ fun Box2(
     Box2(modifier)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BoxState2.Box2(
     modifier: Modifier = Modifier,
@@ -565,8 +588,35 @@ fun BoxState2.Box2(
         contentAlignment = alignment.to2DAlignment2(),
         modifier = modifier.then(Modifier.background(color = color.toColor2(), shape = shape.toShape2()))
     ) {
-        children.forEach {
-            Render(state = it)
+//        C.reactiveBackStackMap[id]?.lastOrNull()?.run {
+//            println("Rendering Nav Container $id")
+//            println(this)
+//            println(C.reactiveBackStackMap[id]!!.map { it.state.id })
+//            AnimatedContent(
+//                targetState = this,
+//                transitionSpec = { defaultTransitionSpec(direction) },
+//            ) { targetState ->
+//                BackHandler(C.canPop(id)) { C.pop(id) }
+//                Render(state = targetState.state)
+//            }
+//        } ?: children.forEach {
+//            Render(state = it)
+//        }
+//        var state by remember { mutableStateOf(this@Box2) }
+//        state = this@Box2
+//        AnimatedContent(
+//            targetState = state,
+//            transitionSpec = { defaultTransitionSpec(BackStackEntry2.Direction2.Forward2) }
+//        ) {
+//            state.children.forEach {
+//                Render(state = it)
+//            }
+//        }
+
+        (C.childrenMap[path] ?: children).forEach {
+            Render(
+                state = it,
+            )
         }
     }
 }
@@ -588,7 +638,7 @@ fun LazyRowState2.LazyRow2(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
     ) {
-        items(children) {
+        items(C.childrenMap[path] ?: children) {
             Render(state = it)
         }
     }
@@ -617,7 +667,7 @@ fun LazyColumnState2.LazyColumn2(
             bottom = innerPadding.bottom.dp
         ),
     ) {
-        items(children) {
+        items(C.childrenMap[path] ?: children) {
             Render(state = it)
         }
     }
@@ -646,7 +696,7 @@ fun LazyGridState2.LazyGrid2(
         ),
         columns = GridCells.Adaptive(64.dp), // TODO this shouldn't be hardcoded
     ) {
-        items(children) {
+        items(C.childrenMap[path] ?: children) {
             Render(state = it)
         }
     }
@@ -669,7 +719,14 @@ fun ScreenState2.Screen2(
         horizontalAlignment = alignment.toHorizontalAlignment2(),
         modifier = modifier.background(Color.Transparent),
     ) {
-        children.forEach {
+        println("Rendering Screen2")
+        println(path)
+        println("Children: remote children ${C.childrenMap[path]?.map { it.path }}")
+        println("Children: local children ${children.map { it.path }}")
+        if (C.childrenMap[path]?.isEmpty() == true) println("I found the bug")
+        if (C.childrenMap[path]?.isEmpty() == false) println("I am stumped")
+        (C.childrenMap[path] ?: children).forEach {
+            println("rendering in screenState children ${it.path}")
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
@@ -775,7 +832,7 @@ fun FadeInState2.FadeIn2(
     AnimatedVisibility(
         visible = visible,
     ) {
-        children.forEach {
+        (C.childrenMap[path] ?: children).forEach {
             Render(
                 state = it,
             )

@@ -37,6 +37,7 @@ fun RenderDynamic(
     client: CommonClient2 = get()
 ) {
     client.apply {
+        println("Rendering dynamic state: ${state.id} with ${state.path}")
         when (state) {
             is BoxState2 -> Box2(s = getReactivePathState(state.path, state), m = modifier)
             is ButtonState2 -> Button2(s = getReactivePathState(state.path, state), m = modifier)
@@ -74,7 +75,8 @@ fun RenderStatic(
     modifier: Modifier = Modifier,
 ) {
     state.WithState2(modifier) { modifier ->
-        when(state) {
+        println("Rendering static state: ${state.id} with ${state.path}")
+        when (state) {
             is BoxState2 -> state.Box2(modifier = modifier)
             is ButtonState2 -> state.Button2(modifier = modifier)
             is CardState2 -> state.Card2(modifier = modifier)
