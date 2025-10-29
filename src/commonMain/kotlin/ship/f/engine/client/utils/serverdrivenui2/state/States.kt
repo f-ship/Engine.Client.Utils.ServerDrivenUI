@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -21,6 +23,7 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -30,6 +33,7 @@ import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client.BackStackEntry2
 import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.EmitPopulatedSideEffect2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Size2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
@@ -99,6 +103,7 @@ fun TextFieldState2.TextField2(
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
+
         OutlinedTextField(
             value = text,
             visualTransformation = fieldType.toVisualTransformation2(),
@@ -116,7 +121,9 @@ fun TextFieldState2.TextField2(
                 }
             },
             isError = hasLostFocus && isError(text) != null,
-            keyboardOptions = fieldType.toKeyboardOptions2(),
+            keyboardOptions = fieldType.toKeyboardOptions2().copy(
+                imeAction = if (imeType is IMEType2.Next2) ImeAction.Next else ImeAction.Unspecified
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->

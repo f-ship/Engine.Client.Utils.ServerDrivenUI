@@ -42,7 +42,10 @@ actual fun CameraGalleryState2.CameraGallery2(
     val cameraManager = rememberCameraManager {
         coroutineScope.launch {
             val bitmap = withContext(Dispatchers.Default) {
-                update { copy(encodedBytes = it?.toByteArray()?.encodeToBase64()) }
+                val bytes = it?.toByteArray()?.encodeToBase64()
+                println("Camera2: $bytes")
+                val u = update { copy(encodedBytes = bytes) }
+//                C.pathStateMap[path] = u //TODO temporary hack till update is rewritten and fixed
                 it?.toImageBitmap()
             }
             imageBitmap = bitmap
@@ -52,7 +55,10 @@ actual fun CameraGalleryState2.CameraGallery2(
     val galleryManager = rememberGalleryManager {
         coroutineScope.launch {
             val bitmap = withContext(Dispatchers.Default) {
-                update { copy(encodedBytes = it?.toByteArray()?.encodeToBase64()) }
+                val bytes = it?.toByteArray()?.encodeToBase64()
+                println("Gallery2: $bytes")
+                val u = update { copy(encodedBytes = bytes) }
+//                C.pathStateMap[path] = u //TODO temporary hack till update is rewritten and fixed
                 it?.toImageBitmap()
             }
             imageBitmap = bitmap
