@@ -33,6 +33,7 @@ import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client.BackStackEntry2
 import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.EmitPopulatedSideEffect2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Alignment2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Size2
@@ -164,58 +165,31 @@ fun SearchState2.Search2(
     //TODO temporary hard coding on frontend
     var randomId by remember { mutableStateOf(getRandomString()) }
 
-    OutlinedTextField(
-        value = text,
-        leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
-        trailingIcon = trailingIcon?.let {
-            {
-                it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
-//                    it.onClickTrigger.trigger()
-                    OnClickTrigger2(
-                        EmitPopulatedSideEffect2(
-                            sideEffect = PopulatedSideEffectMeta2(
-                                metaId = Id2.MetaId2("SendMessage"),
-                                states = listOf(
-                                    C.get(Id2.StateId2("ChatDetail-Search-chat-5ppru", alias = "Message"))
-                                ),
-                                metas = listOf(
-                                    DataMeta2(
-                                        metaId = Id2.MetaId2("Chat"),
-                                        data = mapOf(
-                                            "chatId" to DataMeta2.DataMetaType2.StringData("chat-5ppru"),
-                                            "messageId" to DataMeta2.DataMetaType2.RandomIdStateData(
-                                                pre = "ChatMessage-",
-                                                navigation = NavigationConfig2.StateOperation2.InsertionOperation2.End2(
-                                                    inside = Id2.StateId2("ChatDetail-Messages-chat-5ppru"),
-                                                    stateId = Id2.StateId2(),
-                                                ),
-                                                state = RowState2(
-                                                    size = Size2.HorizontalFill2(),
-                                                    children = listOf(
-                                                        TextState2(
-                                                            text = text,
-                                                        )
-                                                    )
-                                                )
-                                            ),
-                                        )
-                                    )
-                                )
-                            )
-                        ),
-                    ).trigger()
-                    update { copy(text = "") }
-                })
-            }
-        },
-        visualTransformation = fieldType.toVisualTransformation2(),
-        placeholder = { Text(placeholder) },
-        onValueChange = { update { copy(text = it) } },
-        keyboardOptions = fieldType.toKeyboardOptions2(),
+    Row(
         modifier = modifier,
-        shape = shape.toShape2(),
-        colors = textFieldDefaults2()
-    )
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        OutlinedTextField(
+            value = text,
+            leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
+            visualTransformation = fieldType.toVisualTransformation2(),
+            placeholder = { Text(placeholder) },
+            onValueChange = { update { copy(text = it) } },
+            keyboardOptions = fieldType.toKeyboardOptions2(),
+            shape = shape.toShape2(),
+            colors = textFieldDefaults2()
+        )
+        Spacer(Modifier.width(16.dp))
+        // TODO to not use trailing Icon like this
+        trailingIcon?.let {
+            it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
+                it.onClickTrigger.trigger()
+                update { copy(text = "") }
+            })
+        }
+        Spacer(Modifier.width(8.dp))
+    }
+
 }
 
 @Composable
