@@ -1,9 +1,6 @@
 package ship.f.engine.client.utils.serverdrivenui2.ext
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -221,6 +218,7 @@ fun Draw2.toModifier2() = when (val draw = this) {
     }
 
     is Draw2.Border2 -> Modifier
+        .then( if (fill !is ColorScheme2.Color2.Unspecified) Modifier.background(fill.toColor2(), shape = shape.toShape2()) else Modifier)
         .border(width = width.dp, color = color.toColor2(), shape = shape.toShape2())
         .then(padding.toModifier2())
 
