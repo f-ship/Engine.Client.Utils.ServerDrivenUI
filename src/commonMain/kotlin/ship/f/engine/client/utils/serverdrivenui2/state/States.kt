@@ -184,7 +184,6 @@ fun SearchState2.Search2(
         trailingIcon?.let {
             it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
                 it.onClickTrigger.trigger()
-                update { copy(text = "") }
             })
         }
         Spacer(Modifier.width(8.dp))
