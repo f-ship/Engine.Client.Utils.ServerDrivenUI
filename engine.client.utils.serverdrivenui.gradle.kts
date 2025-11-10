@@ -53,6 +53,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             // I've recently added this because it was complaining material icons was missing?
+            implementation("io.github.kevinnzou:compose-webview-multiplatform:2.0.2")
             implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)

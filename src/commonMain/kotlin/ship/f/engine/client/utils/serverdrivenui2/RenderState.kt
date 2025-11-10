@@ -65,6 +65,7 @@ fun RenderDynamic(
             is FadeInState2 -> FadeIn2(s = getReactivePathState(state.path, state), m = modifier)
             is UnknownState2 -> Unknown2(s = getReactivePathState(state.path, state), m = modifier)
             is CameraGalleryState2 -> CameraGallery2(s = getReactivePathState(state.path, state), m = modifier)
+            is WebViewState2 -> WebView2(s = getReactivePathState(state.path, state), m = modifier)
         }
     }
 }
@@ -103,6 +104,7 @@ fun RenderStatic(
             is FadeInState2 -> state.FadeIn2(modifier = modifier)
             is UnknownState2 -> state.Unknown2(modifier = modifier)
             is CameraGalleryState2 -> state.CameraGallery2(modifier = modifier)
+            is WebViewState2 -> state.WebView2(modifier = modifier)
         }
     }
 }

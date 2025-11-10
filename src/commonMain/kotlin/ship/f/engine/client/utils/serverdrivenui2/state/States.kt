@@ -1,6 +1,5 @@
 package ship.f.engine.client.utils.serverdrivenui2.state
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,36 +10,35 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.multiplatform.webview.request.RequestInterceptor
+import com.multiplatform.webview.request.WebRequest
+import com.multiplatform.webview.request.WebRequestInterceptResult
+import com.multiplatform.webview.web.LoadingState
+import com.multiplatform.webview.web.WebView
+import com.multiplatform.webview.web.WebViewNavigator
+import com.multiplatform.webview.web.rememberWebViewNavigator
+import com.multiplatform.webview.web.rememberWebViewState
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
-import ship.f.engine.shared.utils.serverdrivenui2.client.BackStackEntry2
-import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.EmitPopulatedSideEffect2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Alignment2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Size2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
-import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.models.OnClickTrigger2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -281,6 +279,74 @@ expect fun CameraGallery2(
 expect fun CameraGalleryState2.CameraGallery2(
     modifier: Modifier = Modifier,
 )
+
+@Composable
+fun WebView2(
+    s: MutableState<WebViewState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    WebView2(modifier)
+}
+
+@Composable
+fun WebViewState2.WebView2(
+    modifier: Modifier = Modifier,
+) {
+    var showWebView by mutableStateOf(true)
+    if (showWebView) {
+        Box(modifier = modifier.background(Color.White).fillMaxSize()) {
+            sduiLog(config.url, tag = "LinkedinLog")
+            val state = rememberWebViewState(config.url)
+            val navigator = rememberWebViewNavigator(
+                requestInterceptor = object : RequestInterceptor {
+                    override fun onInterceptUrlRequest(
+                        request: WebRequest,
+                        navigator: WebViewNavigator
+                    ): WebRequestInterceptResult {
+                        val navigation = config.whitelist.firstOrNull { navigation -> request.url.startsWith("https://" + navigation.url) }
+                        return if (navigation != null) {
+                            val allParams = request.url.split("?").getOrNull(1)?.split("&")?.associate {
+                                it.split("=").let { (key, value) -> key to value }
+                            }
+
+                            if (allParams != null && navigation.params.isNotEmpty()) {
+                                val map = mutableMapOf<String, DataMeta2.DataMetaType2>()
+                                C.emitSideEffect(
+                                    PopulatedSideEffectMeta2(
+                                        metaId = navigation.metaId,
+                                        metas = listOf(
+                                            DataMeta2(
+                                                data = allParams.mapValuesTo(map) { DataMeta2.DataMetaType2.StringData(it.value) }
+                                            )
+                                        )
+                                    )
+                                )
+                                sduiLog("allParams", map, tag = "LinkedinLog")
+                            }
+                            navigation.destination?.config?.let { C.navigate(it) }
+                            sduiLog("Allow > navigation", request.url, allParams, tag = "LinkedinLog", header = "Start", footer = "End")
+                            WebRequestInterceptResult.Allow
+                        } else {
+                            sduiLog("Reject", request.url, config.url, tag = "LinkedinLog")
+                            WebRequestInterceptResult.Reject.also { showWebView = false } // TODO I might need to include url first
+                        }
+                    }
+                }
+            )
+            val loadingState = state.loadingState
+            if (loadingState is LoadingState.Loading) {
+                LinearProgressIndicator( // TODO this can definitely be improved as it's not very clear
+                    progress = loadingState.progress,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            WebView(
+                state = state,
+                navigator = navigator
+            )
+        }
+    }
+}
 
 @Composable
 fun Button2(
