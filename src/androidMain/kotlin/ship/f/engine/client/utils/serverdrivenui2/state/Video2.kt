@@ -4,8 +4,14 @@ package ship.f.engine.client.utils.serverdrivenui2.state
 
 import android.net.Uri
 import androidx.annotation.OptIn
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
@@ -19,6 +25,7 @@ import org.jetbrains.compose.resources.InternalResourceApi
 import org.jetbrains.compose.resources.readResourceBytes
 import ship.f.engine.client.utils.serverdrivenui2.ext.WithState2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.VideoState2
 import java.io.File
 
@@ -48,11 +55,13 @@ actual fun VideoState2.Video2(
             is Source2.Material2 -> src.location.toUri()
             is Source2.Resource2 -> {
                 // TODO to not hard code this, may have to come from the src itself
-                val bytes = readResourceBytes("composeResources/projectx.composeapp.generated.resources/drawable/${src.location}.mp4")
+                val bytes =
+                    readResourceBytes("composeResources/projectx.composeapp.generated.resources/drawable/${src.location}.mp4")
                 val tmp = File.createTempFile("cmp_video_", ".mp4", context.cacheDir)
                 tmp.outputStream().use { it.write(bytes) }
                 Uri.fromFile(tmp)
             }
+
             is Source2.Url2 -> src.location.toUri()
         }
         exoPlayer.setMediaItem(MediaItem.fromUri(uri))
@@ -62,15 +71,49 @@ actual fun VideoState2.Video2(
         exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
     }
 
-    AndroidView(
-        modifier = modifier,
-        factory = {
-            PlayerView(it).apply {
-                player = exoPlayer
-                useController = false
-                resizeMode = RESIZE_MODE_ZOOM
-            }
-        },
-        update = { it.player = exoPlayer }
+    var visible by remember { mutableStateOf(false) }
+
+    // Smooth alpha transition
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 0f else 1f,
+        animationSpec = tween(durationMillis = fadeInMillis ?: 0),
+        label = "videoFade"
     )
+
+    val playerView = remember { PlayerView(context) }
+
+    DisposableEffect(Unit) {
+        val listener = object : Player.Listener {
+            override fun onRenderedFirstFrame() {
+                sduiLog("Video2", "onRenderedFirstFrame")
+                visible = true
+//                playerView.animate()
+//                    .alpha(1f)
+//                    .setDuration(1000L)
+//                    .start()
+            }
+        }
+
+        exoPlayer.addListener(listener)
+        onDispose { exoPlayer.removeListener(listener) }
+    }
+
+    Box(modifier) {
+        AndroidView(
+            factory = {
+                playerView.apply {
+                    player = exoPlayer
+                    useController = false
+                    resizeMode = RESIZE_MODE_ZOOM
+                }
+            },
+            update = { it.player = exoPlayer }
+        )
+        Box(
+            Modifier
+                .matchParentSize()
+                .alpha(alpha)
+                .background(Color.Black)
+        )
+    }
 }
