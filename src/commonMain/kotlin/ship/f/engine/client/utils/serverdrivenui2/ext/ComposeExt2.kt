@@ -40,6 +40,7 @@ import coil3.request.ImageRequest
 import coil3.util.DebugLogger
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.StaticDrawLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.InnerPaddingModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.PaddingModifier2
@@ -228,6 +229,8 @@ fun Draw2.toModifier2() = when (val draw = this) {
         x = (cos(angle) * radius).dp,
         y = (sin(angle) * radius).dp
     )
+
+    Draw2.Blank2 -> Modifier // Do nothing
 }
 
 fun DrawScope.rectangleToPath(rectangle: Draw2.Behind2.Rectangle2): Path {
@@ -567,6 +570,10 @@ fun State2.toModifier2() = Modifier
         var modifier = it
         for (draw in draws) {
             modifier = modifier.then(draw.toModifier2())
+        }
+        liveDraws?.forEach { liveDraw ->
+            val draw = C.computeConditionalBranchLive<StaticDrawLiveValue2>(liveDraw)
+            modifier = modifier.then(draw.value.toModifier2())
         }
         modifier
     }

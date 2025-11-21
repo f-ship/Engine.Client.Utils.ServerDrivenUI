@@ -34,7 +34,13 @@ import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel2.Property.IntProperty
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.StateId2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.ConditionalLiveValue2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.Ref2.ZoneRef2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.ReferenceableLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
@@ -68,8 +74,9 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
+    val value = liveText?.let { C.computeLiveText(it) } ?: text
     Text(
-        text = text,
+        text = value,
         style = textStyle.toTextStyle2(fontWeight),
         textAlign = textAlign.toTextAlign2(),
         color = color.toColor2(),
@@ -584,6 +591,7 @@ fun Column2(
     s: MutableState<ColumnState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    sduiLog(path, tag = "filtered index > Column") { id.name == "testZone" }
     Column2(modifier)
 }
 
@@ -598,10 +606,52 @@ fun ColumnState2.Column2(
             .then(Modifier.background(color.toColor2()))
             .then(addOnClick(modifier)),
     ) {
-        (C.childrenMap[path] ?: children).forEach {
+        sduiLog(path, tag = "filtered index > ColumnState > Column") { id.name == "testZone" }
+        val filterChildren = if (filter != null) mutableListOf<StateId2>() else null
+        val childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
+            child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
+        }
+
+        filter?.let{ filterGroup ->
+            childrenViewModels.map { vm ->
+                val show = filterGroup.map { filter ->
+                    val value1 = (filter.value1 as? ReferenceableLiveValue2)?.let {
+                        if (it.ref is ZoneRef2) {
+                            it.copyRef(
+                                ZoneRef2(
+                                    vm = vm.first.metaId,
+                                    property = (it.ref as ZoneRef2).property
+                                )
+                            )
+                        } else filter.value1
+                    } ?: filter.value1
+
+                    val value2 = (filter.value2 as? ReferenceableLiveValue2)?.let {
+                        if (it.ref is ZoneRef2) {
+                            it.copyRef(
+                                ZoneRef2(
+                                    vm = vm.first.metaId,
+                                    property = (it.ref as ZoneRef2).property
+                                )
+                            )
+                        } else filter.value2
+                    } ?: filter.value2
+                    C.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
+                }.all { it }
+                sduiLog(show, tag = "filters result")
+               if (show) filterChildren?.add(vm.second) else filterChildren?.remove(vm.second)
+            }
+            sduiLog( filterChildren, childrenViewModels, children.map { it.metas }, tag = "filters")
+        }
+
+        (C.childrenMap[path] ?: children).forEachIndexed { index, child ->
+            if (filterChildren?.contains(child.id) == false) return@forEachIndexed
+            val updatedIndex = filterChildren?.indexOf(child.id) ?: index
+            val childViewModel = childrenViewModels.firstOrNull { it.second == child.id }?.first
+            childViewModel?.map["!index"] = IntProperty(updatedIndex) // don't need to do any recompositions here, so don't update
             Render(
-                state = it,
-                modifier = toModifier2(it.weight)
+                state = child,
+                modifier = toModifier2(child.weight)
             )
         }
     }
@@ -703,9 +753,70 @@ fun LazyColumnState2.LazyColumn2(
             bottom = innerPadding.bottom.dp
         ),
     ) {
-        items(C.childrenMap[path] ?: children) {
-            Render(state = it)
+        val filterChildren = if (filter != null) mutableListOf<StateId2>() else null
+        val childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
+            child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
         }
+
+        filter?.let{ filterGroup ->
+            childrenViewModels.map { vm ->
+                val show = filterGroup.map { filter ->
+                    val value1 = (filter.value1 as? ReferenceableLiveValue2)?.let {
+                        if (it.ref is ZoneRef2) {
+                            it.copyRef(
+                                ZoneRef2(
+                                    vm = vm.first.metaId,
+                                    property = (it.ref as ZoneRef2).property
+                                )
+                            )
+                        } else filter.value1
+                    } ?: filter.value1
+
+                    val value2 = (filter.value2 as? ReferenceableLiveValue2)?.let {
+                        if (it.ref is ZoneRef2) {
+                            it.copyRef(
+                                ZoneRef2(
+                                    vm = vm.first.metaId,
+                                    property = (it.ref as ZoneRef2).property
+                                )
+                            )
+                        } else filter.value2
+                    } ?: filter.value2
+                    C.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
+                }.all { it }
+                sduiLog(show, tag = "filters result")
+                if (show) filterChildren?.add(vm.second) else filterChildren?.remove(vm.second)
+            }
+            sduiLog( filterChildren, childrenViewModels, children.map { it.metas }, tag = "filters")
+        }
+
+        val c = mutableStateOf(C.childrenMap[path] ?: children)
+        sduiLog(c.value.map { it.path }, tag = "filtered index > LazyColumn")
+        sduiLog(C.childrenMap[path], children, C.childrenMap[path]?.map { C.getReactivePathState<State2>(it.path, it).value }, tag = "filtered index > LazyColumn > Children", header = "header", footer = "footer")
+
+        items(items = c.value) { child ->
+            var realChild = C.getReactivePathState<State2>(child.path, child).value // TODO insanely difficult bug to track down!
+            sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
+            if (filterChildren?.contains(child.id) == false) return@items
+            val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
+//            sduiLog(path, filter, filterChildren, updatedIndex, child.id, childrenViewModels, tag = "filtered index", header = "")
+            val childViewModel = childrenViewModels.firstOrNull { it.second == child.id }?.first
+            if (childViewModel?.map["!index"] != IntProperty(updatedIndex)) {
+                childViewModel?.map["!index"] = IntProperty(updatedIndex) // don't need to do any recompositions here, so don't update
+                realChild = realChild.update { reset() }
+            }
+            sduiLog(child.path, childViewModel?.map["!index"], C.getReactivePathState<State2>(child.path, child).value, tag = "filtered index > Items > Pre", header = "")
+
+//            val updatedChild = realChild.update { reset() }
+//            C.reactiveUpdate(updatedChild)
+//            sduiLog(updatedChild.path, updatedChild.counter, childViewModel?.map["!index"], C.getReactivePathState<State2>(child.path, child), tag = "filtered index > Items > Post", header = "")
+            Render(
+                state = realChild,
+            )
+        }
+//        items(C.childrenMap[path] ?: children) {
+//            Render(state = it)
+//        }
     }
 }
 
