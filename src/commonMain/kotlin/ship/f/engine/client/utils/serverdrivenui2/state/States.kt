@@ -30,6 +30,7 @@ import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.WebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
@@ -745,6 +746,90 @@ fun LazyColumnState2.LazyColumn2(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
+    var timer: Job? by remember { mutableStateOf(null) }
+
+    var iteration by remember { mutableStateOf(0) }
+
+    var filterChildren = if (filter != null) mutableListOf<StateId2>() else null
+    var childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
+        child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
+    }
+
+    val c = mutableStateOf((C.childrenMap[path] ?: children).map { C.getReactivePathState<State2>(it.path, it).value })
+
+    LaunchedEffect(jumpTo, iteration) {
+        jumpTo?.let { jT ->
+            launch {
+                jT.firstOrNull { it.value1 as? LiveValue2.InstantNowLiveValue2 != null || it.value2 as? LiveValue2.InstantNowLiveValue2 != null }?.let {
+                    (it.value1 as? LiveValue2.InstantNowLiveValue2 ?: it.value2 as? LiveValue2.InstantNowLiveValue2)?.refreshSeconds
+                }?.let { seconds ->
+                    timer?.cancel()
+                    timer = createTimer(
+                        intervalSeconds = seconds,
+                        func = {
+                            sduiLog("timer running", tag = "filtered index > Items > Timer > Func")
+                            iteration++
+                            reset().let{ true }
+                        }
+                    )
+                    sduiLog("timer created", tag = "filtered index > Items > Timer")
+                }
+
+                val cjT = childrenViewModels.firstOrNull { childVm ->
+                    jT.map { condition ->
+                        val value1 = when(val v1 = condition.value1){
+                            is LiveValue2.IntLiveValue2 -> {
+                                when(val ref = v1.ref) {
+                                    is ZoneRef2 -> v1.copyRef(
+                                        ref = ZoneRef2(
+                                            vm = childVm.first.metaId,
+                                            property = ref.property
+                                        )
+                                    )
+                                    else -> TODO()
+                                }
+                            }
+                            is LiveValue2.InstantNowLiveValue2 -> v1
+                            else -> TODO()
+                        }
+
+                        val value2 = when(val v2 = condition.value2){
+                            is LiveValue2.IntLiveValue2 -> {
+                                when(val ref = v2.ref) {
+                                    is ZoneRef2 -> v2.copyRef(
+                                        ref = ZoneRef2(
+                                            vm = childVm.first.metaId,
+                                            property = ref.property
+                                        )
+                                    )
+                                    else -> TODO()
+                                }
+                            }
+                            is LiveValue2.InstantNowLiveValue2 -> v2
+                            else -> TODO()
+                        }
+
+                        C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2))
+                    }.let { it.isNotEmpty() && it.all { r -> r } }
+                }
+                sduiLog(cjT, iteration, tag = "filtered index > Items > Timer > Condition!", header = "start", footer = "end")
+
+                cjT?.let { childVm ->
+                    val index = filterChildren?.indexOf(childVm.second) ?: c.value.indexOfFirst { childVm.second == it.id }
+                    if (index > -1) {
+                        sduiLog("updated Index", index, tag = "filtered index > updated index")
+                        childrenViewModels.forEach {
+                            it.first.map["!focus"] = IntProperty(index)
+                        }
+                        c.value.forEach { it.update { it.reset() } }
+                        reset()
+                        listState.animateScrollToItem(index)
+                    }
+                }
+            }
+        }
+    }
+
     LazyColumn(
         state = listState,
         verticalArrangement = arrangement.toVerticalArrangement2(),
@@ -757,11 +842,6 @@ fun LazyColumnState2.LazyColumn2(
             bottom = innerPadding.bottom.dp
         ),
     ) {
-        var filterChildren = if (filter != null) mutableListOf<StateId2>() else null
-        var childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
-            child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
-        }
-
         filter?.let{ filterGroup ->
             childrenViewModels.map { vm ->
                 val show = filterGroup.map { filter ->
@@ -794,7 +874,6 @@ fun LazyColumnState2.LazyColumn2(
             sduiLog( filterChildren, childrenViewModels, children.map { it.metas }, tag = "filters")
         }
 
-        val c = mutableStateOf(C.childrenMap[path] ?: children)
         sort?.let { sort ->
             (sort as? ReferenceableLiveValue2)?.let { referenceableLiveValue2 ->
                 val order = childrenViewModels.map { vmP ->
@@ -857,57 +936,6 @@ fun LazyColumnState2.LazyColumn2(
             Render(
                 state = realChild,
             )
-
-            LaunchedEffect(jumpTo) {
-                jumpTo?.let { jT ->
-                    launch {
-                        val cjT = childrenViewModels.firstOrNull { childVm ->
-                            jT.map { condition ->
-                                val value1 = when(val v1 = condition.value1){
-                                    is LiveValue2.IntLiveValue2 -> {
-                                        when(val ref = v1.ref) {
-                                            is ZoneRef2 -> v1.copyRef(
-                                                ref = ZoneRef2(
-                                                    vm = childVm.first.metaId,
-                                                    property = ref.property
-                                                )
-                                            )
-                                            else -> TODO()
-                                        }
-                                    }
-                                    else -> TODO()
-                                }
-
-                                val value2 = when(val v2 = condition.value2){
-                                    is LiveValue2.IntLiveValue2 -> {
-                                        when(val ref = v2.ref) {
-                                            is ZoneRef2 -> v2.copyRef(
-                                                ref = ZoneRef2(
-                                                    vm = childVm.first.metaId,
-                                                    property = ref.property
-                                                )
-                                            )
-                                            else -> TODO()
-                                        }
-                                    }
-                                    else -> TODO()
-                                }
-
-                                C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2))
-                            }.let { it.isNotEmpty() && it.all { r -> r } }
-                        }
-                        cjT?.let { childVm ->
-                            val index = filterChildren?.indexOf(childVm.second) ?: c.value.indexOfFirst { childVm.second == it.id }
-                            if (index > -1) {
-                                childrenViewModels.forEach {
-                                    it.first.map["!focus"] = IntProperty(index)
-                                }
-                                listState.animateScrollToItem(index)
-                            }
-                        }
-                    }
-                }
-            }
         }
 //        items(C.childrenMap[path] ?: children) {
 //            Render(state = it)
