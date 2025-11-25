@@ -68,6 +68,7 @@ fun RenderDynamic(
             is UnknownState2 -> Unknown2(s = getReactivePathState(state.path, state), m = modifier)
             is CameraGalleryState2 -> CameraGallery2(s = getReactivePathState(state.path, state), m = modifier)
             is WebViewState2 -> WebView2(s = getReactivePathState(state.path, state), m = modifier)
+            is DialogState2 -> Dialog2(s = getReactivePathState(state.path, state), m = modifier)
         }
     }
 }
@@ -107,6 +108,7 @@ fun RenderStatic(
             is UnknownState2 -> state.Unknown2(modifier = modifier)
             is CameraGalleryState2 -> state.CameraGallery2(modifier = modifier)
             is WebViewState2 -> state.WebView2(modifier = modifier)
+            is DialogState2 -> state.Dialog2(modifier = modifier)
         }
     }
 }

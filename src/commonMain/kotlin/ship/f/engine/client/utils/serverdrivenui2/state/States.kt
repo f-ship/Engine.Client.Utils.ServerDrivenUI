@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
@@ -38,6 +39,8 @@ import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel2.Property.IntProperty
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2.Color2.Primary
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.StateId2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2
@@ -250,6 +253,10 @@ fun CheckboxState2.CheckBox2(
             }
         },
         modifier = modifier,
+        colors = CheckboxDefaults.colors().copy(
+            uncheckedBoxColor = ColorScheme2.Color2.OnPrimary.toColor2(),
+            uncheckedBorderColor = ColorScheme2.Color2.Unspecified.toColor2(),
+        ),
     )
 }
 
@@ -755,7 +762,7 @@ fun LazyColumnState2.LazyColumn2(
         child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
     }
 
-    val c = mutableStateOf((C.childrenMap[path] ?: children).map { C.getReactivePathState<State2>(it.path, it).value })
+    val c = mutableStateOf((C.childrenMap[path] ?: children).map { C.getReactivePathStateOrNull<State2>(it.path, it)?.value ?: it })
 
     LaunchedEffect(jumpTo, iteration) {
         jumpTo?.let { jT ->
@@ -808,8 +815,9 @@ fun LazyColumnState2.LazyColumn2(
                             is LiveValue2.InstantNowLiveValue2 -> v2
                             else -> TODO()
                         }
-
-                        C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2))
+                        C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2)).also {
+                            sduiLog(it, iteration, childVm.second.scope, tag = "filtered index > Items > Timer > Condition > Result") { listOf("1","2","3").contains(childVm.second.scope) }
+                        }
                     }.let { it.isNotEmpty() && it.all { r -> r } }
                 }
                 sduiLog(cjT, iteration, tag = "filtered index > Items > Timer > Condition!", header = "start", footer = "end")
@@ -902,10 +910,10 @@ fun LazyColumnState2.LazyColumn2(
         }
 
         sduiLog(c.value.map { it.path }, tag = "filtered index > LazyColumn")
-        sduiLog(C.childrenMap[path], children, C.childrenMap[path]?.map { C.getReactivePathState<State2>(it.path, it).value }, tag = "filtered index > LazyColumn > Children", header = "header", footer = "footer")
+//        sduiLog(C.childrenMap[path], children, C.childrenMap[path]?.map { C.getReactivePathState<State2>(it.path, it).value }, tag = "filtered index > LazyColumn > Children", header = "header", footer = "footer")
 
         c.value.forEach { child ->
-            var realChild = C.getReactivePathState<State2>(child.path, child).value // TODO insanely difficult bug to track down!
+            var realChild = C.getReactivePathStateOrNull<State2>(child.path, child)?.value ?: child // TODO insanely difficult bug to track down!
             sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
             if (filterChildren?.contains(child.id) == false) return@forEach
             val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
@@ -918,11 +926,11 @@ fun LazyColumnState2.LazyColumn2(
         }
 
         items(items = c.value) { child ->
-            val realChild = C.getReactivePathState<State2>(child.path, child).value // TODO insanely difficult bug to track down!
+            val realChild = C.getReactivePathStateOrNull<State2>(child.path, child)?.value ?: child // TODO insanely difficult bug to track down!
             sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
             if (filterChildren?.contains(child.id) == false) return@items
 //            val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
-////            sduiLog(path, filter, filterChildren, updatedIndex, child.id, childrenViewModels, tag = "filtered index", header = "")
+//            sduiLog(path, filter, filterChildren, updatedIndex, child.id, childrenViewModels, tag = "filtered index", header = "")
 //            val childViewModel = childrenViewModels.firstOrNull { it.second == child.id }?.first
 //            if (childViewModel?.map["!index"] != IntProperty(updatedIndex)) {
 //                childViewModel?.map["!index"] = IntProperty(updatedIndex) // don't need to do any recompositions here, so don't update
@@ -968,6 +976,27 @@ fun LazyGridState2.LazyGrid2(
     ) {
         items(C.childrenMap[path] ?: children) {
             Render(state = it)
+        }
+    }
+}
+
+@Composable
+fun Dialog2(
+    s: MutableState<DialogState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    Dialog2(modifier)
+}
+
+@Composable
+fun DialogState2.Dialog2(
+    modifier: Modifier = Modifier,
+) {
+    Dialog(onDismissRequest = { onDismissTrigger.trigger() }) {
+        LazyColumn(modifier) {
+            items(children) {
+                Render(state = it)
+            }
         }
     }
 }
