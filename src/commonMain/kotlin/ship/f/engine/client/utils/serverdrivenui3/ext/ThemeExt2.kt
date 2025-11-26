@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui2.ext
+package ship.f.engine.client.utils.serverdrivenui3.ext
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -10,8 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.FontResource
-import ship.f.engine.shared.utils.serverdrivenui2.client.Client2
-import ship.f.engine.shared.utils.serverdrivenui2.client.CommonClient2
+import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Shapes2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ColorSchemeModifier2
@@ -62,8 +61,8 @@ fun ColorScheme2.toMaterialColorScheme() = MaterialTheme.colorScheme.copy(
 @Composable
 fun State2.toMaterialColorScheme(
     isSystemInDarkTheme: Boolean = false,
-    client: Client2,
-) = (client.get<State2>(this.id) as? ColorSchemeModifier2<*>)?.run {
+    client: Client3,
+) = (client.get<State2>(id) as? ColorSchemeModifier2<*>)?.run {
     if (isSystemInDarkTheme) darkColorScheme?.toMaterialColorScheme() else lightColorScheme?.toMaterialColorScheme()
 } ?: MaterialTheme.colorScheme
 
@@ -76,7 +75,7 @@ fun Shapes2.CornerBasedShape2.toCornerBasedShape() = RoundedCornerShape(
 
 @Composable
 fun State2.toMaterialShapes(
-    client: Client2,
+    client: Client3,
 ) = (client.get<State2>(this.id) as? ShapesModifier2<*>)?.run {
     Shapes(
         extraSmall = shapes.extraSmall.toCornerBasedShape(),
@@ -89,7 +88,7 @@ fun State2.toMaterialShapes(
 
 @Composable
 fun String.toFont(
-    client: CommonClient2,
+    client: Client3,
 ) = client.getResource<FontResource>(this).let {
     FontFamily(
         Font(resource = it, weight = FontWeight.Normal),
@@ -103,7 +102,7 @@ fun String.toFont(
 
 @Composable
 fun State2.toMaterialTypography(
-    client: CommonClient2,
+    client: Client3,
 ) = (client.get<State2>(this.id) as? TypographyModifier2<*>)?.run {
     val fontFamily = font.toFont(client)
     Typography().run {
@@ -126,3 +125,4 @@ fun State2.toMaterialTypography(
         )
     }
 } ?: MaterialTheme.typography
+

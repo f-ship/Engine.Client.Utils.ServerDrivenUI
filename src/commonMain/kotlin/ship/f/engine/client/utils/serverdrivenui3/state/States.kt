@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui2.state
+package ship.f.engine.client.utils.serverdrivenui3.state
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -36,7 +36,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
-import ship.f.engine.client.utils.serverdrivenui2.ext.*
+import ship.f.engine.client.utils.serverdrivenui3.ext.ToImage2
+import ship.f.engine.client.utils.serverdrivenui3.ext.WithState2
+import ship.f.engine.client.utils.serverdrivenui3.ext.addOnClick
+import ship.f.engine.client.utils.serverdrivenui3.ext.createTimer
+import ship.f.engine.client.utils.serverdrivenui3.ext.textFieldDefaults2
+import ship.f.engine.client.utils.serverdrivenui3.ext.to2DAlignment2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toBorder2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toButtonColors2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toColor2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toHorizontalAlignment2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toHorizontalArrangement2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toKeyboardOptions2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toModifier2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toShape2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toTextAlign2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toTextStyle2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toVerticalAlignment2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toVerticalArrangement2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toVisualTransformation2
+import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel2.Property.IntProperty
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
@@ -79,7 +98,7 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
-    val value = liveText?.let { C.computeLiveText(it) } ?: text
+    val value = liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text
     Text(
         text = value,
         style = textStyle.toTextStyle2(fontWeight),
@@ -250,6 +269,7 @@ fun CheckboxState2.CheckBox2(
                     modified = true
                 )
             }
+            client3.commit()
         },
         modifier = modifier,
         colors = CheckboxDefaults.colors().copy(
@@ -327,7 +347,7 @@ fun WebViewState2.WebView2(
 
                             if (allParams != null && navigation.params.isNotEmpty()) {
                                 val map = mutableMapOf<String, DataMeta2.DataMetaType2>()
-                                C.emitSideEffect(
+                                client3.emitSideEffect(
                                     PopulatedSideEffectMeta2(
                                         metaId = navigation.metaId,
                                         metas = listOf(
@@ -339,7 +359,7 @@ fun WebViewState2.WebView2(
                                 )
                                 sduiLog("allParams", map, tag = "LinkedinLog")
                             }
-                            navigation.destination?.config?.let { C.navigate(it) }
+                            navigation.destination?.config?.let { client3.navigationEngine.navigate(it.operation) }
                             sduiLog("Allow > navigation", request.url, allParams, tag = "LinkedinLog", header = "Start", footer = "End")
                             WebRequestInterceptResult.Allow
                         } else {
@@ -528,13 +548,7 @@ fun CardState2.Card2(
             verticalArrangement = arrangement.toVerticalArrangement2(),
             horizontalAlignment = alignment.toHorizontalAlignment2(),
         ) {
-//            children.forEach {
-//                Render(
-//                    state = it,
-//                    modifier = toModifier2(it.weight)
-//                )
-//            }
-            (C.childrenMap[path] ?: children).forEach {
+            children.forEach {
                 Render(
                     state = it,
                     modifier = toModifier2(it.weight)
@@ -561,7 +575,7 @@ fun RowState2.Row2(
         verticalAlignment = alignment.toVerticalAlignment2(),
         modifier = modifier.then(addOnClick(modifier)),
     ) {
-        (C.childrenMap[path] ?: children).forEach {
+        children.forEach {
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
@@ -586,7 +600,7 @@ fun FlowRowState2.FlowRow2(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         modifier = modifier
     ) {
-        (C.childrenMap[path] ?: children).forEach {
+        children.forEach {
             Render(
                 state = it,
                 modifier = toModifier2(it.weight)
@@ -617,7 +631,7 @@ fun ColumnState2.Column2(
     ) {
         sduiLog(path, tag = "filtered index > ColumnState > Column") { id.name == "testZone" }
         val filterChildren = if (filter != null) mutableListOf<StateId2>() else null
-        val childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
+        val childrenViewModels = children.mapNotNull { child ->
             child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
         }
 
@@ -645,7 +659,7 @@ fun ColumnState2.Column2(
                             )
                         } else filter.value2
                     } ?: filter.value2
-                    C.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
+                    client3.computationEngine.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
                 }.all { it }
                 sduiLog(show, tag = "filters result")
                if (show) filterChildren?.add(vm.second) else filterChildren?.remove(vm.second)
@@ -653,7 +667,7 @@ fun ColumnState2.Column2(
             sduiLog( filterChildren, childrenViewModels, children.map { it.metas }, tag = "filters")
         }
 
-        (C.childrenMap[path] ?: children).forEachIndexed { index, child ->
+        children.forEachIndexed { index, child ->
             if (filterChildren?.contains(child.id) == false) return@forEachIndexed
             val updatedIndex = filterChildren?.indexOf(child.id) ?: index
             val childViewModel = childrenViewModels.firstOrNull { it.second == child.id }?.first
@@ -683,32 +697,7 @@ fun BoxState2.Box2(
         contentAlignment = alignment.to2DAlignment2(),
         modifier = modifier.then(Modifier.background(color = color.toColor2(), shape = shape.toShape2()))
     ) {
-//        C.reactiveBackStackMap[id]?.lastOrNull()?.run {
-//            println("Rendering Nav Container $id")
-//            println(this)
-//            println(C.reactiveBackStackMap[id]!!.map { it.state.id })
-//            AnimatedContent(
-//                targetState = this,
-//                transitionSpec = { defaultTransitionSpec(direction) },
-//            ) { targetState ->
-//                BackHandler(C.canPop(id)) { C.pop(id) }
-//                Render(state = targetState.state)
-//            }
-//        } ?: children.forEach {
-//            Render(state = it)
-//        }
-//        var state by remember { mutableStateOf(this@Box2) }
-//        state = this@Box2
-//        AnimatedContent(
-//            targetState = state,
-//            transitionSpec = { defaultTransitionSpec(BackStackEntry2.Direction2.Forward2) }
-//        ) {
-//            state.children.forEach {
-//                Render(state = it)
-//            }
-//        }
-
-        (C.childrenMap[path] ?: children).forEach {
+        children.forEach {
             Render(
                 state = it,
             )
@@ -733,7 +722,7 @@ fun LazyRowState2.LazyRow2(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
     ) {
-        items(C.childrenMap[path] ?: children) {
+        items(children) {
             Render(state = it)
         }
     }
@@ -757,11 +746,11 @@ fun LazyColumnState2.LazyColumn2(
     var iteration by remember { mutableStateOf(0) }
 
     var filterChildren = if (filter != null) mutableListOf<StateId2>() else null
-    var childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
+    var childrenViewModels = children.mapNotNull { child ->
         child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
     }
 
-    val c = mutableStateOf((C.childrenMap[path] ?: children).map { C.getReactivePathStateOrNull<State2>(it.path, it)?.value ?: it })
+    val c = mutableStateOf(children.map { client3.getReactiveOrNull<State2>(it.path3)?.value ?: it })
 
     LaunchedEffect(jumpTo, iteration) {
         jumpTo?.let { jT ->
@@ -814,7 +803,7 @@ fun LazyColumnState2.LazyColumn2(
                             is LiveValue2.InstantNowLiveValue2 -> v2
                             else -> TODO()
                         }
-                        C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2)).also {
+                        client3.computationEngine.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2)).also {
                             sduiLog(it, iteration, childVm.second.scope, tag = "filtered index > Items > Timer > Condition > Result") { listOf("1","2","3").contains(childVm.second.scope) }
                         }
                     }.let { it.isNotEmpty() && it.all { r -> r } }
@@ -873,7 +862,7 @@ fun LazyColumnState2.LazyColumn2(
                             )
                         } else filter.value2
                     } ?: filter.value2
-                    C.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
+                    client3.computationEngine.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
                 }.all { it }
                 sduiLog(show, tag = "filters result")
                 if (show) filterChildren?.add(vm.second) else filterChildren?.remove(vm.second)
@@ -912,7 +901,7 @@ fun LazyColumnState2.LazyColumn2(
 //        sduiLog(C.childrenMap[path], children, C.childrenMap[path]?.map { C.getReactivePathState<State2>(it.path, it).value }, tag = "filtered index > LazyColumn > Children", header = "header", footer = "footer")
 
         c.value.forEach { child ->
-            var realChild = C.getReactivePathStateOrNull<State2>(child.path, child)?.value ?: child // TODO insanely difficult bug to track down!
+            var realChild = client3.getReactiveOrNull<State2>(child.path3)?.value ?: child // TODO insanely difficult bug to track down!
             sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
             if (filterChildren?.contains(child.id) == false) return@forEach
             val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
@@ -925,7 +914,7 @@ fun LazyColumnState2.LazyColumn2(
         }
 
         items(items = c.value) { child ->
-            val realChild = C.getReactivePathStateOrNull<State2>(child.path, child)?.value ?: child // TODO insanely difficult bug to track down!
+            val realChild = client3.getReactiveOrNull<State2>(child.path3)?.value ?: child // TODO insanely difficult bug to track down!
             sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
             if (filterChildren?.contains(child.id) == false) return@items
 //            val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
@@ -973,7 +962,7 @@ fun LazyGridState2.LazyGrid2(
         ),
         columns = GridCells.Adaptive(64.dp), // TODO this shouldn't be hardcoded
     ) {
-        items(C.childrenMap[path] ?: children) {
+        items(children) {
             Render(state = it)
         }
     }
@@ -1017,13 +1006,7 @@ fun ScreenState2.Screen2(
         horizontalAlignment = alignment.toHorizontalAlignment2(),
         modifier = modifier.background(Color.Transparent),
     ) {
-        println("Rendering Screen2")
-        println(path)
-        println("Children: remote children ${C.childrenMap[path]?.map { it.path }}")
-        println("Children: local children ${children.map { it.path }}")
-        if (C.childrenMap[path]?.isEmpty() == true) println("I found the bug")
-        if (C.childrenMap[path]?.isEmpty() == false) println("I am stumped")
-        (C.childrenMap[path] ?: children).forEach {
+        children.forEach {
             println("rendering in screenState children ${it.path}")
             Render(
                 state = it,
@@ -1104,7 +1087,7 @@ fun Builder2(
 fun BuilderState2.Builder2(
     modifier: Modifier = Modifier,
 ) {
-    (C.get(metaId) as? JsonMeta2)?.json?.let {
+    (client3.get(metaId) as? JsonMeta2)?.json?.let {
         Text("Observing ${(it.jsonObject["id"] as? JsonObject)?.getValue("name")}")
         ToField(it, "root")
     }
@@ -1130,7 +1113,7 @@ fun FadeInState2.FadeIn2(
     AnimatedVisibility(
         visible = visible,
     ) {
-        (C.childrenMap[path] ?: children).forEach {
+        children.forEach {
             Render(
                 state = it,
             )
