@@ -19,7 +19,7 @@ import ship.f.engine.client.utils.serverdrivenui2.ext.toShape2
 import ship.f.engine.client.utils.serverdrivenui2.state.ImageSourceOptionDialog
 import ship.f.engine.client.utils.serverdrivenui2.state.rememberCameraManager
 import ship.f.engine.client.utils.serverdrivenui2.state.rememberGalleryManager
-import ship.f.engine.client.utils.serverdrivenui3.Render
+import ship.f.engine.client.utils.serverdrivenui3.RenderStatic
 import ship.f.engine.shared.utils.serverdrivenui2.ext.Base64.encodeToBase64
 import ship.f.engine.shared.utils.serverdrivenui2.state.CameraGalleryState2
 
@@ -102,7 +102,7 @@ actual fun CameraGalleryState2.CameraGallery2(
             )
         } else {
             defaultImage?.let {
-                Render(state = it, modifier = clickableModifier)
+                RenderStatic(state = it, modifier = clickableModifier)
             } ?: Box(
                 contentAlignment = Alignment.Center,
                 modifier = clickableModifier.background(color.toColor2())) {
