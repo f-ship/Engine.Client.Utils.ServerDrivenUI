@@ -40,13 +40,17 @@ import coil3.request.ImageRequest
 import coil3.util.DebugLogger
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.StaticDrawLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.Draw2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ChildrenModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.InnerPaddingModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.PaddingModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.WeightModifier2.Weight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnClickModifier2
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.ImageState2
 import ship.f.engine.shared.utils.serverdrivenui2.state.State2
 import kotlin.math.cos
@@ -576,6 +580,29 @@ fun State2.toModifier2() = Modifier
             val draw = client3.computationEngine.computeConditionalBranchLive<StaticDrawLiveValue2>(liveDraw)
             modifier = modifier.then(draw.value.toModifier2())
         }
+        liveDraws3?.forEach { liveDraw ->
+            val draw = client3.computationEngine.computeConditionalValue(liveDraw)
+            if (draw !is Draw2) {
+                sduiLog("liveDraws3 > expected draw but got $draw")
+                return@forEach
+            }
+            sduiLog("draws $id", metas.filterIsInstance<ZoneViewModel3>().firstOrNull()?.map, tag = "timer > draws") { id.name == "testZone" }
+            modifier = modifier.then(draw.toModifier2())
+        }
         modifier
+    }.let {
+        (this as? ChildrenModifier2<*>)?.let { parent ->
+            val sortedParent = parent.sort3?.let { sort -> client3.computationEngine.sort(sort, parent) } ?: parent
+            val filteredParent = sortedParent.filter3?.let { filter -> client3.computationEngine.filter(filter, sortedParent) } ?: parent
+            client3.computationEngine.index(filteredParent)
+            val jumpToParent = filteredParent.jumpTo3?.let { jumpTo -> client3.computationEngine.jumpTo(jumpTo, filteredParent) } ?: filteredParent
+            client3.computationEngine.focus(jumpToParent)
+        }
+
+        sduiLog(id, tag = "timer") { id.name == "testZoneContainer" }
+
+        // Filter
+        client3.commit()
+        it
     }
 

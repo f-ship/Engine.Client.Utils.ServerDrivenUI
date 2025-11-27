@@ -65,6 +65,7 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.ConditionalLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.Ref2.ZoneRef2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.ReferenceableLiveValue2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Size2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
@@ -614,7 +615,7 @@ fun Column2(
     s: MutableState<ColumnState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
-    sduiLog(path, tag = "filtered index > Column") { id.name == "testZone" }
+    sduiLog(path3, tag = "timer > Column") { id.name == "testZone" }
     Column2(modifier)
 }
 
@@ -622,6 +623,7 @@ fun Column2(
 fun ColumnState2.Column2(
     modifier: Modifier = Modifier,
 ) {
+    sduiLog(path3, tag = "timer > State > Column") { id.name == "testZone" }
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
@@ -698,7 +700,16 @@ fun LazyColumn2(
 fun LazyColumnState2.LazyColumn2(
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+    LaunchedEffect(focus) {
+        focus?.let {
+            sduiLog("animation $it", tag = "timer")
+            listState.animateScrollToItem(it.value)
+        }
+    }
+
     LazyColumn(
+        state = listState,
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
         modifier = modifier,
@@ -709,8 +720,8 @@ fun LazyColumnState2.LazyColumn2(
             bottom = innerPadding.bottom.dp
         ),
     ) {
-        items(items = children) {
-            Render(state = it)
+        items(items = filteredChildren ?: children) { child ->
+            Render(state = child)
         }
     }
 }
