@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -105,6 +106,7 @@ fun TextState2.Text2(
         style = textStyle.toTextStyle2(fontWeight),
         textAlign = textAlign.toTextAlign2(),
         color = color.toColor2(),
+        textDecoration = if (underline) TextDecoration.Underline else TextDecoration.None ,
         modifier = modifier,
     )
 }
@@ -192,12 +194,10 @@ fun Search2(
 fun SearchState2.Search2(
     modifier: Modifier = Modifier
 ) {
-    //TODO temporary hard coding on frontend
-    var randomId by remember { mutableStateOf(getRandomString()) }
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
             value = text,
@@ -207,7 +207,10 @@ fun SearchState2.Search2(
             onValueChange = { update { copy(text = it) } },
             keyboardOptions = fieldType.toKeyboardOptions2(),
             shape = shape.toShape2(),
-            colors = textFieldDefaults2()
+            colors = textFieldDefaults2().copy(
+                unfocusedIndicatorColor = Color(0xCFF4F4F)
+            ),
+            modifier = Modifier.weight(0.8f)
         )
         Spacer(Modifier.width(16.dp))
         // TODO to not use trailing Icon like this
@@ -215,8 +218,8 @@ fun SearchState2.Search2(
             it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
                 it.onClickTrigger.trigger()
             })
+            Spacer(Modifier.width(8.dp))
         }
-        Spacer(Modifier.width(8.dp))
     }
 
 }
@@ -574,7 +577,7 @@ fun RowState2.Row2(
     Row(
         horizontalArrangement = arrangement.toHorizontalArrangement2(),
         verticalAlignment = alignment.toVerticalAlignment2(),
-        modifier = modifier.then(addOnClick(modifier)),
+        modifier = modifier.then(addOnClick(modifier).then(Modifier.background(color.toColor2()))),
     ) {
         children.forEach {
             Render(
