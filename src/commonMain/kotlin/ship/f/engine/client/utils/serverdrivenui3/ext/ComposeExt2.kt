@@ -25,13 +25,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight.Companion.W300
 import androidx.compose.ui.text.font.FontWeight.Companion.W400
+import androidx.compose.ui.text.font.FontWeight.Companion.W500
 import androidx.compose.ui.text.font.FontWeight.Companion.W600
+import androidx.compose.ui.text.font.FontWeight.Companion.W700
 import androidx.compose.ui.text.font.FontWeight.Companion.W800
 import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
@@ -98,14 +102,22 @@ fun TextStyle2.toTextStyle2(weight: FontWeight2) = when (this) {
     is TextStyle2.TitleLarge2 -> MaterialTheme.typography.titleLarge
     is TextStyle2.TitleMedium2 -> MaterialTheme.typography.titleMedium
     is TextStyle2.TitleSmall2 -> MaterialTheme.typography.titleSmall
+    is TextStyle2.Custom2 -> MaterialTheme.typography.bodyMedium.copy(
+        fontSize = size.sp,
+        lineHeight = lineHeight.sp,
+    )
 }.copy(fontWeight = weight.toFontWeight2())
 
 @Composable
 fun FontWeight2.toFontWeight2() = when (this) {
-    is FontWeight2.Bold2 -> W800
-    is FontWeight2.ExtraBold2 -> W900
-    is FontWeight2.Normal2 -> W400
+    is FontWeight2.Light2 -> W300
+    is FontWeight2.Regular2 -> W400
+    is FontWeight2.Medium2 -> W500
     is FontWeight2.SemiBold2 -> W600
+    is FontWeight2.Bold2 -> W700
+    is FontWeight2.ExtraBold2 -> W800
+    is FontWeight2.BlackBold2 -> W900
+
 }
 
 @Composable
@@ -157,7 +169,8 @@ fun ColorScheme2.Color2.toColor2() = when (this) {
     is ColorScheme2.Color2.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
     is ColorScheme2.Color2.Tertiary -> MaterialTheme.colorScheme.tertiary
     is ColorScheme2.Color2.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-    is ColorScheme2.Color2.Gradient.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
+    is ColorScheme2.Color2.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
+    is ColorScheme2.Color2.CustomColor2 -> Color(color = color).copy(alpha = alpha)
     is ColorScheme2.Color2.Transparent -> Color.Transparent
     is ColorScheme2.Color2.Unspecified -> Color.Unspecified
     is ColorScheme2.Color2.Gradient -> Color.Unspecified.also { println("Gradient is not supported") }

@@ -94,14 +94,18 @@ fun TextStyle2.toTextStyle2(weight: FontWeight2) = when (this) {
     is TextStyle2.TitleLarge2 -> MaterialTheme.typography.titleLarge
     is TextStyle2.TitleMedium2 -> MaterialTheme.typography.titleMedium
     is TextStyle2.TitleSmall2 -> MaterialTheme.typography.titleSmall
+    is TextStyle2.Custom2 -> TODO()
 }.copy(fontWeight = weight.toFontWeight2())
 
 @Composable
 fun FontWeight2.toFontWeight2() = when (this) {
-    is FontWeight2.Bold2 -> W800
-    is FontWeight2.ExtraBold2 -> W900
-    is FontWeight2.Normal2 -> W400
+    is FontWeight2.ExtraBold2 -> W800
+    is FontWeight2.BlackBold2 -> W900
+    is FontWeight2.Regular2 -> W400
     is FontWeight2.SemiBold2 -> W600
+    is FontWeight2.Bold2 -> TODO()
+    is FontWeight2.Medium2 -> TODO()
+    FontWeight2.Light2 -> TODO()
 }
 
 @Composable
@@ -153,10 +157,11 @@ fun ColorScheme2.Color2.toColor2() = when (this) {
     is ColorScheme2.Color2.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
     is ColorScheme2.Color2.Tertiary -> MaterialTheme.colorScheme.tertiary
     is ColorScheme2.Color2.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-    is ColorScheme2.Color2.Gradient.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
+    is ColorScheme2.Color2.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
     is ColorScheme2.Color2.Transparent -> Color.Transparent
     is ColorScheme2.Color2.Unspecified -> Color.Unspecified
     is ColorScheme2.Color2.Gradient -> Color.Unspecified.also { println("Gradient is not supported") }
+    is ColorScheme2.Color2.CustomColor2 -> TODO()
 }
 
 @Composable
