@@ -233,10 +233,11 @@ fun Draw2.toModifier2() = when (val draw = this) {
 
     is Draw2.RadialOffset2 -> Modifier.offset(
         x = (cos(angle) * radius).dp,
-        y = (sin(angle) * radius).dp
+        y = (sin(angle) * radius).dp,
     )
 
     Draw2.Blank2 -> Modifier // Do nothing
+    is Draw2.Behind2.BottomBorder2 -> TODO()
 }
 
 fun DrawScope.rectangleToPath(rectangle: Draw2.Behind2.Rectangle2): Path {

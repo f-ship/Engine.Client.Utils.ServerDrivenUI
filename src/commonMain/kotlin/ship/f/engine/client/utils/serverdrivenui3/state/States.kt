@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,53 +21,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
-import com.multiplatform.webview.web.LoadingState
-import com.multiplatform.webview.web.WebView
-import com.multiplatform.webview.web.WebViewNavigator
-import com.multiplatform.webview.web.rememberWebViewNavigator
-import com.multiplatform.webview.web.rememberWebViewState
-import kotlinx.coroutines.Job
+import com.multiplatform.webview.web.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
-import ship.f.engine.client.utils.serverdrivenui3.ext.ToImage2
-import ship.f.engine.client.utils.serverdrivenui3.ext.WithState2
-import ship.f.engine.client.utils.serverdrivenui3.ext.addOnClick
-import ship.f.engine.client.utils.serverdrivenui3.ext.createTimer
-import ship.f.engine.client.utils.serverdrivenui3.ext.textFieldDefaults2
-import ship.f.engine.client.utils.serverdrivenui3.ext.to2DAlignment2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toBorder2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toButtonColors2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toColor2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toHorizontalAlignment2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toHorizontalArrangement2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toKeyboardOptions2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toModifier2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toShape2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toTextAlign2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toTextStyle2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toVerticalAlignment2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toVerticalArrangement2
-import ship.f.engine.client.utils.serverdrivenui3.ext.toVisualTransformation2
+import ship.f.engine.client.utils.serverdrivenui3.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel2.Property.IntProperty
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.DataMeta2
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.PopulatedSideEffectMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.StateId2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.ConditionalLiveValue2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.Ref2.ZoneRef2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.ReferenceableLiveValue2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Size2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ListValue
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
@@ -106,7 +81,7 @@ fun TextState2.Text2(
         style = textStyle.toTextStyle2(fontWeight),
         textAlign = textAlign.toTextAlign2(),
         color = color.toColor2(),
-        textDecoration = if (underline) TextDecoration.Underline else TextDecoration.None ,
+        textDecoration = if (underline) TextDecoration.Underline else TextDecoration.None,
         modifier = modifier,
     )
 }
@@ -199,26 +174,43 @@ fun SearchState2.Search2(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
+        var text by remember(text) { mutableStateOf(text) }
         OutlinedTextField(
             value = text,
             leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
             visualTransformation = fieldType.toVisualTransformation2(),
             placeholder = { Text(placeholder) },
-            onValueChange = { update { copy(text = it) } },
+            onValueChange = {
+                text = it
+                updateCommit { copy(text = it) }
+            },
             keyboardOptions = fieldType.toKeyboardOptions2(),
             shape = shape.toShape2(),
             colors = textFieldDefaults2().copy(
-                unfocusedIndicatorColor = Color(0xCFF4F4F)
+                unfocusedIndicatorColor = borderColor.toColor2(),
+                unfocusedPlaceholderColor = placeholderColor.toColor2(),
+                unfocusedTextColor = textColor.toColor2(),
+                unfocusedContainerColor = containerColor.toColor2(),
+                focusedContainerColor = containerColor.toColor2(),
             ),
-            modifier = Modifier.weight(0.8f)
+            textStyle = textStyle.toTextStyle2(FontWeight2.Regular2),
+            modifier = Modifier.weight(1f)
         )
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(24.dp))
         // TODO to not use trailing Icon like this
         trailingIcon?.let {
             it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
                 it.onClickTrigger.trigger()
             })
             Spacer(Modifier.width(8.dp))
+        }
+        clearIcon?.let {
+            if (text.isNotEmpty()) {
+                it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
+                    it.onClickTrigger.trigger()
+                })
+                Spacer(Modifier.width(8.dp))
+            }
         }
     }
 
@@ -251,6 +243,7 @@ fun SwitchState2.Switch2(
     )
 }
 
+// Need to upgrade to a custom implementation to enable rounding
 @Composable
 fun CheckBox2(
     s: MutableState<CheckboxState2>,
@@ -277,8 +270,8 @@ fun CheckboxState2.CheckBox2(
         },
         modifier = modifier,
         colors = CheckboxDefaults.colors().copy(
-            uncheckedBoxColor = ColorScheme2.Color2.OnPrimary.toColor2(),
-            uncheckedBorderColor = ColorScheme2.Color2.Unspecified.toColor2(),
+            uncheckedBoxColor = uncheckedBoxColor.toColor2(),
+            uncheckedBorderColor = uncheckedBorderColor.toColor2(),
         ),
     )
 }
@@ -343,7 +336,8 @@ fun WebViewState2.WebView2(
                         request: WebRequest,
                         navigator: WebViewNavigator
                     ): WebRequestInterceptResult {
-                        val navigation = config.whitelist.firstOrNull { navigation -> request.url.startsWith("https://" + navigation.url) }
+                        val navigation =
+                            config.whitelist.firstOrNull { navigation -> request.url.startsWith("https://" + navigation.url) }
                         return if (navigation != null) {
                             val allParams = request.url.split("?").getOrNull(1)?.split("&")?.associate {
                                 it.split("=").let { (key, value) -> key to value }
@@ -356,7 +350,11 @@ fun WebViewState2.WebView2(
                                         metaId = navigation.metaId,
                                         metas = listOf(
                                             DataMeta2(
-                                                data = allParams.mapValuesTo(map) { DataMeta2.DataMetaType2.StringData(it.value) }
+                                                data = allParams.mapValuesTo(map) {
+                                                    DataMeta2.DataMetaType2.StringData(
+                                                        it.value
+                                                    )
+                                                }
                                             )
                                         )
                                     )
@@ -364,11 +362,20 @@ fun WebViewState2.WebView2(
                                 sduiLog("allParams", map, tag = "LinkedinLog")
                             }
                             navigation.destination?.config?.let { client3.navigationEngine.navigate(it.operation) }
-                            sduiLog("Allow > navigation", request.url, allParams, tag = "LinkedinLog", header = "Start", footer = "End")
+                            sduiLog(
+                                "Allow > navigation",
+                                request.url,
+                                allParams,
+                                tag = "LinkedinLog",
+                                header = "Start",
+                                footer = "End"
+                            )
                             WebRequestInterceptResult.Allow
                         } else {
                             sduiLog("Reject", request.url, config.url, tag = "LinkedinLog")
-                            WebRequestInterceptResult.Reject.also { showWebView = false } // TODO I might need to include url first
+                            WebRequestInterceptResult.Reject.also {
+                                showWebView = false
+                            } // TODO I might need to include url first
                         }
                     }
                 }
@@ -488,28 +495,52 @@ fun DropDown2(
     DropDown2(modifier)
 }
 
+@Suppress("UNCHECKED_CAST")
 @Composable
 fun DropDownState2.DropDown2(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .height(IntrinsicSize.Max)
+        modifier = modifier.height(IntrinsicSize.Max)
     ) {
-        IconButton(onClick = { update { copy(isExpanded = !isExpanded) } }, modifier = Modifier.fillMaxWidth()) {
-            Text(text = selectedItem?.title ?: items.first().title)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+                .clickable(true) { updateCommit { copy(isExpanded = !isExpanded) } }
+        ) {
+            val selectedItems = mutableStateOf(
+                liveSelectedTitle?.let {
+                    (client3.computationEngine.getValue(it) as? ListValue<StringValue>)
+                }?.value
+            )
+
+            Text(
+                text = selectedItems.value?.joinToString(", ") { sv -> sv.value }?.ifEmpty { null }
+                    ?: liveTitle?.let { (client3.computationEngine.getValue(it) as? StringValue)?.value }
+                    ?: title,
+                color = titleColor.toColor2(),
+                style = titleTextStyle.toTextStyle2(FontWeight2.Regular2),
+                maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 8.dp).weight(1f) //TODO may be unnecessary
+            )
+            if (isExpanded) arrowDropUpIcon?.ToImage2(Modifier) else {
+                if (selectedItems.value?.isNotEmpty() == true) arrowDropDownIcon?.copy(color = ColorScheme2.Color2.Primary)
+                    ?.ToImage2(Modifier)
+                else arrowDropDownIcon?.ToImage2(Modifier)
+            }
         }
         DropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = { update { copy(isExpanded = false) } },
-            modifier = Modifier.fillMaxWidth()
+            onDismissRequest = { updateCommit { copy(isExpanded = false) } },
+            modifier = Modifier
+                .fillMaxWidth()
+                .crop(vertical = 8.dp),
+            containerColor = menuColor2.toColor2(),
         ) {
-            items.forEach {
-                DropdownMenuItem(
-                    text = { Text(it.title) },
-                    onClick = { update { copy(selectedItem = it) } },
-                )
-            }
+            children.forEach { Render(it) }
         }
     }
 }
@@ -665,6 +696,31 @@ fun BoxState2.Box2(
                 state = it,
             )
         }
+    }
+}
+
+@Composable
+fun Variant2(
+    s: MutableState<VariantState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    Variant2(modifier)
+}
+
+@Composable
+fun VariantState2.Variant2(
+    modifier: Modifier = Modifier,
+) {
+    val defaultVariant by remember {
+        mutableStateOf((client3.computationEngine.getValue(defaultVariant) as? StringValue)?.value)
+    }
+    Box(modifier) {
+        sduiLog(client3.computationEngine.getValue(variant), tag = "Selected >")
+        children.find { it.id.name == (client3.computationEngine.getValue(variant) as? StringValue)?.value }?.let {
+            Render(state = it)
+        } ?: children.find { it.id.name == defaultVariant }?.let {
+            Render(state = it)
+        } ?: Text("No Variant Found") // TODO this should only be here for debugging purposes
     }
 }
 

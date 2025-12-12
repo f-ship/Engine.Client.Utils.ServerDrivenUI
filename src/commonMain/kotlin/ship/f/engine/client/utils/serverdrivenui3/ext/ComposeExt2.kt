@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Brush
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.W800
 import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
@@ -105,8 +108,11 @@ fun TextStyle2.toTextStyle2(weight: FontWeight2) = when (this) {
     is TextStyle2.Custom2 -> MaterialTheme.typography.bodyMedium.copy(
         fontSize = size.sp,
         lineHeight = lineHeight.sp,
+        fontWeight = fontWeight.toFontWeight2(),
     )
-}.copy(fontWeight = weight.toFontWeight2())
+}.let {
+    if (this !is TextStyle2.Custom2) it.copy(fontWeight = weight.toFontWeight2()) else it
+}
 
 @Composable
 fun FontWeight2.toFontWeight2() = when (this) {
@@ -249,6 +255,18 @@ fun Draw2.toModifier2() = when (val draw = this) {
     )
 
     Draw2.Blank2 -> Modifier // Do nothing
+    is Draw2.Behind2.BottomBorder2 -> {
+        val color = color.toColor2()
+        Modifier.drawBehind {
+            val y = size.height
+            drawLine(
+                color = color,
+                start = Offset(0f, y),
+                end = Offset(size.width, y),
+                strokeWidth = strokeWidth,
+            )
+        }
+    }
 }
 
 fun DrawScope.rectangleToPath(rectangle: Draw2.Behind2.Rectangle2): Path {
@@ -618,4 +636,19 @@ fun State2.toModifier2() = Modifier
         client3.commit()
         it
     }
+
+fun Modifier.crop(
+    horizontal: Dp = 0.dp,
+    vertical: Dp = 0.dp,
+): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+    fun Dp.toPxInt(): Int = this.toPx().toInt()
+
+    layout(
+        placeable.width - (horizontal * 2).toPxInt(),
+        placeable.height - (vertical * 2).toPxInt()
+    ) {
+        placeable.placeRelative(-horizontal.toPx().toInt(), -vertical.toPx().toInt())
+    }
+}
 

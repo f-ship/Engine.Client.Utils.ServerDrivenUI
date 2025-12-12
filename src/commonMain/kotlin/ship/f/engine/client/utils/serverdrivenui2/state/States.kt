@@ -473,17 +473,20 @@ fun DropDownState2.DropDown2(
             .height(IntrinsicSize.Max)
     ) {
         IconButton(onClick = { update { copy(isExpanded = !isExpanded) } }, modifier = Modifier.fillMaxWidth()) {
-            Text(text = selectedItem?.title ?: items.first().title)
+            Text(text = selectedItem?.title ?: items?.firstOrNull()?.title.orEmpty())
         }
         DropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { update { copy(isExpanded = false) } },
             modifier = Modifier.fillMaxWidth()
         ) {
-            items.forEach {
+            items?.forEach {
                 DropdownMenuItem(
                     text = { Text(it.title) },
                     onClick = { update { copy(selectedItem = it) } },
+                    colors = MenuDefaults.itemColors().copy(
+
+                    )
                 )
             }
         }

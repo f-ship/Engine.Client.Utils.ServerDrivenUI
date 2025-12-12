@@ -70,6 +70,7 @@ fun RenderDynamic(
             is CameraGalleryState2 -> CameraGallery2(s = getReactive(state.path3), m = modifier)
             is WebViewState2 -> WebView2(s = getReactive(state.path3), m = modifier)
             is DialogState2 -> Dialog2(s = getReactive(state.path3), m = modifier)
+            is VariantState2 -> Variant2(s = getReactive(state.path3), m = modifier)
         }
     }
 }
@@ -110,6 +111,7 @@ fun RenderStatic(
             is CameraGalleryState2 -> state.CameraGallery2(modifier = modifier)
             is WebViewState2 -> state.WebView2(modifier = modifier)
             is DialogState2 -> state.Dialog2(modifier = modifier)
+            is VariantState2 -> state.Variant2(modifier = modifier)
         }
     }
 }
