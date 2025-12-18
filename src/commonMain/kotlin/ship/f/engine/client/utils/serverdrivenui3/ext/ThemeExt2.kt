@@ -62,7 +62,7 @@ fun ColorScheme2.toMaterialColorScheme() = MaterialTheme.colorScheme.copy(
 fun State2.toMaterialColorScheme(
     isSystemInDarkTheme: Boolean = false,
     client: Client3,
-) = (client.get<State2>(id) as? ColorSchemeModifier2<*>)?.run {
+) = (client.getOrNull<State2>(id) as? ColorSchemeModifier2<*>)?.run {
     if (isSystemInDarkTheme) darkColorScheme?.toMaterialColorScheme() else lightColorScheme?.toMaterialColorScheme()
 } ?: MaterialTheme.colorScheme
 
@@ -76,7 +76,7 @@ fun Shapes2.CornerBasedShape2.toCornerBasedShape() = RoundedCornerShape(
 @Composable
 fun State2.toMaterialShapes(
     client: Client3,
-) = (client.get<State2>(this.id) as? ShapesModifier2<*>)?.run {
+) = (client.getOrNull<State2>(this.id) as? ShapesModifier2<*>)?.run {
     Shapes(
         extraSmall = shapes.extraSmall.toCornerBasedShape(),
         small = shapes.small.toCornerBasedShape(),
@@ -103,7 +103,7 @@ fun String.toFont(
 @Composable
 fun State2.toMaterialTypography(
     client: Client3,
-) = (client.get<State2>(this.id) as? TypographyModifier2<*>)?.run {
+) = (client.getOrNull<State2>(this.id) as? TypographyModifier2<*>)?.run {
     val fontFamily = font.toFont(client)
     Typography().run {
         copy(

@@ -11,7 +11,6 @@ fun <S: State2> MutableState<S>.WithState2(
     modifier: Modifier,
     block: @Composable S.(Modifier) -> Unit)
 {
-//    sduiLog(value.path, tag = "filtered index > WithState2") { value.id.name == "testZone" }
     value.run {
         LaunchedEffect(id) {
             onInitialRenderTrigger.trigger()

@@ -72,7 +72,7 @@ kotlin {
             implementation("androidx.media3:media3-ui:1.4.1")
         }
         appleMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:3.3.0")
+            implementation("io.ktor:ktor-client-darwin:3.3.3")
         }
         jvmMain.dependencies {
             implementation("io.ktor:ktor-client-java:3.3.0")

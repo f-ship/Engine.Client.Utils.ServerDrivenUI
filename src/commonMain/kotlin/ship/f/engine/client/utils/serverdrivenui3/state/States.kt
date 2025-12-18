@@ -41,6 +41,7 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorSchem
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ConditionalValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ListValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
@@ -192,6 +193,7 @@ fun SearchState2.Search2(
                 unfocusedTextColor = textColor.toColor2(),
                 unfocusedContainerColor = containerColor.toColor2(),
                 focusedContainerColor = containerColor.toColor2(),
+                focusedTextColor = focusedTextColor.toColor2(),
             ),
             textStyle = textStyle.toTextStyle2(FontWeight2.Regular2),
             modifier = Modifier.weight(1f)
@@ -424,22 +426,24 @@ fun ButtonState2.Button2(
             modifier = modifier,
         ) {
             leadingIcon()
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth() // TODO hardcoded to ensure column fills button
             ) {
+                text?.let {
+                    Text(
+                        text = it,
+                        style = textStyle.toTextStyle2(fontWeight)
+                    )
+                }
                 if (loading.value) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 3.dp,
                     )
-                } else {
-                    text?.let {
-                        Text(
-                            text = it,
-                            style = textStyle.toTextStyle2(fontWeight)
-                        )
-                    }
                 }
             }
         }
@@ -658,6 +662,9 @@ fun ColumnState2.Column2(
     modifier: Modifier = Modifier,
 ) {
     sduiLog(path3, tag = "timer > State > Column") { id.name == "testZone" }
+
+
+
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
@@ -714,11 +721,26 @@ fun VariantState2.Variant2(
     val defaultVariant by remember {
         mutableStateOf((client3.computationEngine.getValue(defaultVariant) as? StringValue)?.value)
     }
+
+    // TODO need to make this recursive
+    val variantValue by remember(counter) {
+        mutableStateOf(
+            when (val value = client3.computationEngine.getValue(liveValue = variant, state2 = this@Variant2)) {
+                is ConditionalValue -> {
+                    val a = client3.computationEngine.computeConditionalValue(value, state2 = this@Variant2)
+                    sduiLog(id.name, a, tag = "Selected > Conditional")
+                    a as? StringValue
+                }
+                is StringValue -> value
+                else -> null
+            }
+        )
+    }
     Box(modifier) {
-        sduiLog(client3.computationEngine.getValue(variant), tag = "Selected >")
-        children.find { it.id.name == (client3.computationEngine.getValue(variant) as? StringValue)?.value }?.let {
+        sduiLog(id.name, variantValue, client3.computationEngine.getValue(liveValue = variant, state2 = this@Variant2), tag = "Selected >")
+        children.find { it.id.name == variantValue?.value || it.id.alias == variantValue?.value }?.let {
             Render(state = it)
-        } ?: children.find { it.id.name == defaultVariant }?.let {
+        } ?: children.find { it.id.name == defaultVariant || it.id.alias == defaultVariant }?.let {
             Render(state = it)
         } ?: Text("No Variant Found") // TODO this should only be here for debugging purposes
     }

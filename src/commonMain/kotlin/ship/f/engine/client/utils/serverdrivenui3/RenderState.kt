@@ -2,7 +2,6 @@ package ship.f.engine.client.utils.serverdrivenui3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import ship.f.engine.client.utils.serverdrivenui2.state.Button2
 import ship.f.engine.client.utils.serverdrivenui3.ext.WithState2
 import ship.f.engine.client.utils.serverdrivenui3.state.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
@@ -72,6 +71,7 @@ fun RenderDynamic(
             is WebViewState2 -> WebView2(s = getReactive(state.path3), m = modifier)
             is DialogState2 -> Dialog2(s = getReactive(state.path3), m = modifier)
             is VariantState2 -> Variant2(s = getReactive(state.path3), m = modifier)
+            is RefState2 -> Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
         }
     }
 }
@@ -113,6 +113,7 @@ fun RenderStatic(
             is WebViewState2 -> state.WebView2(modifier = modifier)
             is DialogState2 -> state.Dialog2(modifier = modifier)
             is VariantState2 -> state.Variant2(modifier = modifier)
+            is RefState2 -> Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
         }
     }
 }

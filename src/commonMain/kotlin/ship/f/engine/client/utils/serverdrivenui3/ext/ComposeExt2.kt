@@ -612,12 +612,12 @@ fun State2.toModifier2() = Modifier
             modifier = modifier.then(draw.value.toModifier2())
         }
         liveDraws3?.forEach { liveDraw ->
-            val draw = client3.computationEngine.computeConditionalValue(liveDraw)
+            val draw = client3.computationEngine.computeConditionalValue(value = liveDraw, state2 = this)
             if (draw !is Draw2) {
                 sduiLog("liveDraws3 > expected draw but got $draw")
                 return@forEach
             }
-            sduiLog("draws $id", metas.filterIsInstance<ZoneViewModel3>().firstOrNull()?.map, tag = "timer > draws") { id.name == "testZone" }
+            sduiLog("draws $id", metas.filterIsInstance<ZoneViewModel3>().firstOrNull()?.map, tag = "timer > draws")
             modifier = modifier.then(draw.toModifier2())
         }
         modifier
@@ -629,8 +629,6 @@ fun State2.toModifier2() = Modifier
             val jumpToParent = filteredParent.jumpTo3?.let { jumpTo -> client3.computationEngine.jumpTo(jumpTo, filteredParent) } ?: filteredParent
             client3.computationEngine.focus(jumpToParent)
         }
-
-        sduiLog(id, tag = "timer") { id.name == "testZoneContainer" }
 
         // Filter
         client3.commit()
