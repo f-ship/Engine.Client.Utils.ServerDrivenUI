@@ -759,7 +759,10 @@ fun VariantState2.Variant2(
             }
         )
     }
-    Box(modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = alignment.to2DAlignment2()
+    ) {
         sduiLog(id.name, variantValue, client3.computationEngine.getValue(liveValue = variant, state2 = this@Variant2), tag = "Selected >")
         children.find { it.id.name == variantValue?.value || it.id.alias == variantValue?.value }?.let {
             Render(state = it)
