@@ -43,7 +43,7 @@ import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import coil3.request.ImageRequest
+import coil3.request.ImageRequest.Builder
 import coil3.util.DebugLogger
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
@@ -52,6 +52,7 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.StaticDrawLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.Draw2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ChildrenModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.InnerPaddingModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.PaddingModifier2
@@ -377,7 +378,7 @@ fun ImageState2.ToImage2(modifier: Modifier) {
         )
 
         is Url2 -> AsyncImage(
-            model = ImageRequest.Builder(LocalPlatformContext.current)
+            model = Builder(LocalPlatformContext.current)
                 .data(src.location)
                 .build(),
             imageLoader = loader,
@@ -390,6 +391,25 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             contentScale = contentScale.toContentScale2(),
 //            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
         )
+
+        is LiveUrl2 -> {
+            val location = client3.computationEngine.getValue(src.liveValue) as? StringValue
+            sduiLog(location, tag = "LiveUrl >")
+            AsyncImage(
+                model = Builder(LocalPlatformContext.current)
+                    .data(location?.value)
+                    .build(),
+                imageLoader = loader,
+                contentDescription = contentDescription,
+                modifier = modifier.clip(shape.toShape2()),
+                onError = {
+                    /* TODO to use proper SDUI logging */
+                    println("BizClik Error loading image: ${it.result.throwable}")
+                },
+                contentScale = contentScale.toContentScale2(),
+//            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
+            )
+        }
     }
 }
 

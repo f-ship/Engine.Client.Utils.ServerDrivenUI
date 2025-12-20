@@ -76,7 +76,15 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
-    val value = liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text
+    var value by remember { mutableStateOf(liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text) }
+    var showMore by remember { mutableStateOf(false) }
+    var showingMore by remember { mutableStateOf(false) }
+    if (!showingMore) {
+        limit?.let {
+            value = if (it > value.length) value else value.take(it) + "..."
+            showMore = true
+        }
+    }
     Text(
         text = value,
         style = textStyle.toTextStyle2(fontWeight),
@@ -85,6 +93,21 @@ fun TextState2.Text2(
         textDecoration = if (underline) TextDecoration.Underline else TextDecoration.None,
         modifier = modifier,
     )
+
+    if (showMore && !showingMore) {
+        AnimatedVisibility(visible = showMore) {
+            Text(
+                text = "Read More",
+                style = textStyle.toTextStyle2(fontWeight),
+                textDecoration =  TextDecoration.Underline,
+                color = ColorScheme2.Color2.Primary.toColor2(),
+                modifier = Modifier.fillMaxWidth().clickable(enabled = true, role = Role.Button) {
+                    showingMore = !showingMore
+                    value = liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text
+                }
+            )
+        }
+    }
 }
 
 @Composable

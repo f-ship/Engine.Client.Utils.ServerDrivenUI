@@ -17,7 +17,6 @@ fun Render(
     client: Client3 = client3
 ) {
     client.apply {
-        sduiLog(state.path3, tag = "filtered index > Render") { state.id.name == "testZone" }
         when(state.path3) {
             is Path3.Init -> sduiLog(state, tag = "Debug > Init").let {  error("Should not every be rendering uninitialized states as will lead to unpredictable behaviour ${state.id}") }
             is Path3.Anon -> RenderStatic(
@@ -39,7 +38,6 @@ fun RenderDynamic(
     modifier: Modifier = Modifier,
     client: Client3 = client3
 ) {
-    sduiLog(state.path3, state.counter, tag = "timer > RenderDynamic") { state.id.name == "testZone" }
     client.apply {
         when (state) {
             is BoxState2 -> Box2(s = getReactive(state.path3), m = modifier)
@@ -81,7 +79,6 @@ fun RenderStatic(
     state: State2,
     modifier: Modifier = Modifier,
 ) {
-    sduiLog(state::class, tag = "RenderStatic")
     state.WithState2(modifier) { modifier ->
         when (state) {
             is BoxState2 -> state.Box2(modifier = modifier)

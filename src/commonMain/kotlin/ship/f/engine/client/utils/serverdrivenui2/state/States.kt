@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -37,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
+import ship.f.engine.client.utils.serverdrivenui3.ext.toColor2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel2.Property.IntProperty
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
@@ -79,7 +81,13 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
-    val value = liveText?.let { C.computeLiveText(it) } ?: text
+    var value = liveText?.let { C.computeLiveText(it) } ?: text
+    var showMore by remember { mutableStateOf(false) }
+    var showingMore by remember { mutableStateOf(false) }
+    limit?.let {
+        value = if (it > value.length) value else value.take(it) + "..."
+        showMore = true
+    }
     Text(
         text = value,
         style = textStyle.toTextStyle2(fontWeight),
@@ -87,6 +95,19 @@ fun TextState2.Text2(
         color = color.toColor2(),
         modifier = modifier,
     )
+    if (showMore && !showingMore) {
+        AnimatedVisibility(visible = showMore) {
+            Text(
+                text = "Read More",
+                style = textStyle.toTextStyle2(fontWeight),
+                textDecoration =  TextDecoration.Underline,
+                color = ColorScheme2.Color2.Primary.toColor2(),
+                modifier = Modifier.clickable(enabled = true, role = Role.Button) {
+                    showingMore = !showingMore
+                }
+            )
+        }
+    }
 }
 
 @Composable

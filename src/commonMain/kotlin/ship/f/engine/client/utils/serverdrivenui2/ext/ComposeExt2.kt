@@ -36,7 +36,7 @@ import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import coil3.request.ImageRequest
+import coil3.request.ImageRequest.Builder
 import coil3.util.DebugLogger
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
@@ -348,7 +348,7 @@ fun ImageState2.ToImage2(modifier: Modifier) {
         )
 
         is Url2 -> AsyncImage(
-            model = ImageRequest.Builder(LocalPlatformContext.current)
+            model = Builder(LocalPlatformContext.current)
                 .data(src.location)
                 .build(),
             imageLoader = loader,
@@ -361,6 +361,8 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             contentScale = contentScale.toContentScale2(),
 //            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
         )
+
+        is LiveUrl2 -> TODO()
     }
 }
 
