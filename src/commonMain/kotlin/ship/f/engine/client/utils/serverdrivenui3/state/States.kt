@@ -76,7 +76,7 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
-    var value by remember { mutableStateOf(liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text) }
+    var value by remember(text) { mutableStateOf(liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text) }
     var showMore by remember { mutableStateOf(false) }
     var showingMore by remember { mutableStateOf(false) }
     if (!showingMore) {
