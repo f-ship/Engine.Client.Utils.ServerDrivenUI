@@ -7,7 +7,6 @@ import ship.f.engine.client.utils.serverdrivenui3.state.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Path3
-import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -18,7 +17,7 @@ fun Render(
 ) {
     client.apply {
         when(state.path3) {
-            is Path3.Init -> sduiLog(state, tag = "Debug > Init").let {  error("Should not every be rendering uninitialized states as will lead to unpredictable behaviour ${state.id}") }
+            is Path3.Init -> error("Should not every be rendering uninitialized states as will lead to unpredictable behaviour ${state.id}")
             is Path3.Anon -> RenderStatic(
                 state = state,
                 modifier = modifier

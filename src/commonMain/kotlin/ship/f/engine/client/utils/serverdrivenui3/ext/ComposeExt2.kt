@@ -39,15 +39,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
-import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.ImageRequest.Builder
-import coil3.util.DebugLogger
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.StaticDrawLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
@@ -345,15 +341,6 @@ fun Size2.VerticalSize2.toModifier2() = when (val size = this) {
 
 @Composable
 fun ImageState2.ToImage2(modifier: Modifier) {
-    val ctx = LocalPlatformContext.current
-
-    val loader = remember(ctx) {
-        ImageLoader.Builder(ctx)
-            .components { add(KtorNetworkFetcherFactory()) }
-            .logger(DebugLogger()) // see Coil logs
-            .build()
-    }
-
     when (val src = src) {
         is Resource2 -> Icon(
             painter = painterResource(client3.getResource(src.location)),
@@ -374,14 +361,12 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             contentDescription = contentDescription,
             modifier = modifier.clip(shape.toShape2()),
             contentScale = contentScale.toContentScale2(),
-//            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
         )
 
         is Url2 -> AsyncImage(
             model = Builder(LocalPlatformContext.current)
                 .data(src.location)
                 .build(),
-            imageLoader = loader,
             contentDescription = contentDescription,
             modifier = modifier.clip(shape.toShape2()),
             onError = {
@@ -389,17 +374,14 @@ fun ImageState2.ToImage2(modifier: Modifier) {
                 println("BizClik Error loading image: ${it.result.throwable}")
             },
             contentScale = contentScale.toContentScale2(),
-//            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
         )
 
         is LiveUrl2 -> {
             val location = client3.computationEngine.getValue(src.liveValue) as? StringValue
-            sduiLog(location, tag = "LiveUrl >")
             AsyncImage(
                 model = Builder(LocalPlatformContext.current)
                     .data(location?.value)
                     .build(),
-                imageLoader = loader,
                 contentDescription = contentDescription,
                 modifier = modifier.clip(shape.toShape2()),
                 onError = {
@@ -407,7 +389,6 @@ fun ImageState2.ToImage2(modifier: Modifier) {
                     println("BizClik Error loading image: ${it.result.throwable}")
                 },
                 contentScale = contentScale.toContentScale2(),
-//            colorFilter = ColorFilter.tint(color.toColor2()) TODO this caused major issues, now disabled
             )
         }
     }
@@ -637,7 +618,6 @@ fun State2.toModifier2() = Modifier
                 sduiLog("liveDraws3 > expected draw but got $draw")
                 return@forEach
             }
-            sduiLog("draws $id", metas.filterIsInstance<ZoneViewModel3>().firstOrNull()?.map, tag = "timer > draws")
             modifier = modifier.then(draw.toModifier2())
         }
         modifier

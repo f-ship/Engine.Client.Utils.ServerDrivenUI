@@ -25,7 +25,6 @@ import org.jetbrains.compose.resources.InternalResourceApi
 import org.jetbrains.compose.resources.readResourceBytes
 import ship.f.engine.client.utils.serverdrivenui2.ext.WithState2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2
-import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.VideoState2
 import java.io.File
 
@@ -86,12 +85,7 @@ actual fun VideoState2.Video2(
     DisposableEffect(Unit) {
         val listener = object : Player.Listener {
             override fun onRenderedFirstFrame() {
-                sduiLog("Video2", "onRenderedFirstFrame")
                 visible = true
-//                playerView.animate()
-//                    .alpha(1f)
-//                    .setDuration(1000L)
-//                    .start()
             }
         }
 

@@ -46,7 +46,6 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computatio
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
-import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -353,7 +352,6 @@ fun WebViewState2.WebView2(
     var showWebView by mutableStateOf(true)
     if (showWebView) {
         Box(modifier = modifier.background(Color.White).fillMaxSize()) {
-            sduiLog(config.url, tag = "LinkedinLog")
             val state = rememberWebViewState(config.url)
             val navigator = rememberWebViewNavigator(
                 requestInterceptor = object : RequestInterceptor {
@@ -384,20 +382,10 @@ fun WebViewState2.WebView2(
                                         )
                                     )
                                 )
-                                sduiLog("allParams", map, tag = "LinkedinLog")
                             }
                             navigation.destination?.config?.let { client3.navigationEngine.navigate(it.operation) }
-                            sduiLog(
-                                "Allow > navigation",
-                                request.url,
-                                allParams,
-                                tag = "LinkedinLog",
-                                header = "Start",
-                                footer = "End"
-                            )
                             WebRequestInterceptResult.Allow
                         } else {
-                            sduiLog("Reject", request.url, config.url, tag = "LinkedinLog")
                             WebRequestInterceptResult.Reject.also {
                                 showWebView = false
                             } // TODO I might need to include url first
@@ -676,7 +664,6 @@ fun Column2(
     s: MutableState<ColumnState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
-    sduiLog(path3, tag = "timer > Column") { id.name == "testZone" }
     Column2(modifier)
 }
 
@@ -684,10 +671,6 @@ fun Column2(
 fun ColumnState2.Column2(
     modifier: Modifier = Modifier,
 ) {
-    sduiLog(path3, tag = "timer > State > Column") { id.name == "testZone" }
-
-
-
     Column(
         verticalArrangement = arrangement.toVerticalArrangement2(),
         horizontalAlignment = alignment.toHorizontalAlignment2(),
@@ -751,7 +734,6 @@ fun VariantState2.Variant2(
             when (val value = client3.computationEngine.getValue(liveValue = variant, state2 = this@Variant2)) {
                 is ConditionalValue -> {
                     val a = client3.computationEngine.computeConditionalValue(value, state2 = this@Variant2)
-                    sduiLog(id.name, a, tag = "Selected > Conditional")
                     a as? StringValue
                 }
                 is StringValue -> value
@@ -763,7 +745,6 @@ fun VariantState2.Variant2(
         modifier = modifier,
         contentAlignment = alignment.to2DAlignment2()
     ) {
-        sduiLog(id.name, variantValue, client3.computationEngine.getValue(liveValue = variant, state2 = this@Variant2), tag = "Selected >")
         children.find { it.id.name == variantValue?.value || it.id.alias == variantValue?.value }?.let {
             Render(state = it)
         } ?: children.find { it.id.name == defaultVariant || it.id.alias == defaultVariant }?.let {
@@ -810,7 +791,6 @@ fun LazyColumnState2.LazyColumn2(
     val listState = rememberLazyListState()
     LaunchedEffect(focus) {
         focus?.let {
-            sduiLog("animation $it", tag = "timer")
             listState.animateScrollToItem(it.value)
         }
     }

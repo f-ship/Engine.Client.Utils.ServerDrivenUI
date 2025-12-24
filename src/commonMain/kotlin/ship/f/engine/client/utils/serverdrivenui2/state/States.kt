@@ -332,7 +332,6 @@ fun WebViewState2.WebView2(
     var showWebView by mutableStateOf(true)
     if (showWebView) {
         Box(modifier = modifier.background(Color.White).fillMaxSize()) {
-            sduiLog(config.url, tag = "LinkedinLog")
             val state = rememberWebViewState(config.url)
             val navigator = rememberWebViewNavigator(
                 requestInterceptor = object : RequestInterceptor {
@@ -358,13 +357,10 @@ fun WebViewState2.WebView2(
                                         )
                                     )
                                 )
-                                sduiLog("allParams", map, tag = "LinkedinLog")
                             }
                             navigation.destination?.config?.let { C.navigate(it) }
-                            sduiLog("Allow > navigation", request.url, allParams, tag = "LinkedinLog", header = "Start", footer = "End")
                             WebRequestInterceptResult.Allow
                         } else {
-                            sduiLog("Reject", request.url, config.url, tag = "LinkedinLog")
                             WebRequestInterceptResult.Reject.also { showWebView = false } // TODO I might need to include url first
                         }
                     }
@@ -624,7 +620,6 @@ fun Column2(
     s: MutableState<ColumnState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
-    sduiLog(path, tag = "filtered index > Column") { id.name == "testZone" }
     Column2(modifier)
 }
 
@@ -639,7 +634,6 @@ fun ColumnState2.Column2(
             .then(Modifier.background(color.toColor2()))
             .then(addOnClick(modifier)),
     ) {
-        sduiLog(path, tag = "filtered index > ColumnState > Column") { id.name == "testZone" }
         val filterChildren = if (filter != null) mutableListOf<StateId2>() else null
         val childrenViewModels = (C.childrenMap[path] ?: children).mapNotNull { child ->
             child.metas.filterIsInstance<ZoneViewModel2>().firstOrNull()?.let { zvm -> Pair(zvm,child.id) }
@@ -671,10 +665,8 @@ fun ColumnState2.Column2(
                     } ?: filter.value2
                     C.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
                 }.all { it }
-                sduiLog(show, tag = "filters result")
                if (show) filterChildren?.add(vm.second) else filterChildren?.remove(vm.second)
             }
-            sduiLog( filterChildren, childrenViewModels, children.map { it.metas }, tag = "filters")
         }
 
         (C.childrenMap[path] ?: children).forEachIndexed { index, child ->
@@ -797,12 +789,10 @@ fun LazyColumnState2.LazyColumn2(
                     timer = createTimer(
                         intervalSeconds = seconds,
                         func = {
-                            sduiLog("timer running", tag = "filtered index > Items > Timer > Func")
                             iteration++
                             reset().let{ true }
                         }
                     )
-                    sduiLog("timer created", tag = "filtered index > Items > Timer")
                 }
 
                 val cjT = childrenViewModels.firstOrNull { childVm ->
@@ -838,17 +828,13 @@ fun LazyColumnState2.LazyColumn2(
                             is LiveValue2.InstantNowLiveValue2 -> v2
                             else -> TODO()
                         }
-                        C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2)).also {
-                            sduiLog(it, iteration, childVm.second.scope, tag = "filtered index > Items > Timer > Condition > Result") { listOf("1","2","3").contains(childVm.second.scope) }
-                        }
+                        C.computeConditionalLive(ConditionalLiveValue2(value1, condition.condition, value2))
                     }.let { it.isNotEmpty() && it.all { r -> r } }
                 }
-                sduiLog(cjT, iteration, tag = "filtered index > Items > Timer > Condition!", header = "start", footer = "end")
 
                 cjT?.let { childVm ->
                     val index = filterChildren?.indexOf(childVm.second) ?: c.value.indexOfFirst { childVm.second == it.id }
                     if (index > -1) {
-                        sduiLog("updated Index", index, tag = "filtered index > updated index")
                         childrenViewModels.forEach {
                             it.first.map["!focus"] = IntProperty(index)
                         }
@@ -899,10 +885,8 @@ fun LazyColumnState2.LazyColumn2(
                     } ?: filter.value2
                     C.computeConditionalLive(ConditionalLiveValue2(value1, filter.condition, value2))
                 }.all { it }
-                sduiLog(show, tag = "filters result")
                 if (show) filterChildren?.add(vm.second) else filterChildren?.remove(vm.second)
             }
-            sduiLog( filterChildren, childrenViewModels, children.map { it.metas }, tag = "filters")
         }
 
         sort?.let { sort ->
@@ -932,15 +916,10 @@ fun LazyColumnState2.LazyColumn2(
             }
         }
 
-        sduiLog(c.value.map { it.path }, tag = "filtered index > LazyColumn")
-//        sduiLog(C.childrenMap[path], children, C.childrenMap[path]?.map { C.getReactivePathState<State2>(it.path, it).value }, tag = "filtered index > LazyColumn > Children", header = "header", footer = "footer")
-
         c.value.forEach { child ->
             var realChild = C.getReactivePathStateOrNull<State2>(child.path, child)?.value ?: child // TODO insanely difficult bug to track down!
-            sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
             if (filterChildren?.contains(child.id) == false) return@forEach
             val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
-//            sduiLog(path, filter, filterChildren, updatedIndex, child.id, childrenViewModels, tag = "filtered index", header = "")
             val childViewModel = childrenViewModels.firstOrNull { it.second == child.id }?.first
             if (childViewModel?.map["!index"] != IntProperty(updatedIndex)) {
                 childViewModel?.map["!index"] = IntProperty(updatedIndex) // don't need to do any recompositions here, so don't update
@@ -950,20 +929,16 @@ fun LazyColumnState2.LazyColumn2(
 
         items(items = c.value) { child ->
             val realChild = C.getReactivePathStateOrNull<State2>(child.path, child)?.value ?: child // TODO insanely difficult bug to track down!
-            sduiLog(child.path, tag = "filtered index > LazyColumn > Item")
             if (filterChildren?.contains(child.id) == false) return@items
 //            val updatedIndex = filterChildren?.indexOf(child.id) ?: c.value.indexOf(child)
-//            sduiLog(path, filter, filterChildren, updatedIndex, child.id, childrenViewModels, tag = "filtered index", header = "")
 //            val childViewModel = childrenViewModels.firstOrNull { it.second == child.id }?.first
 //            if (childViewModel?.map["!index"] != IntProperty(updatedIndex)) {
 //                childViewModel?.map["!index"] = IntProperty(updatedIndex) // don't need to do any recompositions here, so don't update
 //                realChild = realChild.update { reset() }
 //            }
-//            sduiLog(child.path, childViewModel?.map["!index"], C.getReactivePathState<State2>(child.path, child).value, tag = "filtered index > Items > Pre", header = "")
 
 //            val updatedChild = realChild.update { reset() }
 //            C.reactiveUpdate(updatedChild)
-//            sduiLog(updatedChild.path, updatedChild.counter, childViewModel?.map["!index"], C.getReactivePathState<State2>(child.path, child), tag = "filtered index > Items > Post", header = "")
             Render(
                 state = realChild,
             )
