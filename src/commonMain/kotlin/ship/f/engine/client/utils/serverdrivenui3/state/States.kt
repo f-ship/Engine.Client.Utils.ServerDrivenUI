@@ -41,8 +41,8 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorSchem
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ConditionalValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ListValue
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.SingleConditionalValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
@@ -280,6 +280,7 @@ fun CheckBox2(
 fun CheckboxState2.CheckBox2(
     modifier: Modifier = Modifier,
 ) {
+//    sduiLog(modified, toggle.value, initialToggle, path3, id, client3.idPaths[id], header = "", tag = "CheckBox2")
     Checkbox(
         checked = if (modified) toggle.value else initialToggle ?: toggle.value,
         onCheckedChange = {
@@ -732,7 +733,7 @@ fun VariantState2.Variant2(
     val variantValue by remember(counter) {
         mutableStateOf(
             when (val value = client3.computationEngine.getValue(liveValue = variant, state2 = this@Variant2)) {
-                is ConditionalValue -> {
+                is SingleConditionalValue -> {
                     val a = client3.computationEngine.computeConditionalValue(value, state2 = this@Variant2)
                     a as? StringValue
                 }

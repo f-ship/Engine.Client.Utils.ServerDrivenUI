@@ -47,8 +47,7 @@ import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.clie
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.StaticDrawLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.Draw2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ChildrenModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.InnerPaddingModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.PaddingModifier2
@@ -613,7 +612,7 @@ fun State2.toModifier2() = Modifier
             modifier = modifier.then(draw.value.toModifier2())
         }
         liveDraws3?.forEach { liveDraw ->
-            val draw = client3.computationEngine.computeConditionalValue(value = liveDraw, state2 = this)
+            val draw = client3.computationEngine.computeConditionalValue(value = liveDraw as SingleConditionalValue, state2 = this)
             if (draw !is Draw2) {
                 sduiLog("liveDraws3 > expected draw but got $draw")
                 return@forEach
@@ -624,9 +623,15 @@ fun State2.toModifier2() = Modifier
     }.let {
         (this as? ChildrenModifier2<*>)?.let { parent ->
             val sortedParent = parent.sort3?.let { sort -> client3.computationEngine.sort(sort, parent) } ?: parent
-            val filteredParent = sortedParent.filter3?.let { filter -> client3.computationEngine.filter(filter, sortedParent) } ?: parent
+            val filteredParent = sortedParent.filter3?.let { filter ->
+                when(filter) {
+                    is AnyConditionalValue -> TODO()
+                    is AllConditionalValue -> client3.computationEngine.filterAll(filter, sortedParent)
+                    is SingleConditionalValue -> client3.computationEngine.filter(filter, sortedParent)
+                }
+            } ?: parent
             client3.computationEngine.index(filteredParent)
-            val jumpToParent = filteredParent.jumpTo3?.let { jumpTo -> client3.computationEngine.jumpTo(jumpTo, filteredParent) } ?: filteredParent
+            val jumpToParent = filteredParent.jumpTo3?.let { jumpTo -> client3.computationEngine.jumpTo(jumpTo as SingleConditionalValue, filteredParent) } ?: filteredParent
             client3.computationEngine.focus(jumpToParent)
         }
 
