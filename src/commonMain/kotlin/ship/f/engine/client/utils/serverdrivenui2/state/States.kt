@@ -39,6 +39,7 @@ import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.*
 import ship.f.engine.client.utils.serverdrivenui3.ext.toColor2
+import ship.f.engine.client.utils.serverdrivenui3.ext.toModifier2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel2.Property.IntProperty
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
@@ -97,12 +98,14 @@ fun TextState2.Text2(
     )
     if (showMore && !showingMore) {
         AnimatedVisibility(visible = showMore) {
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Read More",
+                textAlign = textAlign.toTextAlign2(),
                 style = textStyle.toTextStyle2(fontWeight),
                 textDecoration =  TextDecoration.Underline,
                 color = ColorScheme2.Color2.Primary.toColor2(),
-                modifier = Modifier.clickable(enabled = true, role = Role.Button) {
+                modifier = padding.toModifier2().clickable(enabled = true, role = Role.Button) {
                     showingMore = !showingMore
                 }
             )

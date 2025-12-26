@@ -95,12 +95,14 @@ fun TextState2.Text2(
 
     if (showMore && !showingMore) {
         AnimatedVisibility(visible = showMore) {
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Read More",
                 style = textStyle.toTextStyle2(fontWeight),
+                textAlign = textAlign.toTextAlign2(),
                 textDecoration =  TextDecoration.Underline,
                 color = ColorScheme2.Color2.Primary.toColor2(),
-                modifier = Modifier.fillMaxWidth().clickable(enabled = true, role = Role.Button) {
+                modifier = padding.toModifier2().fillMaxWidth().clickable(enabled = true, role = Role.Button) {
                     showingMore = !showingMore
                     value = liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text
                 }
