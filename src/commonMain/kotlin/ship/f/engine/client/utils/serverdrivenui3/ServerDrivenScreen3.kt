@@ -9,13 +9,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.Resource
+import ship.f.engine.client.utils.serverdrivenui2.Render
 import ship.f.engine.client.utils.serverdrivenui2.ext.BlockingLaunchedEffect2
 import ship.f.engine.client.utils.serverdrivenui2.ext.defaultTransitionSpec
 import ship.f.engine.client.utils.serverdrivenui3.ext.toMaterialColorScheme
 import ship.f.engine.client.utils.serverdrivenui3.ext.toMaterialShapes
 import ship.f.engine.client.utils.serverdrivenui3.ext.toMaterialTypography
-import ship.f.engine.client.utils.serverdrivenui2.Render
-import ship.f.engine.shared.utils.serverdrivenui2.client3.BackStackEntry3
+import ship.f.engine.shared.utils.serverdrivenui2.client3.BackStackEntry3.ScreenEntry
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 
@@ -26,13 +26,14 @@ fun ServerDrivenScreen3(
     resources: Map<String, Resource> = mapOf(),
     vectors: Map<String, ImageVector> = mapOf(),
     client: Client3 = client3,
-    currentScreen: MutableState<BackStackEntry3?> = client.navigationEngine.currentScreen
+    currentScreen: MutableState<ScreenEntry?> = client.navigationEngine.currentScreen,
+    canPop: MutableState<Boolean> = client.navigationEngine.canPopState
 ) {
     BlockingLaunchedEffect2(Unit) {
         client.addResources(resources)
         client.addVectors(vectors)
     }
-    (currentScreen.value as? BackStackEntry3.ScreenEntry)?.run {
+    (currentScreen.value)?.run {
         MaterialTheme(
             typography = state2.toMaterialTypography(client),
             shapes = state2.toMaterialShapes(client),
@@ -42,7 +43,7 @@ fun ServerDrivenScreen3(
                 targetState = this,
                 transitionSpec = { defaultTransitionSpec(direction = direction2) }
             ) { targetState ->
-                BackHandler(client.navigationEngine.canPop()) { client.navigationEngine.pop() }
+                BackHandler(canPop.value) { client.navigationEngine.pop() }
                 Render(targetState.state2)
             }
         }

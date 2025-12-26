@@ -9,6 +9,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -362,18 +364,22 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             contentScale = contentScale.toContentScale2(),
         )
 
-        is Url2 -> AsyncImage(
-            model = Builder(LocalPlatformContext.current)
-                .data(src.location)
-                .build(),
-            contentDescription = contentDescription,
-            modifier = modifier.clip(shape.toShape2()),
-            onError = {
-                /* TODO to use proper SDUI logging */
-                println("BizClik Error loading image: ${it.result.throwable}")
-            },
-            contentScale = contentScale.toContentScale2(),
-        )
+        is Url2 -> {
+            val ctx = LocalPlatformContext.current
+            val model by remember {
+                mutableStateOf(Builder(ctx).data(src.location).build())
+            }
+            AsyncImage(
+                model = model,
+                contentDescription = contentDescription,
+                modifier = modifier.clip(shape.toShape2()),
+                onError = {
+                    /* TODO to use proper SDUI logging */
+                    println("BizClik Error loading image: ${it.result.throwable}")
+                },
+                contentScale = contentScale.toContentScale2(),
+            )
+        }
 
         is LiveUrl2 -> {
             val location = client3.computationEngine.getValue(src.liveValue) as? StringValue
