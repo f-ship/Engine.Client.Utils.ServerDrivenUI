@@ -134,22 +134,41 @@ fun TextFieldState2.TextField2(
 
     Column(modifier) {
         if (label.isNotEmpty()) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            Row {
+                Text(
+                    text = label,
+                    style = labelTextStyle.toTextStyle2(FontWeight2.Medium2),
+                    color = labelColor.toColor2(),
+                )
+                if (validations.any { it.isRequired} ) {
+                    Text(
+                        text = "*",
+                        color = ColorScheme2.Color2.Primary.toColor2(),
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
         }
 
+        var isModified by remember { mutableStateOf(false) }
+        var text by remember(text) { mutableStateOf(text) }
+        var value by remember(text) {
+            mutableStateOf(
+                if (isModified) text else liveText3?.let { client3.computationEngine.getValue(it) as? StringValue }?.value ?: text
+            )
+        }
+
         OutlinedTextField(
-            value = text,
+            value = value,
             visualTransformation = fieldType.toVisualTransformation2(),
             placeholder = { Text(placeholder) },
             leadingIcon = leadingIcon?.let { { it.ToImage2(it.toModifier2()) } },
             trailingIcon = trailingIcon?.let { { it.ToImage2(it.toModifier2()) } },
             onValueChange = {
+                text = it
                 val error = isError(it)
-                update {
+                isModified = true
+                updateCommit {
                     copy(
                         error = error,
                         text = it,
@@ -166,14 +185,22 @@ fun TextFieldState2.TextField2(
                 .onFocusChanged { focusState ->
                     if (isFocused && !focusState.isFocused && !hasLostFocus) {
                         println("hasLostFocus, $isFocused, ${focusState.isFocused}, $hasLostFocus")
-                        update { copy(hasLostFocus = true, isFocused = focusState.isFocused) }
+                        updateCommit { copy(hasLostFocus = true, isFocused = focusState.isFocused) }
                     } else {
                         println("is Focused: ${focusState.isFocused}, $hasLostFocus")
-                        update { copy(isFocused = focusState.isFocused) }
+                        updateCommit { copy(isFocused = focusState.isFocused) }
                     }
                 },
             shape = shape.toShape2(),
-            colors = textFieldDefaults2()
+            colors = textFieldDefaults2().copy(
+                unfocusedIndicatorColor = borderColor.toColor2(),
+                unfocusedPlaceholderColor = placeholderColor.toColor2(),
+                unfocusedTextColor = textColor.toColor2(),
+                unfocusedContainerColor = containerColor.toColor2(),
+                focusedContainerColor = containerColor.toColor2(),
+                focusedTextColor = focusedTextColor.toColor2(),
+            ),
+            textStyle = textStyle.toTextStyle2(FontWeight2.Regular2),
         )
         Spacer(modifier = Modifier.height(4.dp))
         AnimatedVisibility(visible = error != null && hasLostFocus) {
