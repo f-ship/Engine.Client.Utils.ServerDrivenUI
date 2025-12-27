@@ -1,6 +1,7 @@
 package ship.f.engine.client.utils.serverdrivenui3.state
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,11 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -75,7 +79,7 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
-    var value by remember(text) { mutableStateOf(liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text) }
+    var value by remember(text) { mutableStateOf(liveText3?.let { client3.computationEngine.getValue(it) as? StringValue }?.value ?: text) }
     var showMore by remember { mutableStateOf(false) }
     var showingMore by remember { mutableStateOf(false) }
     if (!showingMore) {
@@ -487,8 +491,29 @@ fun HorizontalDivider2(
 fun HorizontalDividerState2.HorizontalDivider2(
     modifier: Modifier = Modifier,
 ) {
-    HorizontalDivider(modifier)
+    HorizontalDivider(
+        modifier = modifier,
+        color = color.toColor2(),
+        pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f) else null
+    )
 }
+@Composable
+fun HorizontalDivider(
+    modifier: Modifier = Modifier,
+    thickness: Dp = DividerDefaults.Thickness,
+    color: Color = DividerDefaults.color,
+    pathEffect: PathEffect? = null
+) =
+    Canvas(modifier.fillMaxWidth().height(thickness)) {
+        drawLine(
+            color = color,
+            strokeWidth = thickness.toPx(),
+            start = Offset(0f, thickness.toPx() / 2),
+            end = Offset(size.width, thickness.toPx() / 2),
+            pathEffect = pathEffect,
+        )
+    }
+
 
 @Composable
 fun VerticalDivider2(

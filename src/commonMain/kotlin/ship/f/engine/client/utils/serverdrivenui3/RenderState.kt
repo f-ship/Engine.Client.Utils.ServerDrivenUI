@@ -7,7 +7,6 @@ import ship.f.engine.client.utils.serverdrivenui3.state.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Path3
-import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -69,12 +68,7 @@ fun RenderDynamic(
             is WebViewState2 -> WebView2(s = getReactive(state.path3), m = modifier)
             is DialogState2 -> Dialog2(s = getReactive(state.path3), m = modifier)
             is VariantState2 -> Variant2(s = getReactive(state.path3), m = modifier)
-            is RefState2 -> {
-                sduiLog(client.idPaths.keys.filter { it.isGlobal }, tag = "RenderDynamic > RefState2 > IdPath > Globals")
-                sduiLog(client.reactiveStates.keys.filterIsInstance<Path3.Global>(), tag = "RenderDynamic > RefState2 > ReactiveState > Globals")
-                sduiLog(client.stateQueue, tag = "RenderDynamic > RefState2 > StateQueue > Locals")
-                Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
-            }
+            is RefState2 -> Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
         }
     }
 }
@@ -115,9 +109,7 @@ fun RenderStatic(
             is WebViewState2 -> state.WebView2(modifier = modifier)
             is DialogState2 -> state.Dialog2(modifier = modifier)
             is VariantState2 -> state.Variant2(modifier = modifier)
-            is RefState2 -> {
-                Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
-            }
+            is RefState2 -> Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
         }
     }
 }
