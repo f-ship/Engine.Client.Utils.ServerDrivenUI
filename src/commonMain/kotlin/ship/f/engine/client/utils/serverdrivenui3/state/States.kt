@@ -41,15 +41,20 @@ import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.clie
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.DataMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.PopulatedSideEffectMeta2
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.MetaId2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.LiveValue3
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.Ref3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ListValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.SingleConditionalValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -79,7 +84,19 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
-    var value by remember(text) { mutableStateOf(liveText3?.let { client3.computationEngine.getValue(it) as? StringValue }?.value ?: text) }
+    var value by remember(text) {
+        mutableStateOf(
+            liveText3?.let {
+                val liveValue = if (overrideScope && it is LiveValue3.ReferenceableLiveValue3) {
+                    (it.ref as? Ref3.VmRef3)
+                        ?.let { ref ->  ref.copy(vm = ref.vm.copy(scope = id.scope)) }
+                        ?.let { ref -> LiveValue3.ReferenceableLiveValue3(ref) }
+                        ?: it
+                } else it
+                client3.computationEngine.getValue(liveValue) as? StringValue
+            }?.value ?: text
+        )
+    }
     var showMore by remember { mutableStateOf(false) }
     var showingMore by remember { mutableStateOf(false) }
     if (!showingMore) {
@@ -239,6 +256,8 @@ fun SearchState2.Search2(
             onValueChange = {
                 text = it
                 updateCommit { copy(text = it) }
+                onFieldUpdateTrigger.trigger()
+                sduiLog("Search2: $text compared to ${(client3.get(metaId2 = MetaId2(id.name + "ZoneModel", id.scope)) as ZoneViewModel3).map["message"]}", tag = "Search2")
             },
             keyboardOptions = fieldType.toKeyboardOptions2(),
             shape = shape.toShape2(),
@@ -258,6 +277,7 @@ fun SearchState2.Search2(
         trailingIcon?.let {
             it.ToImage2(it.toModifier2().clickable(enabled = true, role = Role.Button) {
                 it.onClickTrigger.trigger()
+                if (clearTextOnClick) updateCommit { copy(text = "") }
             })
             Spacer(Modifier.width(8.dp))
         }
