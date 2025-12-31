@@ -56,6 +56,7 @@ actual fun VideoState2.Video2(
                 NSURL.fileURLWithPath(path)
             }
             is Source2.Url2 -> NSURL.URLWithString(src.location)
+            is Source2.LiveUrl2 -> TODO()
         }
         url?.let {
             val item = AVPlayerItem(uRL = it)

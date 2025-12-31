@@ -41,11 +41,9 @@ import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.clie
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.DataMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.PopulatedSideEffectMeta2
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2.MetaId2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.LiveValue3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.Ref3
@@ -54,7 +52,6 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computatio
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
-import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -125,7 +122,7 @@ fun TextState2.Text2(
                 color = ColorScheme2.Color2.Primary.toColor2(),
                 modifier = padding.toModifier2().fillMaxWidth().clickable(enabled = true, role = Role.Button) {
                     showingMore = !showingMore
-                    value = liveText?.let { client3.computationEngine.computeLiveText(it) } ?: text
+                    value = text
                 }
             )
         }
@@ -257,7 +254,6 @@ fun SearchState2.Search2(
                 text = it
                 updateCommit { copy(text = it) }
                 onFieldUpdateTrigger.trigger()
-                sduiLog("Search2: $text compared to ${(client3.get(metaId2 = MetaId2(id.name + "ZoneModel", id.scope)) as ZoneViewModel3).map["message"]}", tag = "Search2")
             },
             keyboardOptions = fieldType.toKeyboardOptions2(),
             shape = shape.toShape2(),

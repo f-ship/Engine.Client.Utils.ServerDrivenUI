@@ -47,7 +47,6 @@ import coil3.request.ImageRequest.Builder
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.LiveValue2.StaticDrawLiveValue2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.*
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ChildrenModifier2
@@ -613,10 +612,6 @@ fun State2.toModifier2() = Modifier
         for (draw in draws) {
             modifier = modifier.then(draw.toModifier2())
         }
-        liveDraws?.forEach { liveDraw ->
-            val draw = client3.computationEngine.computeConditionalBranchLive<StaticDrawLiveValue2>(liveDraw)
-            modifier = modifier.then(draw.value.toModifier2())
-        }
         liveDraws3?.forEach { liveDraw ->
             val draw = client3.computationEngine.computeConditionalValue(value = liveDraw as SingleConditionalValue, state2 = this)
             if (draw !is Draw2) {
@@ -637,7 +632,7 @@ fun State2.toModifier2() = Modifier
                 }
             } ?: parent
             client3.computationEngine.index(filteredParent)
-            val jumpToParent = filteredParent.jumpTo3?.let { jumpTo -> client3.computationEngine.jumpTo(jumpTo as SingleConditionalValue, filteredParent) } ?: filteredParent
+            val jumpToParent = (filteredParent.jumpTo3 as? SingleConditionalValue)?.let { jumpTo -> client3.computationEngine.jumpTo(jumpTo, filteredParent) } ?: filteredParent
             client3.computationEngine.focus(jumpToParent)
         }
 
