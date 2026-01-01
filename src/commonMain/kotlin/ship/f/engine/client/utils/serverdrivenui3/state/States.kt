@@ -52,6 +52,7 @@ import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computatio
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.modifiers.ValidModifier2.Valid2
 import ship.f.engine.shared.utils.serverdrivenui2.config.trigger.modifiers.OnToggleModifier2
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -402,7 +403,9 @@ fun WebViewState2.WebView2(
     var showWebView by mutableStateOf(true)
     if (showWebView) {
         Box(modifier = modifier.background(Color.White).fillMaxSize()) {
-            val state = rememberWebViewState(config.url)
+            val state = rememberWebViewState(url = config.url) {
+                androidWebSettings.domStorageEnabled = true
+            }
             val navigator = rememberWebViewNavigator(
                 requestInterceptor = object : RequestInterceptor {
                     override fun onInterceptUrlRequest(
@@ -435,10 +438,13 @@ fun WebViewState2.WebView2(
                             }
                             navigation.destination?.config?.let { client3.navigationEngine.navigate(it.operation) }
                             WebRequestInterceptResult.Allow
+                        } else if (config.whitelist.isEmpty()) {
+                            WebRequestInterceptResult.Allow
                         } else {
                             WebRequestInterceptResult.Reject.also {
                                 showWebView = false
                             } // TODO I might need to include url first
+                            // TODO need to also close out of the webview if this happens
                         }
                     }
                 }
@@ -450,6 +456,7 @@ fun WebViewState2.WebView2(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+            sduiLog(state.errorsForCurrentRequest, tag = "EngineX > WebView2")
             WebView(
                 state = state,
                 navigator = navigator

@@ -27,6 +27,8 @@ import androidx.compose.ui.window.Dialog
 import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
+import com.multiplatform.webview.setting.PlatformWebSettings
+import com.multiplatform.webview.setting.WebSettings
 import com.multiplatform.webview.web.LoadingState
 import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.WebViewNavigator
@@ -329,13 +331,16 @@ fun WebView2(
 }
 
 @Composable
+@Deprecated("Use WebView2 in serverdrivenui3 instead")
 fun WebViewState2.WebView2(
     modifier: Modifier = Modifier,
 ) {
     var showWebView by mutableStateOf(true)
     if (showWebView) {
         Box(modifier = modifier.background(Color.White).fillMaxSize()) {
-            val state = rememberWebViewState(config.url)
+            val state = rememberWebViewState(url = config.url) {
+                androidWebSettings.domStorageEnabled = true
+            }
             val navigator = rememberWebViewNavigator(
                 requestInterceptor = object : RequestInterceptor {
                     override fun onInterceptUrlRequest(
