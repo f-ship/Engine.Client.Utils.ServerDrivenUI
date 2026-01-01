@@ -2,9 +2,11 @@ package ship.f.engine.client.utils.serverdrivenui3
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -80,7 +82,8 @@ fun ServerDrivenScreen3(
             ) { padding ->
                 AnimatedContent(
                     targetState = this,
-                    transitionSpec = { defaultTransitionSpec(direction = direction2) }
+                    transitionSpec = { defaultTransitionSpec(direction = direction2) },
+                    modifier = Modifier.fillMaxSize(),
                 ) { targetState ->
                     BackHandler(canPop.value) { client.navigationEngine.pop() }
                     Render(targetState.state2)
