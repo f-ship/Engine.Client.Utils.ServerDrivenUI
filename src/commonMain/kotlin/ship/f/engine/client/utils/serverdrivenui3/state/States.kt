@@ -38,9 +38,7 @@ import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
 import ship.f.engine.client.utils.serverdrivenui3.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.DataMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
-import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.PopulatedSideEffectMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
@@ -420,21 +418,7 @@ fun WebViewState2.WebView2(
                             }
 
                             if (allParams != null && navigation.params.isNotEmpty()) {
-                                val map = mutableMapOf<String, DataMeta2.DataMetaType2>()
-                                client3.emitSideEffect(
-                                    PopulatedSideEffectMeta2(
-                                        metaId = navigation.metaId,
-                                        metas = listOf(
-                                            DataMeta2(
-                                                data = allParams.mapValuesTo(map) {
-                                                    DataMeta2.DataMetaType2.StringData(
-                                                        it.value
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    )
-                                )
+                                // TODO send something to the backend
                             }
                             navigation.destination?.config?.let { client3.navigationEngine.navigate(it.operation) }
                             WebRequestInterceptResult.Allow

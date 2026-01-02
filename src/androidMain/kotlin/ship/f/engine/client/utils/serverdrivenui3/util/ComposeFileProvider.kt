@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui2.state
+package ship.f.engine.client.utils.serverdrivenui3.util
 
 import android.content.Context
 import android.net.Uri

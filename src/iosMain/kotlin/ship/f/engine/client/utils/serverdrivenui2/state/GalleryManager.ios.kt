@@ -14,9 +14,10 @@ import platform.UIKit.UIImage
 import platform.UIKit.UIViewController
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
+import ship.f.engine.client.utils.serverdrivenui3.util.GalleryManager
 
 @Composable
-actual fun rememberGalleryManager(onResult: (SharedImage?) -> Unit): GalleryManager {
+actual fun rememberGalleryManager(onResult: (`SharedImage.android.kt`?) -> Unit): GalleryManager {
     val host = remember { GalleryHostViewController() }
 
     // Keep callback current
@@ -41,7 +42,7 @@ actual class GalleryManager actual constructor(
 private class GalleryHostViewController : UIViewController(null, null),
     PHPickerViewControllerDelegateProtocol {
 
-    var onResult: (SharedImage?) -> Unit = {}
+    var onResult: (`SharedImage.android.kt`?) -> Unit = {}
 
     fun presentGallery() {
         val config = PHPickerConfiguration(photoLibrary = PHPhotoLibrary.sharedPhotoLibrary()).apply {
@@ -77,7 +78,7 @@ private class GalleryHostViewController : UIViewController(null, null),
         provider.loadDataRepresentationForTypeIdentifier(typeId) { data: NSData?, _ ->
             val uiImage = data?.let { UIImage.imageWithData(it) }
             dispatch_async(dispatch_get_main_queue()) {
-                onResult(uiImage?.let { SharedImage(it) })
+                onResult(uiImage?.let { `SharedImage.android.kt`(it) })
             }
         }
     }

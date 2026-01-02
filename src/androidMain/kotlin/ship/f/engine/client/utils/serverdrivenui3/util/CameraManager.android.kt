@@ -1,4 +1,4 @@
-package ship.f.engine.client.utils.serverdrivenui2.state
+package ship.f.engine.client.utils.serverdrivenui3.util
 
 import android.content.ContentResolver
 import android.net.Uri
@@ -24,7 +24,7 @@ actual fun rememberCameraManager(onResult: (SharedImage?) -> Unit): CameraManage
     return remember {
         CameraManager(
             onLaunch = {
-                tempPhotoUri = SDUIFileProvider.getImageUri(context)
+                tempPhotoUri = SDUIFileProvider.Companion.getImageUri(context)
                 cameraLauncher.launch(tempPhotoUri)
             }
         )

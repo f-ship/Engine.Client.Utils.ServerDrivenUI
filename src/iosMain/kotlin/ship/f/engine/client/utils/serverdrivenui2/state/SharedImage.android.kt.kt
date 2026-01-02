@@ -12,7 +12,7 @@ import platform.UIKit.UIImage
 import platform.UIKit.UIImagePNGRepresentation
 import platform.posix.memcpy
 
-actual class SharedImage(private val image: UIImage?) {
+actual class `SharedImage.android.kt`(private val image: UIImage?) {
 
     actual fun toByteArray(): ByteArray? {
         val data: NSData = image?.let { UIImagePNGRepresentation(it) } ?: run {

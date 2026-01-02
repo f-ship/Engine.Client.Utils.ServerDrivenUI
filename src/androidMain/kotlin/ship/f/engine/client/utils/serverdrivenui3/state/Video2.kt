@@ -23,7 +23,7 @@ import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
 import org.jetbrains.compose.resources.InternalResourceApi
 import org.jetbrains.compose.resources.readResourceBytes
-import ship.f.engine.client.utils.serverdrivenui2.ext.WithState2
+import ship.f.engine.client.utils.serverdrivenui3.ext.WithState2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Source2
 import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.VideoState2
