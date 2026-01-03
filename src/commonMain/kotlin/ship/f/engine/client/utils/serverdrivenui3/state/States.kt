@@ -398,14 +398,14 @@ fun WebView2(
 fun WebViewState2.WebView2(
     modifier: Modifier = Modifier,
 ) {
-    var showWebView by mutableStateOf(true)
+    var showWebView by remember { mutableStateOf(true) }
     if (showWebView) {
         Box(modifier = modifier.background(Color.White).fillMaxSize()) {
             val state = rememberWebViewState(url = config.url) {
                 androidWebSettings.domStorageEnabled = true
             }
-            val navigator = rememberWebViewNavigator(
-                requestInterceptor = object : RequestInterceptor {
+            val requestInterceptor = remember {
+                object : RequestInterceptor {
                     override fun onInterceptUrlRequest(
                         request: WebRequest,
                         navigator: WebViewNavigator
@@ -432,7 +432,18 @@ fun WebViewState2.WebView2(
                         }
                     }
                 }
-            )
+            }
+
+            val navigator = rememberWebViewNavigator(requestInterceptor = requestInterceptor)
+
+            DisposableEffect(Unit) {
+                onDispose {
+                    try {
+                        navigator.stopLoading()
+                    } catch (_: Throwable) { /* ignore */ }
+                }
+            }
+
             val loadingState = state.loadingState
             if (loadingState is LoadingState.Loading) {
                 LinearProgressIndicator( // TODO this can definitely be improved as it's not very clear

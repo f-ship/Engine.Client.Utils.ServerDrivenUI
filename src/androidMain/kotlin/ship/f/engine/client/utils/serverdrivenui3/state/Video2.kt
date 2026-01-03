@@ -47,7 +47,7 @@ actual fun VideoState2.Video2(
 
     DisposableEffect(exoPlayer) { onDispose { exoPlayer.release() } }
 
-    val contentResolver = LocalContext.current.contentResolver
+    var tmpFile by remember { mutableStateOf<File?>(null) }
 
     LaunchedEffect(src) {
         val uri: Uri = when (src) {
@@ -58,6 +58,7 @@ actual fun VideoState2.Video2(
                 val bytes =
                     readResourceBytes("composeResources/projectx.composeapp.generated.resources/drawable/${src.location}.mp4")
                 val tmp = File.createTempFile("cmp_video_", ".mp4", context.cacheDir)
+                tmpFile = tmp
                 tmp.outputStream().use { it.write(bytes) }
                 Uri.fromFile(tmp)
             }
@@ -88,15 +89,14 @@ actual fun VideoState2.Video2(
             override fun onRenderedFirstFrame() {
                 sduiLog("Video2", "onRenderedFirstFrame")
                 visible = true
-//                playerView.animate()
-//                    .alpha(1f)
-//                    .setDuration(1000L)
-//                    .start()
             }
         }
 
         exoPlayer.addListener(listener)
-        onDispose { exoPlayer.removeListener(listener) }
+        onDispose {
+            exoPlayer.removeListener(listener)
+            tmpFile?.delete()
+        }
     }
 
     Box(modifier) {
