@@ -1,6 +1,7 @@
 package ship.f.engine.client.utils.serverdrivenui3.state
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -530,6 +531,7 @@ fun ButtonState2.Button2(
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
             enabled = valid.value,
             colors = uiType.toButtonColors2(),
+            border = buttonBorderColor?.let { BorderStroke(1.dp, color = it.toColor2()) },
             modifier = modifier,
         ) {
             leadingIcon()
@@ -541,6 +543,7 @@ fun ButtonState2.Button2(
                 text?.let {
                     Text(
                         text = it,
+                        color = textColor?.toColor2() ?: Color.Unspecified,
                         style = textStyle.toTextStyle2(fontWeight)
                     )
                 }
