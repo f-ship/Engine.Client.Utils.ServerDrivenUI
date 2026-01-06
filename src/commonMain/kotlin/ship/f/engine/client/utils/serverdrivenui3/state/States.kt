@@ -22,12 +22,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
@@ -38,7 +41,9 @@ import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
 import ship.f.engine.client.utils.serverdrivenui3.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
+import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.UpdateZoneModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
+import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
@@ -101,29 +106,57 @@ fun TextState2.Text2(
             showMore = true
         }
     }
-    Text(
-        text = value,
-        style = textStyle.toTextStyle2(fontWeight),
-        textAlign = textAlign.toTextAlign2(),
-        color = color.toColor2(),
-        textDecoration = if (underline) TextDecoration.Underline else TextDecoration.None,
-        modifier = modifier,
-    )
 
-    if (showMore && !showingMore) {
-        AnimatedVisibility(visible = showMore) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Read More",
-                style = textStyle.toTextStyle2(fontWeight),
-                textAlign = textAlign.toTextAlign2(),
-                textDecoration =  TextDecoration.Underline,
-                color = ColorScheme2.Color2.Primary.toColor2(),
-                modifier = padding.toModifier2().fillMaxWidth().clickable(enabled = true, role = Role.Button) {
-                    showingMore = !showingMore
-                    value = text
-                }
-            )
+    if (spans != null) {
+        val spanText = buildAnnotatedString {
+            var cursor = 0
+            spans!!.forEach { span ->
+                addStyle(
+                    style = SpanStyle(
+                        color = span.color.toColor2(),
+                        textDecoration = if (span.underline) TextDecoration.Underline else TextDecoration.None,
+                        fontSize = span.fontSize.sp,
+                        fontWeight = span.fontWeight.toFontWeight2(),
+                    ),
+                    start = cursor,
+                    end = cursor + span.text.length
+                )
+                append(span.text)
+                cursor += span.text.length
+            }
+        }
+
+        Text(
+            text = spanText,
+            textAlign = textAlign.toTextAlign2(),
+            modifier = modifier,
+        )
+
+    } else {
+        Text(
+            text = value,
+            style = textStyle.toTextStyle2(fontWeight),
+            textAlign = textAlign.toTextAlign2(),
+            color = color.toColor2(),
+            textDecoration = if (underline) TextDecoration.Underline else TextDecoration.None,
+            modifier = modifier,
+        )
+
+        if (showMore && !showingMore) {
+            AnimatedVisibility(visible = showMore) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Read More",
+                    style = textStyle.toTextStyle2(fontWeight),
+                    textAlign = textAlign.toTextAlign2(),
+                    textDecoration =  TextDecoration.Underline,
+                    color = ColorScheme2.Color2.Primary.toColor2(),
+                    modifier = padding.toModifier2().fillMaxWidth().clickable(enabled = true, role = Role.Button) {
+                        showingMore = !showingMore
+                        value = text
+                    }
+                )
+            }
         }
     }
 }
@@ -187,6 +220,17 @@ fun TextFieldState2.TextField2(
                         text = it,
                         valid = Valid2((error == null)),
                     )
+                }
+                if (liveText3 != null) {
+                    (liveText3 as? LiveValue3.ReferenceableLiveValue3)?.let { referenceable ->
+                        (referenceable.ref as? Ref3.VmRef3)?.let { vmRef ->
+                            UpdateZoneModel3(
+                                targetMetaId = vmRef.vm,
+                                liveValue = LiveValue3.StaticLiveValue3(StringValue(it)),
+                                operation = UpdateZoneModel3.Operation2.Set(vmRef.property)
+                            ).run3(this@TextField2, client3)
+                        }
+                    }
                 }
             },
             isError = hasLostFocus && isError(text) != null,
@@ -865,6 +909,18 @@ fun LazyColumnState2.LazyColumn2(
     LaunchedEffect(focus) {
         focus?.let {
             listState.animateScrollToItem(it.value)
+        }
+    }
+
+    LaunchedEffect(key1 = children, key2 = filteredChildren) {
+        sduiLog( children.size, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
+        sduiLog( children.map { it.id }, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
+        sduiLog(children.map { (it.metas.firstOrNull() as? ZoneViewModel3)?.map["message"] }, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
+        // TODO my theory for this bug is that I am using a mutable map so I just need to copy the map and I'll be scot free
+        // TODO However what is this issue with only retrieving 40 messages
+        // TODO restarting the server seemed to update how many chats we can get, this must be due to overly caching
+        scrollToBottom?.let {
+            listState.animateScrollToItem((filteredChildren ?: children).lastIndex)
         }
     }
 

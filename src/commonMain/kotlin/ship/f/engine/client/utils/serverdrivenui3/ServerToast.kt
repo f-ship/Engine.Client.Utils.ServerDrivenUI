@@ -8,6 +8,7 @@ data class ServerToastEvent(
     val durationMs: Long? = 10000, // null for indefinite
     val actionText: String? = null,
     val toastType: ToastType = ToastType.Warning,
+    val key: String? = null, // to ensure we can send repeat toasts
 ) {
     @Serializable
     @SerialName("ToastType")
