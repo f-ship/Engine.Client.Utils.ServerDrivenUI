@@ -58,6 +58,7 @@ actual fun CameraGalleryState2.CameraGallery2(
             }
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
+                bytes?.let { b -> update { copy(bytes = b) } }
                 it?.toImageBitmap()
             }
             imageBitmap = bitmap
@@ -74,6 +75,7 @@ actual fun CameraGalleryState2.CameraGallery2(
             }
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
+                bytes?.let { b -> update { copy(bytes = b) } }
                 it?.toImageBitmap()
             }
             imageBitmap = bitmap
