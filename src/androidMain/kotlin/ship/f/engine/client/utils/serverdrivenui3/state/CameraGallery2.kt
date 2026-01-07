@@ -71,7 +71,7 @@ actual fun CameraGalleryState2.CameraGallery2(
     val galleryManager = rememberGalleryManager {
         coroutineScope.launch {
             withContext(Dispatchers.Main) {
-                isLoading = false
+                isLoading = true
             }
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
