@@ -499,7 +499,8 @@ fun WebViewState2.WebView2(
             sduiLog(state.errorsForCurrentRequest, tag = "EngineX > WebView2")
             WebView(
                 state = state,
-                navigator = navigator
+                navigator = navigator,
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

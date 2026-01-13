@@ -1,17 +1,19 @@
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(ExperimentalForeignApi::class)
 
-package ship.f.engine.client.utils.serverdrivenui2.state
+package ship.f.engine.client.utils.serverdrivenui3.util
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.UIKitViewController
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.*
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
-import ship.f.engine.client.utils.serverdrivenui3.util.CameraManager
 
 @Composable
-actual fun rememberCameraManager(onResult: (`SharedImage.android.kt`?) -> Unit): CameraManager {
+actual fun rememberCameraManager(onResult: (SharedImage?) -> Unit): CameraManager {
     // A tiny host UIViewController mounted into the Compose hierarchy.
     val host = remember { CameraHostViewController() }
 
@@ -43,7 +45,7 @@ private class CameraHostViewController : UIViewController(null, null),
     UIImagePickerControllerDelegateProtocol,
     UINavigationControllerDelegateProtocol {
 
-    var onResult: (`SharedImage.android.kt`?) -> Unit = {}
+    var onResult: (SharedImage?) -> Unit = {}
 
     fun presentCamera() {
         // Simulator / devices without camera
@@ -70,7 +72,7 @@ private class CameraHostViewController : UIViewController(null, null),
         picker.dismissViewControllerAnimated(true) {
             // Ensure callback on main
             dispatch_async(dispatch_get_main_queue()) {
-                onResult(image?.let { `SharedImage.android.kt`(it) })
+                onResult(image?.let { SharedImage(it) })
             }
         }
     }

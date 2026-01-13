@@ -1,12 +1,13 @@
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(ExperimentalForeignApi::class)
 
-package ship.f.engine.client.utils.serverdrivenui2.state
+package ship.f.engine.client.utils.serverdrivenui3.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.UIKitViewController
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSData
 import platform.Photos.PHPhotoLibrary
 import platform.PhotosUI.*
@@ -14,10 +15,9 @@ import platform.UIKit.UIImage
 import platform.UIKit.UIViewController
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
-import ship.f.engine.client.utils.serverdrivenui3.util.GalleryManager
 
 @Composable
-actual fun rememberGalleryManager(onResult: (`SharedImage.android.kt`?) -> Unit): GalleryManager {
+actual fun rememberGalleryManager(onResult: (SharedImage?) -> Unit): GalleryManager {
     val host = remember { GalleryHostViewController() }
 
     // Keep callback current
@@ -42,7 +42,7 @@ actual class GalleryManager actual constructor(
 private class GalleryHostViewController : UIViewController(null, null),
     PHPickerViewControllerDelegateProtocol {
 
-    var onResult: (`SharedImage.android.kt`?) -> Unit = {}
+    var onResult: (SharedImage?) -> Unit = {}
 
     fun presentGallery() {
         val config = PHPickerConfiguration(photoLibrary = PHPhotoLibrary.sharedPhotoLibrary()).apply {
@@ -78,7 +78,7 @@ private class GalleryHostViewController : UIViewController(null, null),
         provider.loadDataRepresentationForTypeIdentifier(typeId) { data: NSData?, _ ->
             val uiImage = data?.let { UIImage.imageWithData(it) }
             dispatch_async(dispatch_get_main_queue()) {
-                onResult(uiImage?.let { `SharedImage.android.kt`(it) })
+                onResult(uiImage?.let { SharedImage(it) })
             }
         }
     }

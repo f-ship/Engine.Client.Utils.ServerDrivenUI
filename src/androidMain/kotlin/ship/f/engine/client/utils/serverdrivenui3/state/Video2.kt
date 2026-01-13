@@ -55,8 +55,7 @@ actual fun VideoState2.Video2(
             is Source2.Material2 -> src.location.toUri()
             is Source2.Resource2 -> {
                 // TODO to not hard code this, may have to come from the src itself
-                val bytes =
-                    readResourceBytes("composeResources/projectx.composeapp.generated.resources/drawable/${src.location}.mp4")
+                val bytes = readResourceBytes("composeResources/projectx.composeapp.generated.resources/drawable/${src.location}.mp4")
                 val tmp = File.createTempFile("cmp_video_", ".mp4", context.cacheDir)
                 tmpFile = tmp
                 tmp.outputStream().use { it.write(bytes) }
