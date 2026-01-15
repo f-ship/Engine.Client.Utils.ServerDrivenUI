@@ -1,8 +1,10 @@
 package ship.f.engine.client.utils.serverdrivenui3.util
 
-import android.Manifest
+import android.Manifest.permission.*
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.Build.VERSION.SDK_INT
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
@@ -10,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.PopulatedSideEffectMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.Id2
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 
 // CameraManager.android.kt
 @Composable
@@ -46,12 +49,20 @@ fun RequestCameraAndGalleryPermissions(
     }
 
     LaunchedEffect(Unit) {
+        requestPermissions(launcher)
+    }
+}
+
+fun requestPermissions(launcher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>){
+    try {
         launcher.launch(
             arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.READ_MEDIA_IMAGES
+                CAMERA,
+                if (SDK_INT > 32) READ_MEDIA_IMAGES else READ_EXTERNAL_STORAGE,
             )
         )
+    } catch (e: Exception) {
+        sduiLog("Error requesting permissions: ${e.message}", tag = "EngineX > CameraGallery2 > requestPermissions")
     }
 }
 

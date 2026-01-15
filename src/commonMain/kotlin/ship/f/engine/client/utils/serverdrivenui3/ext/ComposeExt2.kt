@@ -368,8 +368,8 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             val model = remember {
                 Builder(ctx)
                     .size(512)
-                    .diskCacheKey(id.name+id.scope)
-                    .memoryCacheKey(id.name+id.scope)
+                    .diskCacheKey(id.name+id.scope+src.location)
+                    .memoryCacheKey(id.name+id.scope+src.location)
                     .data(src.location)
                     .build()
             }
@@ -391,8 +391,8 @@ fun ImageState2.ToImage2(modifier: Modifier) {
             val model = remember(location) {
                 Builder(ctx)
                     .size(512)
-                    .diskCacheKey(id.name+id.scope)
-                    .memoryCacheKey(id.name+id.scope)
+                    .diskCacheKey(id.name+id.scope+location?.value)
+                    .memoryCacheKey(id.name+id.scope+location?.value)
                     .data(location?.value)
                     .build()
             }

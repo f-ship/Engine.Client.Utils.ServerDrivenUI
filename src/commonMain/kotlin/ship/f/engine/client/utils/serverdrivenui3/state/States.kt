@@ -7,17 +7,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -72,6 +75,27 @@ fun SpacerState2.Spacer2(
     modifier: Modifier = Modifier,
 ) {
     Spacer(modifier = modifier)
+}
+
+@Composable
+fun Shimmer2(
+    s: MutableState<ShimmerState2>,
+    m: Modifier = Modifier,
+) =  s.WithState2(m) { modifier ->
+    Shimmer2(modifier = modifier)
+}
+
+@Composable
+fun ShimmerState2.Shimmer2(
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LinearProgressIndicator(
+            modifier = Modifier.fillMaxSize().alpha(0.3f),
+            color = color.toColor2(),
+            trackColor = trackColor.toColor2(),
+        )
+    }
 }
 
 @Composable
@@ -845,7 +869,7 @@ fun Variant2(
 fun VariantState2.Variant2(
     modifier: Modifier = Modifier,
 ) {
-    val defaultVariant by remember {
+    val defaultVariant by remember(id) {
         mutableStateOf((client3.computationEngine.getValue(defaultVariant) as? StringValue)?.value)
     }
 
@@ -870,7 +894,7 @@ fun VariantState2.Variant2(
             Render(state = it)
         } ?: children.find { it.id.name == defaultVariant || it.id.alias == defaultVariant }?.let {
             Render(state = it)
-        } ?: Text("No Variant Found") // TODO this should only be here for debugging purposes
+        } ?: Text("No Variant Found").let{ sduiLog(variantValue, defaultVariant, id, tag = "Variant2 > No Variant") } // TODO this should only be here for debugging purposes
     }
 }
 
@@ -909,39 +933,43 @@ fun LazyColumn2(
 fun LazyColumnState2.LazyColumn2(
     modifier: Modifier = Modifier,
 ) {
-    val listState = rememberLazyListState()
-    LaunchedEffect(focus) {
-        focus?.let {
-            listState.animateScrollToItem(it.value)
+    val holder = rememberSaveableStateHolder()
+    holder.SaveableStateProvider(key = id.name) {
+        val listState2 = rememberSaveable(saver = LazyListState.Saver) { LazyListState(0, 0) }
+        sduiLog(id.name, listState2, tag = "EngineX > LazyColumn > listState")
+        LaunchedEffect(focus) {
+            focus?.let {
+                listState2.animateScrollToItem(it.value)
+            }
         }
-    }
 
-    LaunchedEffect(key1 = children, key2 = filteredChildren) {
-        sduiLog( children.size, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
-        sduiLog( children.map { it.id }, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
-        sduiLog(children.map { (it.metas.firstOrNull() as? ZoneViewModel3)?.map["message"] }, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
-        // TODO my theory for this bug is that I am using a mutable map so I just need to copy the map and I'll be scot free
-        // TODO However what is this issue with only retrieving 40 messages
-        // TODO restarting the server seemed to update how many chats we can get, this must be due to overly caching
-        scrollToBottom?.let {
-            listState.animateScrollToItem((filteredChildren ?: children).lastIndex)
+        LaunchedEffect(key1 = children, key2 = filteredChildren) {
+            sduiLog( children.size, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
+            sduiLog( children.map { it.id }, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
+            sduiLog(children.map { (it.metas.firstOrNull() as? ZoneViewModel3)?.map["message"] }, tag = "EngineX > LazyColumn") { id.name == "ChatMessageContainer"}
+            // TODO my theory for this bug is that I am using a mutable map so I just need to copy the map and I'll be scot free
+            // TODO However what is this issue with only retrieving 40 messages
+            // TODO restarting the server seemed to update how many chats we can get, this must be due to overly caching
+            scrollToBottom?.let {
+                listState2.animateScrollToItem((filteredChildren ?: children).lastIndex)
+            }
         }
-    }
 
-    LazyColumn(
-        state = listState,
-        verticalArrangement = arrangement.toVerticalArrangement2(),
-        horizontalAlignment = alignment.toHorizontalAlignment2(),
-        modifier = modifier,
-        contentPadding = PaddingValues(
-            start = innerPadding.start.dp,
-            end = innerPadding.end.dp,
-            top = innerPadding.top.dp,
-            bottom = innerPadding.bottom.dp
-        ),
-    ) {
-        items(items = filteredChildren ?: children) { child ->
-            Render(state = child)
+        LazyColumn(
+            state = listState2,
+            verticalArrangement = arrangement.toVerticalArrangement2(),
+            horizontalAlignment = alignment.toHorizontalAlignment2(),
+            modifier = modifier,
+            contentPadding = PaddingValues(
+                start = innerPadding.start.dp,
+                end = innerPadding.end.dp,
+                top = innerPadding.top.dp,
+                bottom = innerPadding.bottom.dp
+            ),
+        ) {
+            items(items = filteredChildren ?: children) { child ->
+                Render(state = child)
+            }
         }
     }
 }
