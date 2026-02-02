@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -855,6 +856,16 @@ fun BoxState2.Box2(
             )
         }
     }
+}
+
+@Composable
+fun Promise(
+    s: MutableState<RefState2>,
+    m: Modifier = Modifier,
+) = s.WithState2(m) { modifier ->
+    sduiLog("Rendering a promise with ${s.value.path3} ${s.value.counter}")
+    client3.getReactiveOrNull<State2>(s.value.path3)?.let { Render(s.value,m) }
+        ?: if (s.value.showWarning) Text("${s.value.id} is not available right now", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) else Box(modifier = modifier)
 }
 
 @Composable

@@ -1,10 +1,9 @@
 package ship.f.engine.client.utils.serverdrivenui3
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import ship.f.engine.client.utils.serverdrivenui3.ext.WithState2
 import ship.f.engine.client.utils.serverdrivenui3.state.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
@@ -43,37 +42,41 @@ fun RenderDynamic(
 ) {
     client.apply {
         when (state) {
-            is BoxState2 -> getReactiveOrNull<BoxState2>(state.path3)?.let { Box2(it, modifier) } ?: Text("This view is not available right now")
-            is ButtonState2 -> getReactiveOrNull<ButtonState2>(state.path3)?.let { Button2(it, modifier) } ?: Text("This view is not available right now")
-            is CardState2 -> getReactiveOrNull<CardState2>(state.path3)?.let { Card2(it, modifier) } ?: Text("This view is not available right now")
-            is CheckboxState2 -> getReactiveOrNull<CheckboxState2>(state.path3)?.let { CheckBox2(it, modifier) } ?: Text("This view is not available right now")
-            is ColumnState2 -> getReactiveOrNull<ColumnState2>(state.path3)?.let { Column2(it, modifier) } ?: Text("This view is not available right now")
-            is HorizontalDividerState2 -> getReactiveOrNull<HorizontalDividerState2>(state.path3)?.let { HorizontalDivider2(it, modifier) } ?: Text("This view is not available right now")
-            is ImageState2 -> getReactiveOrNull<ImageState2>(state.path3)?.let { Image2(it, modifier) } ?: Text("This view is not available right now")
-            is VideoState2 -> getReactiveOrNull<VideoState2>(state.path3)?.let { Video2(it, modifier) } ?: Text("This view is not available right now")
-            is LazyColumnState2 -> getReactiveOrNull<LazyColumnState2>(state.path3)?.let { LazyColumn2(it, modifier) } ?: Text("This view is not available right now")
-            is LazyGridState2 -> getReactiveOrNull<LazyGridState2>(state.path3)?.let { LazyGrid2(it, modifier) } ?: Text("This view is not available right now")
-            is LazyRowState2 -> getReactiveOrNull<LazyRowState2>(state.path3)?.let { LazyRow2(it, modifier) } ?: Text("This view is not available right now")
-            is RowState2 -> getReactiveOrNull<RowState2>(state.path3)?.let { Row2(it, modifier) } ?: Text("This view is not available right now")
-            is FlowRowState2 -> getReactiveOrNull<FlowRowState2>(state.path3)?.let { FlowRow2(it, modifier) } ?: Text("This view is not available right now")
-            is ScreenState2 -> getReactiveOrNull<ScreenState2>(state.path3)?.let { Screen2(it, modifier) } ?: Text("This view is not available right now")
-            is ScaffoldState2 -> getReactiveOrNull<ScaffoldState2>(state.path3)?.let { Scaffold2(it, modifier) } ?: Text("This view is not available right now")
-            is SpacerState2 -> getReactiveOrNull<SpacerState2>(state.path3)?.let { Spacer2(it, modifier) } ?: Text("This view is not available right now")
-            is ShimmerState2 -> getReactiveOrNull<ShimmerState2>(state.path3)?.let { Shimmer2(it, modifier) } ?: Text("This view is not available right now")
-            is SwitchState2 -> getReactiveOrNull<SwitchState2>(state.path3)?.let { Switch2(it, modifier) } ?: Text("This view is not available right now")
-            is SearchState2 -> getReactiveOrNull<SearchState2>(state.path3)?.let { Search2(it, modifier) } ?: Text("This view is not available right now")
-            is TextFieldState2 -> getReactiveOrNull<TextFieldState2>(state.path3)?.let { TextField2(it, modifier) } ?: Text("This view is not available right now")
-            is TextState2 -> getReactiveOrNull<TextState2>(state.path3)?.let { Text2(it, modifier) } ?: Text("This view is not available right now")
-            is VerticalDividerState2 -> getReactiveOrNull<VerticalDividerState2>(state.path3)?.let { VerticalDivider2(it, modifier) } ?: Text("This view is not available right now")
-            is DropDownState2 -> getReactiveOrNull<DropDownState2>(state.path3)?.let { DropDown2(it, modifier) } ?: Text("This view is not available right now")
-            is BuilderState2 -> getReactiveOrNull<BuilderState2>(state.path3)?.let { Builder2(it, modifier) } ?: Text("This view is not available right now")
-            is FadeInState2 -> getReactiveOrNull<FadeInState2>(state.path3)?.let { FadeIn2(it, modifier) } ?: Text("This view is not available right now")
-            is UnknownState2 -> getReactiveOrNull<UnknownState2>(state.path3)?.let { Unknown2(it, modifier) } ?: Text("This view is not available right now")
-            is CameraGalleryState2 -> getReactiveOrNull<CameraGalleryState2>(state.path3)?.let { CameraGallery2(it, modifier) } ?: Text("This view is not available right now")
-            is WebViewState2 -> getReactiveOrNull<WebViewState2>(state.path3)?.let { WebView2(it, modifier) } ?: Text("This view is not available right now")
-            is DialogState2 -> getReactiveOrNull<DialogState2>(state.path3)?.let { Dialog2(it, modifier) } ?: Text("This view is not available right now")
-            is VariantState2 -> getReactiveOrNull<VariantState2>(state.path3)?.let { Variant2(it, modifier) } ?: Text("This view is not available right now")
-            is RefState2 -> getReactiveOrNull<State2>(state.path3)?.let { Render(state = it.value, modifier = modifier) } ?: Text("This view is not available right now", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            is BoxState2 -> getReactiveOrNull<BoxState2>(state.path3)?.let { Box2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is ButtonState2 -> getReactiveOrNull<ButtonState2>(state.path3)?.let { Button2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is CardState2 -> getReactiveOrNull<CardState2>(state.path3)?.let { Card2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is CheckboxState2 -> getReactiveOrNull<CheckboxState2>(state.path3)?.let { CheckBox2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is ColumnState2 -> getReactiveOrNull<ColumnState2>(state.path3)?.let { Column2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is HorizontalDividerState2 -> getReactiveOrNull<HorizontalDividerState2>(state.path3)?.let { HorizontalDivider2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is ImageState2 -> getReactiveOrNull<ImageState2>(state.path3)?.let { Image2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is VideoState2 -> getReactiveOrNull<VideoState2>(state.path3)?.let { Video2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is LazyColumnState2 -> getReactiveOrNull<LazyColumnState2>(state.path3)?.let { LazyColumn2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is LazyGridState2 -> getReactiveOrNull<LazyGridState2>(state.path3)?.let { LazyGrid2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is LazyRowState2 -> getReactiveOrNull<LazyRowState2>(state.path3)?.let { LazyRow2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is RowState2 -> getReactiveOrNull<RowState2>(state.path3)?.let { Row2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is FlowRowState2 -> getReactiveOrNull<FlowRowState2>(state.path3)?.let { FlowRow2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is ScreenState2 -> getReactiveOrNull<ScreenState2>(state.path3)?.let { Screen2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is ScaffoldState2 -> getReactiveOrNull<ScaffoldState2>(state.path3)?.let { Scaffold2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is SpacerState2 -> getReactiveOrNull<SpacerState2>(state.path3)?.let { Spacer2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is ShimmerState2 -> getReactiveOrNull<ShimmerState2>(state.path3)?.let { Shimmer2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is SwitchState2 -> getReactiveOrNull<SwitchState2>(state.path3)?.let { Switch2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is SearchState2 -> getReactiveOrNull<SearchState2>(state.path3)?.let { Search2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is TextFieldState2 -> getReactiveOrNull<TextFieldState2>(state.path3)?.let { TextField2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is TextState2 -> getReactiveOrNull<TextState2>(state.path3)?.let { Text2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is VerticalDividerState2 -> getReactiveOrNull<VerticalDividerState2>(state.path3)?.let { VerticalDivider2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is DropDownState2 -> getReactiveOrNull<DropDownState2>(state.path3)?.let { DropDown2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is BuilderState2 -> getReactiveOrNull<BuilderState2>(state.path3)?.let { Builder2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is FadeInState2 -> getReactiveOrNull<FadeInState2>(state.path3)?.let { FadeIn2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is UnknownState2 -> getReactiveOrNull<UnknownState2>(state.path3)?.let { Unknown2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is CameraGalleryState2 -> getReactiveOrNull<CameraGalleryState2>(state.path3)?.let { CameraGallery2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is WebViewState2 -> getReactiveOrNull<WebViewState2>(state.path3)?.let { WebView2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is DialogState2 -> getReactiveOrNull<DialogState2>(state.path3)?.let { Dialog2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is VariantState2 -> getReactiveOrNull<VariantState2>(state.path3)?.let { Variant2(it, modifier) } ?: Text("${state.id} is not available right now")
+            is RefState2 -> getReactiveOrNull<State2>(state.path3)?.let { Render(state = it.value, modifier = modifier) }
+                ?: state.let {
+                    client3.promises[state.path3] = client3.promises[state.path3] ?: mutableStateOf(state)
+                    Promise(client3.promises[state.path3]!!, modifier)
+                }
         }
     }
 }
