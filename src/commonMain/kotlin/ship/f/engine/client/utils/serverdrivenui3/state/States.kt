@@ -431,6 +431,7 @@ fun Image2(
 fun ImageState2.Image2(
     modifier: Modifier = Modifier,
 ) {
+    sduiLog("Updating Image ${id.name} for $src", tag = "EngineX > Image2")
     ToImage2(addOnClick(modifier = modifier))
 }
 

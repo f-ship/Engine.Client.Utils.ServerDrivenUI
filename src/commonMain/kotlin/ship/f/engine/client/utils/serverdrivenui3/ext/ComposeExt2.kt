@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest.Builder
+import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import org.jetbrains.compose.resources.painterResource
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.*
@@ -396,6 +397,7 @@ fun ImageState2.ToImage2(modifier: Modifier) {
                     .data(location?.value)
                     .build()
             }
+            sduiLog("updating ${id.name} for $location", tag = "EngineX > Image2 > LiveUrl2")
             AsyncImage(
                 model = model,
                 contentDescription = contentDescription,
@@ -404,6 +406,16 @@ fun ImageState2.ToImage2(modifier: Modifier) {
                     /* TODO to use proper SDUI logging */
                     println("BizClik Error loading image: ${it.result.throwable}")
                 },
+                contentScale = contentScale.toContentScale2(),
+            )
+        }
+
+        is QrCode2 -> {
+            val painter = rememberQrCodePainter(src.location)
+            Image(
+                painter = painter,
+                modifier = modifier.clip(shape.toShape2()),
+                contentDescription = contentDescription,
                 contentScale = contentScale.toContentScale2(),
             )
         }

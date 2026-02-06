@@ -64,6 +64,7 @@ actual fun VideoState2.Video2(
 
             is Source2.Url2 -> src.location.toUri()
             is Source2.LiveUrl2 -> TODO()
+            is Source2.QrCode2 -> TODO()
         }
         exoPlayer.setMediaItem(MediaItem.fromUri(uri))
         exoPlayer.prepare()

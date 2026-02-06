@@ -63,6 +63,7 @@ kotlin {
             implementation("io.coil-kt.coil3:coil-network-ktor3:3.3.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+            implementation("io.github.alexzhirkevich:qrose:1.1.1")
         }
         androidMain.dependencies {
 //            implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
