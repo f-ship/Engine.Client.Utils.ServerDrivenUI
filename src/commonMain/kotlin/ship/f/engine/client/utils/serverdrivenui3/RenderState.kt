@@ -3,6 +3,7 @@ package ship.f.engine.client.utils.serverdrivenui3
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import ship.f.engine.client.utils.serverdrivenui3.ext.WithState2
 import ship.f.engine.client.utils.serverdrivenui3.state.*
@@ -24,7 +25,6 @@ fun Render(
                 state = state,
                 modifier = modifier
             )
-
             is Path3.Local, is Path3.Global -> RenderDynamic(
                 state = state,
                 modifier = modifier,
@@ -72,11 +72,10 @@ fun RenderDynamic(
             is WebViewState2 -> getReactiveOrNull<WebViewState2>(state.path3)?.let { WebView2(it, modifier) } ?: Text("${state.id} is not available right now")
             is DialogState2 -> getReactiveOrNull<DialogState2>(state.path3)?.let { Dialog2(it, modifier) } ?: Text("${state.id} is not available right now")
             is VariantState2 -> getReactiveOrNull<VariantState2>(state.path3)?.let { Variant2(it, modifier) } ?: Text("${state.id} is not available right now")
-            is RefState2 -> getReactiveOrNull<State2>(state.path3)?.let { Render(state = it.value, modifier = modifier) }
-                ?: state.let {
-                    client3.promises[state.path3] = client3.promises[state.path3] ?: mutableStateOf(state)
-                    Promise(client3.promises[state.path3]!!, modifier)
-                }
+            is RefState2 -> getReactiveOrNull<State2>(state.path3)?.let { Render(state = it.value, modifier = modifier) } ?: state.let {
+                val promise = remember(state.path3){ mutableStateOf(state) }
+                Promise(promise, modifier)
+            }
         }
     }
 }

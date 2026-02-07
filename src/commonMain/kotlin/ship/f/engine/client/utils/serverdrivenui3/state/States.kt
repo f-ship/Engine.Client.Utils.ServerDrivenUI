@@ -864,9 +864,36 @@ fun Promise(
     s: MutableState<RefState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
-    sduiLog("Rendering a promise with ${s.value.path3} ${s.value.counter}")
-    client3.getReactiveOrNull<State2>(s.value.path3)?.let { Render(s.value,m) }
-        ?: if (s.value.showWarning) Text("${s.value.id} is not available right now", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) else Box(modifier = modifier)
+    sduiLog("Rendering a promise with ${s.value.path3} ${s.value.counter}", tag = "EngineX > promise")
+    val state = client3.getReactiveOrNull<State2>(s.value.path3)
+    if (state != null) {
+        sduiLog("Promise resolved for ${s.value.path3}", tag = "EngineX > promise")
+        Render(s.value,m)
+    } else {
+        if (s.value.showWarning) Text(
+            text ="${s.value.id} is not available right now",
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) else Box(modifier = modifier)
+    }
+
+    LaunchedEffect(s.value.counter) {
+        if (s.value.counter > 10){
+            sduiLog("promise timed out", tag = "EngineX > promise")
+            client3.removePromise(s.value.path3)
+        } else {
+            val state = client3.getReactiveOrNull<State2>(s.value.path3)
+            if (state != null) {
+                sduiLog("removing", tag = "EngineX > promise")
+                client3.removePromise(s.value.path3)?.let {
+                    it.value = it.value.reset() // to ensure the UI is in at least a single interval
+                }
+            } else {
+                sduiLog("adding", tag = "EngineX > promise")
+                client3.addPromise(s.value.path3, s)
+            }
+        }
+    }
 }
 
 @Composable
@@ -898,6 +925,7 @@ fun VariantState2.Variant2(
             }
         )
     }
+
     Box(
         modifier = modifier,
         contentAlignment = alignment.to2DAlignment2()
