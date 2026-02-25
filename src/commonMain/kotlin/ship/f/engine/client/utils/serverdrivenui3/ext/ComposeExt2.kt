@@ -134,58 +134,58 @@ fun TextAlign2.toTextAlign2() = when (this) {
 }
 
 @Composable
-fun ColorScheme2.Color2.toColor2() = when (this) {
-    is ColorScheme2.Color2.Background -> MaterialTheme.colorScheme.background
-    is ColorScheme2.Color2.Error -> MaterialTheme.colorScheme.error
-    is ColorScheme2.Color2.ErrorContainer -> MaterialTheme.colorScheme.errorContainer
-    is ColorScheme2.Color2.InverseOnSurface -> MaterialTheme.colorScheme.inverseOnSurface
-    is ColorScheme2.Color2.InversePrimary -> MaterialTheme.colorScheme.inversePrimary
-    is ColorScheme2.Color2.InverseSurface -> MaterialTheme.colorScheme.inverseSurface
-    is ColorScheme2.Color2.OnBackground -> MaterialTheme.colorScheme.onBackground
-    is ColorScheme2.Color2.OnError -> MaterialTheme.colorScheme.onError
-    is ColorScheme2.Color2.OnErrorContainer -> MaterialTheme.colorScheme.onErrorContainer
-    is ColorScheme2.Color2.OnPrimary -> MaterialTheme.colorScheme.onPrimary
-    is ColorScheme2.Color2.OnPrimaryContainer -> MaterialTheme.colorScheme.onPrimaryContainer
-    is ColorScheme2.Color2.OnSecondary -> MaterialTheme.colorScheme.onSecondary
-    is ColorScheme2.Color2.OnSecondaryContainer -> MaterialTheme.colorScheme.onSecondaryContainer
-    is ColorScheme2.Color2.OnSurface -> MaterialTheme.colorScheme.onSurface
-    is ColorScheme2.Color2.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
-    is ColorScheme2.Color2.OnTertiary -> MaterialTheme.colorScheme.onTertiary
-    is ColorScheme2.Color2.OnTertiaryContainer -> MaterialTheme.colorScheme.onTertiaryContainer
-    is ColorScheme2.Color2.Outline -> MaterialTheme.colorScheme.outline
-    is ColorScheme2.Color2.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
-    is ColorScheme2.Color2.Primary -> MaterialTheme.colorScheme.primary
-    is ColorScheme2.Color2.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
-    is ColorScheme2.Color2.Scrim -> MaterialTheme.colorScheme.scrim
-    is ColorScheme2.Color2.Secondary -> MaterialTheme.colorScheme.secondary
-    is ColorScheme2.Color2.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
-    is ColorScheme2.Color2.Surface -> MaterialTheme.colorScheme.surface
-    is ColorScheme2.Color2.SurfaceBright -> MaterialTheme.colorScheme.surfaceBright
-    is ColorScheme2.Color2.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
-    is ColorScheme2.Color2.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
-    is ColorScheme2.Color2.SurfaceContainerHighest -> MaterialTheme.colorScheme.surfaceContainerHighest
-    is ColorScheme2.Color2.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
-    is ColorScheme2.Color2.SurfaceContainerLowest -> MaterialTheme.colorScheme.surfaceContainerLowest
-    is ColorScheme2.Color2.SurfaceDim -> MaterialTheme.colorScheme.surfaceDim
-    is ColorScheme2.Color2.SurfaceTint -> MaterialTheme.colorScheme.surfaceTint
-    is ColorScheme2.Color2.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
-    is ColorScheme2.Color2.Tertiary -> MaterialTheme.colorScheme.tertiary
-    is ColorScheme2.Color2.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-    is ColorScheme2.Color2.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
-    is ColorScheme2.Color2.CustomColor2 -> Color(color = color).copy(alpha = alpha)
-    is ColorScheme2.Color2.Transparent -> Color.Transparent
-    is ColorScheme2.Color2.Unspecified -> Color.Unspecified
-    is ColorScheme2.Color2.Gradient -> Color.Unspecified.also { println("Gradient is not supported") }
+fun Color2.toColor2() = when (this) {
+    is Color2.Background -> MaterialTheme.colorScheme.background
+    is Color2.Error -> MaterialTheme.colorScheme.error
+    is Color2.ErrorContainer -> MaterialTheme.colorScheme.errorContainer
+    is Color2.InverseOnSurface -> MaterialTheme.colorScheme.inverseOnSurface
+    is Color2.InversePrimary -> MaterialTheme.colorScheme.inversePrimary
+    is Color2.InverseSurface -> MaterialTheme.colorScheme.inverseSurface
+    is Color2.OnBackground -> MaterialTheme.colorScheme.onBackground
+    is Color2.OnError -> MaterialTheme.colorScheme.onError
+    is Color2.OnErrorContainer -> MaterialTheme.colorScheme.onErrorContainer
+    is Color2.OnPrimary -> MaterialTheme.colorScheme.onPrimary
+    is Color2.OnPrimaryContainer -> MaterialTheme.colorScheme.onPrimaryContainer
+    is Color2.OnSecondary -> MaterialTheme.colorScheme.onSecondary
+    is Color2.OnSecondaryContainer -> MaterialTheme.colorScheme.onSecondaryContainer
+    is Color2.OnSurface -> MaterialTheme.colorScheme.onSurface
+    is Color2.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
+    is Color2.OnTertiary -> MaterialTheme.colorScheme.onTertiary
+    is Color2.OnTertiaryContainer -> MaterialTheme.colorScheme.onTertiaryContainer
+    is Color2.Outline -> MaterialTheme.colorScheme.outline
+    is Color2.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
+    is Color2.Primary -> MaterialTheme.colorScheme.primary
+    is Color2.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
+    is Color2.Scrim -> MaterialTheme.colorScheme.scrim
+    is Color2.Secondary -> MaterialTheme.colorScheme.secondary
+    is Color2.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
+    is Color2.Surface -> MaterialTheme.colorScheme.surface
+    is Color2.SurfaceBright -> MaterialTheme.colorScheme.surfaceBright
+    is Color2.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
+    is Color2.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
+    is Color2.SurfaceContainerHighest -> MaterialTheme.colorScheme.surfaceContainerHighest
+    is Color2.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
+    is Color2.SurfaceContainerLowest -> MaterialTheme.colorScheme.surfaceContainerLowest
+    is Color2.SurfaceDim -> MaterialTheme.colorScheme.surfaceDim
+    is Color2.SurfaceTint -> MaterialTheme.colorScheme.surfaceTint
+    is Color2.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
+    is Color2.Tertiary -> MaterialTheme.colorScheme.tertiary
+    is Color2.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
+    is Color2.AlphaColor2 -> Color.Black.copy(alpha = 0.5f) // TODO to fix by using proper sealed class hierarchy
+    is Color2.CustomColor2 -> Color(color = color).copy(alpha = alpha)
+    is Color2.Transparent -> Color.Transparent
+    is Color2.Unspecified -> Color.Unspecified
+    is Color2.Gradient -> Color.Unspecified.also { println("Gradient is not supported") }
 }
 
 @Composable
-fun ColorScheme2.Color2.toBrush() = when (this) {
-    is ColorScheme2.Color2.Gradient -> when (direction) {
-        is ColorScheme2.Color2.Gradient.GradientDirection.Horizontal -> Brush.horizontalGradient(colors.map {
+fun Color2.toBrush() = when (this) {
+    is Color2.Gradient -> when (direction) {
+        is Color2.Gradient.GradientDirection.Horizontal -> Brush.horizontalGradient(colors.map {
             it.color.toColor2().copy(alpha = it.alpha)
         })
 
-        is ColorScheme2.Color2.Gradient.GradientDirection.Vertical -> Brush.verticalGradient(colors.map {
+        is Color2.Gradient.GradientDirection.Vertical -> Brush.verticalGradient(colors.map {
             it.color.toColor2().copy(alpha = it.alpha)
         })
     }
@@ -197,7 +197,7 @@ fun ColorScheme2.Color2.toBrush() = when (this) {
 fun Draw2.toModifier2() = when (val draw = this) {
     is Draw2.Behind2.Circle2 -> {
         when (color) {
-            is ColorScheme2.Color2.Gradient -> {
+            is Color2.Gradient -> {
                 val brush = color.toBrush()
                 Modifier.drawBehind {
                     drawCircle(
@@ -221,7 +221,7 @@ fun Draw2.toModifier2() = when (val draw = this) {
 
     is Draw2.Behind2.Rectangle2 -> {
         when (color) {
-            is ColorScheme2.Color2.Gradient -> {
+            is Color2.Gradient -> {
                 val brush = color.toBrush()
                 Modifier.drawBehind {
                     val path = rectangleToPath(this@toModifier2)
@@ -239,7 +239,7 @@ fun Draw2.toModifier2() = when (val draw = this) {
     }
 
     is Draw2.Border2 -> Modifier
-        .then( if (fill !is ColorScheme2.Color2.Unspecified) Modifier.background(fill.toColor2(), shape = shape.toShape2()) else Modifier)
+        .then( if (fill !is Color2.Unspecified) Modifier.background(fill.toColor2(), shape = shape.toShape2()) else Modifier)
         .border(width = width.dp, color = color.toColor2(), shape = shape.toShape2())
         .then(padding.toModifier2())
 

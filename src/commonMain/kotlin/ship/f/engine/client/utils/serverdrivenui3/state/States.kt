@@ -49,12 +49,12 @@ import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.clie
 import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.UpdateZoneModel3
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.JsonMeta2
 import ship.f.engine.shared.utils.serverdrivenui2.config.meta.models.ZoneViewModel3
-import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.ColorScheme2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.FontWeight2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.IMEType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.UIType2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.LiveValue3
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.Ref3
+import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.Color2
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.ListValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.SingleConditionalValue
 import ship.f.engine.shared.utils.serverdrivenui2.config.state.models.computation.value.StringValue
@@ -111,6 +111,14 @@ fun Text2(
 fun TextState2.Text2(
     modifier: Modifier = Modifier,
 ) {
+    var color by remember(counter) {
+        mutableStateOf(
+            liveColor?.let {
+                client3.computationEngine.computeConditionalValue(it as SingleConditionalValue, state2 = this)
+            } as? Color2 ?: color
+        )
+    }
+
     var value by remember(text) {
         mutableStateOf(
             liveText3?.let {
@@ -176,7 +184,7 @@ fun TextState2.Text2(
                     style = textStyle.toTextStyle2(fontWeight),
                     textAlign = textAlign.toTextAlign2(),
                     textDecoration =  TextDecoration.Underline,
-                    color = ColorScheme2.Color2.Primary.toColor2(),
+                    color = Color2.Primary.toColor2(),
                     modifier = padding.toModifier2().fillMaxWidth().clickable(enabled = true, role = Role.Button) {
                         showingMore = !showingMore
                         value = text
@@ -215,7 +223,7 @@ fun TextFieldState2.TextField2(
                 if (validations.any { it.isRequired} ) {
                     Text(
                         text = "*",
-                        color = ColorScheme2.Color2.Primary.toColor2(),
+                        color = Color2.Primary.toColor2(),
                     )
                 }
             }
@@ -689,7 +697,7 @@ fun DropDownState2.DropDown2(
                 modifier = Modifier.padding(start = 8.dp).weight(1f) //TODO may be unnecessary
             )
             if (isExpanded) arrowDropUpIcon?.ToImage2(Modifier) else {
-                if (selectedItems.value?.isNotEmpty() == true) arrowDropDownIcon?.copy(color = ColorScheme2.Color2.Primary)
+                if (selectedItems.value?.isNotEmpty() == true) arrowDropDownIcon?.copy(color = Color2.Primary)
                     ?.ToImage2(Modifier)
                 else arrowDropDownIcon?.ToImage2(Modifier)
             }
