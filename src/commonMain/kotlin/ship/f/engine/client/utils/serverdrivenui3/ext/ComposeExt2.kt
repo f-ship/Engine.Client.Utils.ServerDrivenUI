@@ -1,5 +1,6 @@
 package ship.f.engine.client.utils.serverdrivenui3.ext
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -680,3 +682,28 @@ fun Modifier.crop(
     }
 }
 
+fun Modifier.shimmer(): Modifier = composed {
+
+    val transition = rememberInfiniteTransition()
+
+    val translateAnim = transition.animateFloat(
+        initialValue = -1000f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    val brush = Brush.linearGradient(
+        colors = listOf(
+            Color.LightGray.copy(alpha = 0.6f),
+            Color.LightGray.copy(alpha = 0.2f),
+            Color.LightGray.copy(alpha = 0.6f),
+        ),
+        start = Offset(translateAnim.value, 0f),
+        end = Offset(translateAnim.value + 300f, 0f)
+    )
+
+    background(brush)
+}

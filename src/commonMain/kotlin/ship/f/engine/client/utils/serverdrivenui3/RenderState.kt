@@ -10,6 +10,7 @@ import ship.f.engine.client.utils.serverdrivenui3.state.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Path3
+import ship.f.engine.shared.utils.serverdrivenui2.ext.sduiLog
 import ship.f.engine.shared.utils.serverdrivenui2.state.*
 
 @Composable
@@ -40,6 +41,7 @@ fun RenderDynamic(
     modifier: Modifier = Modifier,
     client: Client3 = client3
 ) {
+    sduiLog("Rendering Dynamic ${state.id}", tag = "EngineX > Dynamic") { state is RefState2 }
     client.apply {
         when (state) {
             is BoxState2 -> getReactiveOrNull<BoxState2>(state.path3)?.let { Box2(it, modifier) } ?: Text("${state.id} is not available right now")
@@ -74,8 +76,10 @@ fun RenderDynamic(
             is VariantState2 -> getReactiveOrNull<VariantState2>(state.path3)?.let { Variant2(it, modifier) } ?: Text("${state.id} is not available right now")
             is RefState2 -> getReactiveOrNull<State2>(state.path3)?.let { Render(state = it.value, modifier = modifier) } ?: state.let {
                 val promise = remember(state.path3){ mutableStateOf(state) }
-                Promise(promise, modifier)
+                client.addPromise(path = state.path3, promise = promise)
+                Ref(promise, modifier)
             }
+            is PromiseState2 -> TODO()
         }
     }
 }
@@ -85,6 +89,7 @@ fun RenderStatic(
     state: State2,
     modifier: Modifier = Modifier,
 ) {
+    sduiLog("Rendering Static ${state.id}", tag = "EngineX > RenderStatic") { state is RefState2 }
     state.WithState2(modifier) { modifier ->
         when (state) {
             is BoxState2 -> state.Box2(modifier = modifier)
@@ -118,6 +123,7 @@ fun RenderStatic(
             is DialogState2 -> state.Dialog2(modifier = modifier)
             is VariantState2 -> state.Variant2(modifier = modifier)
             is RefState2 -> Render(state = client3.getReactive<State2>(state.path3).value, modifier = modifier)
+            is PromiseState2 -> TODO()
         }
     }
 }

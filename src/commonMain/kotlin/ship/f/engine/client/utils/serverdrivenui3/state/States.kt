@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,7 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -41,9 +42,12 @@ import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
 import com.multiplatform.webview.web.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 import ship.f.engine.client.utils.serverdrivenui3.Render
+import ship.f.engine.client.utils.serverdrivenui3.RenderStatic
 import ship.f.engine.client.utils.serverdrivenui3.ext.*
 import ship.f.engine.shared.utils.serverdrivenui2.client3.Client3.Companion.client3
 import ship.f.engine.shared.utils.serverdrivenui2.config.action.models.UpdateZoneModel3
@@ -90,11 +94,23 @@ fun Shimmer2(
 fun ShimmerState2.Shimmer2(
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        LinearProgressIndicator(
-            modifier = Modifier.fillMaxSize().alpha(0.3f),
-            color = color.toColor2(),
-            trackColor = trackColor.toColor2(),
+//    Box(modifier = modifier.fillMaxSize()) {
+//        LinearProgressIndicator(
+//            modifier = Modifier.fillMaxSize().alpha(0.3f),
+//            color = color.toColor2(),
+//            trackColor = trackColor.toColor2(),
+//        )
+//    }
+
+    Box(
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .fillMaxSize()
+                .then(padding.toModifier2())
+                .shimmer()
         )
     }
 }
@@ -868,39 +884,41 @@ fun BoxState2.Box2(
 }
 
 @Composable
-fun Promise(
+fun Ref(
     s: MutableState<RefState2>,
     m: Modifier = Modifier,
 ) = s.WithState2(m) { modifier ->
+    // TODO need to update the promise probably manually so that this will rerender but remove the show shimmer tag
+    // TODO use a promise id that can be shared (For now will just be id name)
     sduiLog("Rendering a promise with ${s.value.path3} ${s.value.counter}", tag = "EngineX > promise")
-    val state = client3.getReactiveOrNull<State2>(s.value.path3)
-    if (state != null) {
-        sduiLog("Promise resolved for ${s.value.path3}", tag = "EngineX > promise")
-        Render(s.value,m)
-    } else {
-        if (s.value.showWarning) Text(
-            text ="${s.value.id} is not available right now",
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) else Box(modifier = modifier)
-    }
-
-    LaunchedEffect(s.value.counter) {
-        if (s.value.counter > 10){
-            sduiLog("promise timed out", tag = "EngineX > promise")
-            client3.removePromise(s.value.path3)
-        } else {
-            val state = client3.getReactiveOrNull<State2>(s.value.path3)
-            if (state != null) {
-                sduiLog("removing", tag = "EngineX > promise")
-                client3.removePromise(s.value.path3)?.let {
-                    it.value = it.value.reset() // to ensure the UI is in at least a single interval
-                }
-            } else {
-                sduiLog("adding", tag = "EngineX > promise")
-                client3.addPromise(s.value.path3, s)
+    var timedOut by remember(s.value.path3) { mutableStateOf(false) }
+    LaunchedEffect(s.value.path3) {
+        withContext(Dispatchers.Default) {
+            delay(s.value.timeoutMillis)
+            withContext(Dispatchers.Main) {
+                sduiLog("timed out", tag = "RefState > Timed Out")
+                timedOut = true
             }
         }
+    }
+    val state = client3.getReactiveOrNull<State2>(s.value.path3)
+    when {
+        state != null -> {
+            sduiLog("Promise resolved for ${s.value.path3}", tag = "EngineX > promise")
+            Render(s.value,m)
+        }
+        timedOut -> Box(Modifier)
+        else ->  {
+            if (s.value.showWarning) Text(
+                text ="${s.value.id} is not available right now",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) else RenderStatic(s.value.fallback)
+        }
+    }
+
+    LaunchedEffect(s.value.path3) {
+        client3.addPromise(s.value.path3, s)
     }
 }
 
