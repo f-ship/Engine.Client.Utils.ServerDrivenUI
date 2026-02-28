@@ -58,6 +58,7 @@ actual fun CameraGalleryState2.CameraGallery2(
             }
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
+                sduiLog(bytes?.size, tag = "camera upload byte size")
                 bytes?.let { b -> update { copy(bytes = b) } }
                 it?.toImageBitmap()
             }
@@ -75,6 +76,7 @@ actual fun CameraGalleryState2.CameraGallery2(
             }
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
+                sduiLog(bytes?.size, tag = "camera upload byte size")
                 bytes?.let { b -> update { copy(bytes = b) } }
                 it?.toImageBitmap()
             }
