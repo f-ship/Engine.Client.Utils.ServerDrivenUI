@@ -59,7 +59,12 @@ actual fun CameraGalleryState2.CameraGallery2(
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
                 sduiLog(bytes?.size, tag = "camera upload byte size")
-                bytes?.let { b -> update { copy(bytes = b) } }
+                bytes?.let { b ->
+                    val update = copy(bytes = b)
+                    update { update }
+//                    client3.states[path3] = update
+                    sduiLog(client3.states.values.map{ it.id }.filter{ it.name == "CameraGallery"}, tag = "EngineX > CameraGallery2 > encode")
+                }
                 it?.toImageBitmap()
             }
             imageBitmap = bitmap
@@ -77,7 +82,12 @@ actual fun CameraGalleryState2.CameraGallery2(
             val bitmap = withContext(Dispatchers.Default) {
                 val bytes = it?.toByteArray()
                 sduiLog(bytes?.size, tag = "camera upload byte size")
-                bytes?.let { b -> update { copy(bytes = b) } }
+                bytes?.let { b ->
+                    val update = copy(bytes = b)
+                    update { update }
+//                    client3.states[path3] = update
+                    sduiLog(client3.states.values.map{ it.id }.filter{ it.name == "CameraGallery"}, tag = "EngineX > CameraGallery2 > encode")
+                }
                 it?.toImageBitmap()
             }
             imageBitmap = bitmap

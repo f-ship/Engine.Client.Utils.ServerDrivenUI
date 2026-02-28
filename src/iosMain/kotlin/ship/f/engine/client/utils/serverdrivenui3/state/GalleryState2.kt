@@ -52,9 +52,6 @@ actual fun CameraGalleryState2.CameraGallery2(
                     bmp to b64
                 }
 
-                // Update your SDUI state (same as Android)
-                update { copy(encodedBytes = base64) }
-
                 imageBitmap = bitmap
             }
         }
