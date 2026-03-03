@@ -88,6 +88,7 @@ actual fun VideoState2.Video2(
             is Source2.Resource2 -> mp4UrlFromComposeResources(s.location)
             is Source2.Url2 -> NSURL.URLWithString(s.location)
             is Source2.LiveUrl2 -> null
+            is Source2.QrCode2 -> null
         }
         sduiLog(url, tag = "EngineX > Video2 > iOS")
 
